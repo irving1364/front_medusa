@@ -4,18 +4,18 @@ import type { Property } from "@/types"
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || ""
 
-/**
- * In the browser, use the Next.js proxy (/api/medusa) to avoid CORS issues.
- * On the server (SSR/build), use the direct Railway URL.
- */
-const PROXY_URL = typeof window !== "undefined" ? "/api/medusa" : BACKEND_URL
-
 let medusaClient: Medusa | null = null
 
 export function getMedusaClient(): Medusa {
   if (!medusaClient) {
+    // In the browser, use the Next.js proxy (/api/medusa) to avoid CORS.
+    // IMPORTANT: Must be an absolute URL because Medusa SDK uses `new URL()` internally.
+    const baseUrl = typeof window !== "undefined"
+      ? window.location.origin + "/api/medusa"
+      : BACKEND_URL
+
     medusaClient = new Medusa({
-      baseUrl: PROXY_URL,
+      baseUrl,
       debug: process.env.NODE_ENV === "development",
       publishableKey: PUBLISHABLE_API_KEY,
     })
