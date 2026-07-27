@@ -253,5 +253,5 @@ export function formatPrice(amount: number, currencyCode: string = "usd"): strin
   const symbols: Record<string, string> = { USD: "$", PAB: "B/.", MXN: "MX$", EUR: "\u20ac" }
   const code = currencyCode.toUpperCase()
   const sym = symbols[code] || "$"
-  return `${sym}${(amount / 100).toLocaleString("es-PA", { minimumFractionDigits: 2 })}`
+  return `${sym}${amount.toLocaleString("es-PA", { minimumFractionDigits: 0 })}`
 }
