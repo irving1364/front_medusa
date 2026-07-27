@@ -46,6 +46,10 @@ export const metadata: Metadata = {
     images: [{ url: "/images/logo-imagotipo-blanco.png", width: 1200, height: 630 }],
   },
   robots: { index: true, follow: true },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  ),
 }
 
 export default function RootLayout({
@@ -54,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${playfair.variable} h-full`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${playfair.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-dark-base text-text-primary antialiased">
         <CartProvider>
           <Loader />
