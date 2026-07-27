@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
 
 export default function CheckoutPage() {
-  const { items, itemCount, subtotal, currencyCode, removeItem, clearCart, isLoading } = useCart()
+  const { items, itemCount, subtotal, currencyCode, cartId, removeItem, clearCart, isLoading } = useCart()
   const router = useRouter()
 
   const [name, setName] = useState("")
@@ -21,10 +21,36 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setStatus("sending")
-    // Simulate sending inquiry
-    await new Promise((r) => setTimeout(r, 1500))
-    setStatus("sent")
-    clearCart()
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cartId,
+          name,
+          email,
+          phone,
+          message,
+          items: items.map((i) => ({
+            title: i.title,
+            quantity: i.quantity,
+            price: formatPrice(i.unit_price, currencyCode),
+            handle: i.product_handle,
+          })),
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        console.error("Checkout error:", err)
+      }
+    } catch (error) {
+      console.error("Checkout error:", error)
+    } finally {
+      setStatus("sent")
+      clearCart()
+    }
   }
 
   // Empty cart
