@@ -126,10 +126,14 @@ export async function getProducts(params?: {
 export async function getProductByHandle(handle: string): Promise<MedusaProduct | null> {
   const client = getMedusaClient()
   try {
-    const response = await client.store.product.retrieve(handle, {
+    // Medusa v2 doesn't support retrieving by handle via GET /store/products/:id.
+    // Instead, use the list endpoint with a handle filter.
+    const response = await client.store.product.list({
+      handle,
+      limit: 1,
       fields: "*variants,*images,*categories,*collection",
     })
-    return response.product as unknown as MedusaProduct
+    return (response.products?.[0] as unknown as MedusaProduct) || null
   } catch (error) {
     console.error(`Error fetching product ${handle}:`, error)
     return null
