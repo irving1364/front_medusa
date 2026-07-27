@@ -5,7 +5,7 @@ import { useParams, notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { FiMapPin, FiMaximize2, FiGrid, FiDroplet, FiArrowLeft, FiShare2, FiHeart, FiCheck, FiCalendar, FiTag, FiShoppingBag } from "react-icons/fi"
-import { getProductByHandle, mapMedusaProductToProperty } from "@/lib/medusa"
+import { getProductByHandle, mapMedusaProductToProperty, type MedusaProduct as MedusaProductData } from "@/lib/medusa"
 import { getFallbackByHandle } from "@/lib/fallback-properties"
 import { useCart } from "@/context/CartContext"
 import type { Property } from "@/types"
@@ -18,18 +18,31 @@ export default function PropertyDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false)
   const { addItem, isLoading: cartLoading } = useCart()
 
+  const [medusaProduct, setMedusaProduct] = useState<MedusaProductData | null>(null)
+
   const handleAddToCart = async () => {
     if (!property) return
-    // Use real Medusa variant ID if available, otherwise simulate local add for fallback
-    if (property.variantId) {
-      await addItem(property.variantId, 1)
+
+    // Always fetch the latest variant ID from Medusa to avoid stale state issues
+    let variantId = property.variantId
+    if (!variantId && medusaProduct) {
+      variantId = medusaProduct.variants[0]?.id || null
+    }
+    if (!variantId) {
+      // Try fetching the Medusa product directly
+      const freshProduct = await getProductByHandle(handle)
+      if (freshProduct) {
+        variantId = freshProduct.variants[0]?.id || null
+      }
+    }
+
+    if (variantId) {
+      await addItem(variantId, 1)
       setAddedToCart(true)
       setTimeout(() => setAddedToCart(false), 3000)
     } else {
-      // Fallback: add to cart using Medusa; if backend unavailable, show confirmation anyway
-      await addItem(`fallback_${property.id}`, 1)
-      setAddedToCart(true)
-      setTimeout(() => setAddedToCart(false), 3000)
+      // No variant ID available (fallback data) - notify user
+      alert("Esta propiedad no está disponible para agregar al carrito. Por favor, solicite información a través del formulario de contacto.")
     }
   }
 
@@ -38,12 +51,15 @@ export default function PropertyDetailPage() {
       try {
         const product = await getProductByHandle(handle)
         if (product) {
+          setMedusaProduct(product)
           setProperty(mapMedusaProductToProperty(product))
         } else {
+          setMedusaProduct(null)
           const fallback = getFallbackByHandle(handle)
           setProperty(fallback || null)
         }
       } catch {
+        setMedusaProduct(null)
         const fallback = getFallbackByHandle(handle)
         setProperty(fallback || null)
       } finally {
