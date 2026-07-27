@@ -157,7 +157,7 @@ export default function CartDrawer() {
                     Vaciar
                   </button>
                   <Link
-                    href="/contacto"
+                    href="/checkout"
                     onClick={closeCart}
                     className="flex-1 px-4 py-3 text-sm font-medium text-center text-dark-base bg-ivory rounded-lg hover:bg-ivory-light transition-all duration-300 glow-ivory-subtle"
                   >
