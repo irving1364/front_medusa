@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
 
 export default function CheckoutPage() {
-  const { items, itemCount, subtotal, currencyCode, cartId, removeItem, clearCart, isLoading } = useCart()
+  const { items, itemCount, subtotal, currencyCode, cartId, removeItem, resetCart, isLoading } = useCart()
   const router = useRouter()
 
   const [name, setName] = useState("")
@@ -49,7 +49,8 @@ export default function CheckoutPage() {
       console.error("Checkout error:", error)
     } finally {
       setStatus("sent")
-      clearCart()
+      // Use resetCart instead of clearCart to avoid API calls on a completed cart
+      resetCart()
     }
   }
 

@@ -96,15 +96,74 @@ export default function PropertyDetailPage() {
     ? [{ id: "thumb", url: property.thumbnail }]
     : []
 
+  // ── JSON-LD Structured Data for SEO ────────────────────────────
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        name: property.title,
+        description: property.description || property.subtitle || property.title,
+        image: allImages.map((img) => img.url),
+        sku: property.id,
+        brand: {
+          "@type": "Brand",
+          name: "Karven",
+        },
+        offers: {
+          "@type": "Offer",
+          price: property.price,
+          priceCurrency: property.currencyCode || "PAB",
+          availability: "https://schema.org/InStock",
+          url: typeof window !== "undefined" ? window.location.href : "",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Inicio",
+            item: typeof window !== "undefined" ? window.location.origin : "",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Propiedades",
+            item:
+              typeof window !== "undefined"
+                ? `${window.location.origin}/propiedades`
+                : "",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: property.title,
+          },
+        ],
+      },
+    ],
+  }
+
   return (
-    <div className="pt-20 min-h-screen bg-dark-base">
-      <div className="border-b border-dark-border">
-        <div className="container-custom px-4 sm:px-6 py-4">
-          <Link href="/propiedades" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-ivory-light transition-colors">
-            <FiArrowLeft className="w-4 h-4" /> Volver a propiedades
-          </Link>
+    <>
+      {/* JSON-LD Structured Data for SEO */}
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+
+      <div className="pt-20 min-h-screen bg-dark-base">
+        <div className="border-b border-dark-border">
+          <div className="container-custom px-4 sm:px-6 py-4">
+            <Link href="/propiedades" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-ivory-light transition-colors">
+              <FiArrowLeft className="w-4 h-4" /> Volver a propiedades
+            </Link>
+          </div>
         </div>
-      </div>
 
       <div className="container-custom px-4 sm:px-6 py-8">
         {/* Gallery */}
@@ -230,6 +289,7 @@ export default function PropertyDetailPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

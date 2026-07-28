@@ -6,6 +6,7 @@ import {
   addToCart as medusaAddToCart,
   removeFromCart as medusaRemoveFromCart,
   retrieveCart,
+  removeStoredCartId,
 } from "@/lib/medusa"
 import type { MedusaLineItem } from "@/lib/medusa"
 
@@ -24,6 +25,7 @@ export interface CartContextType {
   removeItem: (lineItemId: string) => Promise<void>
   clearCart: () => void
   refreshCart: () => Promise<void>
+  resetCart: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -110,7 +112,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartId])
 
   const clearCart = useCallback(() => {
-    // Remove all items sequentially
+    // Remove all items sequentially (makes API calls)
     if (!cartId) return
     setIsLoading(true)
     Promise.all(items.map((item) => medusaRemoveFromCart(cartId!, item.id)))
@@ -119,6 +121,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       })
       .finally(() => setIsLoading(false))
   }, [cartId, items])
+
+  const resetCart = useCallback(() => {
+    // Clear cart state WITHOUT API calls - used after order completion
+    setItems([])
+    setCartId(null)
+    removeStoredCartId()
+  }, [])
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
@@ -140,6 +149,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addItem,
         removeItem,
         clearCart,
+        resetCart,
         refreshCart,
       }}
     >
