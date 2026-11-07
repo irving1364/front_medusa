@@ -5,7 +5,6 @@ import Link from "next/link"
 import { FiArrowRight, FiHome } from "react-icons/fi"
 import PropertyCard from "./PropertyCard"
 import { getProducts, mapMedusaProductToProperty } from "@/lib/medusa"
-import { FALLBACK_PROPERTIES } from "@/lib/fallback-properties"
 import type { Property } from "@/types"
 
 export default function FeaturedProperties() {
@@ -16,13 +15,10 @@ export default function FeaturedProperties() {
     async function fetchProperties() {
       try {
         const response = await getProducts({ limit: 4 })
-        if (response.products.length > 0) {
-          setProperties(response.products.map(mapMedusaProductToProperty))
-        } else {
-          setProperties(FALLBACK_PROPERTIES.slice(0, 4))
-        }
-      } catch {
-        setProperties(FALLBACK_PROPERTIES.slice(0, 4))
+        setProperties(response.products.map(mapMedusaProductToProperty))
+      } catch (error) {
+        console.error("Error loading featured properties:", error)
+        setProperties([])
       } finally {
         setLoading(false)
       }

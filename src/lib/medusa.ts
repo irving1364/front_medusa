@@ -35,13 +35,46 @@ export interface MedusaProduct {
   variants: {
     id: string
     title: string
-    prices: { amount: number; currency_code: string }[]
+    // Only present when the request includes region_id (Store API never returns raw `prices`)
+    calculated_price?: { calculated_amount: number; currency_code: string } | null
   }[]
   collection: { title: string; handle: string } | null
   categories: { id: string; name: string }[]
   metadata: Record<string, unknown> | null
   created_at: string
   updated_at: string
+}
+
+export interface MedusaRegion {
+  id: string
+  name: string
+  currency_code: string
+}
+
+// Fields requested for every product query. `*` adds a relation, `+` adds a field.
+const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*categories,*collection,+metadata"
+
+// ─── Region ─────────────────────────────────────────────────────────
+
+const PREFERRED_CURRENCY = "pab"
+let regionPromise: Promise<MedusaRegion | null> | null = null
+
+/** Resolves the store region once per session (prefers PAB, falls back to the first region). */
+export async function getRegion(): Promise<MedusaRegion | null> {
+  if (!regionPromise) {
+    regionPromise = getMedusaClient().store.region
+      .list()
+      .then((res) => {
+        const regions = (res.regions || []) as MedusaRegion[]
+        return regions.find((r) => r.currency_code === PREFERRED_CURRENCY) || regions[0] || null
+      })
+      .catch((error) => {
+        console.error("Error fetching regions:", error)
+        regionPromise = null
+        return null
+      })
+  }
+  return regionPromise
 }
 
 export interface MedusaCollection {
@@ -72,7 +105,24 @@ export interface MedusaLineItem {
 
 // ─── Mapping ────────────────────────────────────────────────────────
 
+const VALID_STATUSES: Property["status"][] = ["disponible", "vendido", "rentado"]
+
+function toNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
+
+function toFeatures(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean)
+  if (typeof value === "string") return value.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean)
+  return []
+}
+
 export function mapMedusaProductToProperty(product: MedusaProduct): Property {
+  const variant = product.variants?.[0]
+  const meta = product.metadata || {}
+  const status = String(meta.status || "").toLowerCase() as Property["status"]
   return {
     id: product.id,
     title: product.title,
@@ -80,17 +130,17 @@ export function mapMedusaProductToProperty(product: MedusaProduct): Property {
     description: product.description,
     handle: product.handle,
     thumbnail: product.thumbnail,
-    images: product.images,
-    price: product.variants[0]?.prices[0]?.amount || 0,
-    currencyCode: product.variants[0]?.prices[0]?.currency_code || "PAB",
-    variantId: product.variants[0]?.id || null,
-    location: (product.metadata?.location as string) || null,
-    area: (product.metadata?.area as string) || null,
-    bedrooms: (product.metadata?.bedrooms as number) || null,
-    bathrooms: (product.metadata?.bathrooms as number) || null,
-    type: (product.metadata?.type as string) || null,
-    status: "disponible",
-    features: [],
+    images: product.images || [],
+    price: variant?.calculated_price?.calculated_amount ?? 0,
+    currencyCode: (variant?.calculated_price?.currency_code || PREFERRED_CURRENCY).toUpperCase(),
+    variantId: variant?.id || null,
+    location: (meta.location as string) || null,
+    area: meta.area != null ? String(meta.area) : null,
+    bedrooms: toNumber(meta.bedrooms),
+    bathrooms: toNumber(meta.bathrooms),
+    type: (meta.type as string) || null,
+    status: VALID_STATUSES.includes(status) ? status : "disponible",
+    features: toFeatures(meta.features),
     category: product.collection?.title || null,
     createdAt: product.created_at,
   }
@@ -108,13 +158,15 @@ export async function getProducts(params?: {
 }): Promise<{ products: MedusaProduct[]; count: number; offset: number; limit: number }> {
   const client = getMedusaClient()
   try {
+    const region = await getRegion()
     const response = await client.store.product.list({
       limit: params?.limit || 12,
       offset: params?.offset || 0,
+      ...(region ? { region_id: region.id } : {}),
       ...(params?.collection_id?.length ? { collection_id: params.collection_id } : {}),
       ...(params?.category_id?.length ? { category_id: params.category_id } : {}),
       ...(params?.q ? { q: params.q } : {}),
-      fields: "*variants,*images,*categories,*collection",
+      fields: PRODUCT_FIELDS,
     })
     return response as unknown as { products: MedusaProduct[]; count: number; offset: number; limit: number }
   } catch (error) {
@@ -128,10 +180,12 @@ export async function getProductByHandle(handle: string): Promise<MedusaProduct 
   try {
     // Medusa v2 doesn't support retrieving by handle via GET /store/products/:id.
     // Instead, use the list endpoint with a handle filter.
+    const region = await getRegion()
     const response = await client.store.product.list({
       handle,
       limit: 1,
-      fields: "*variants,*images,*categories,*collection",
+      ...(region ? { region_id: region.id } : {}),
+      fields: PRODUCT_FIELDS,
     })
     return (response.products?.[0] as unknown as MedusaProduct) || null
   } catch (error) {
@@ -173,9 +227,10 @@ export function removeStoredCartId(): void {
 export async function createCart(): Promise<MedusaCart | null> {
   const client = getMedusaClient()
   try {
-    const response = await client.store.cart.create({
-      currency_code: "pab",
-    })
+    const region = await getRegion()
+    const response = await client.store.cart.create(
+      region ? { region_id: region.id } : { currency_code: PREFERRED_CURRENCY }
+    )
     const cart = response.cart as unknown as MedusaCart
     storeCartId(cart.id)
     return cart

@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { FiSearch, FiSliders, FiX } from "react-icons/fi"
 import PropertyCard from "@/components/PropertyCard"
 import { getProducts, mapMedusaProductToProperty } from "@/lib/medusa"
-import { FALLBACK_PROPERTIES } from "@/lib/fallback-properties"
 import type { Property } from "@/types"
 
 const PROPERTY_TYPES = ["consultorio", "clinica", "centro-medico"]
@@ -17,7 +16,6 @@ const SORT_OPTIONS = [
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([])
-  const [filtered, setFiltered] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [type, setType] = useState("")
@@ -29,13 +27,10 @@ export default function PropertiesPage() {
     async function fetch() {
       try {
         const res = await getProducts({ limit: 50 })
-        if (res.products.length > 0) {
-          setProperties(res.products.map(mapMedusaProductToProperty))
-        } else {
-          setProperties(FALLBACK_PROPERTIES)
-        }
-      } catch {
-        setProperties(FALLBACK_PROPERTIES)
+        setProperties(res.products.map(mapMedusaProductToProperty))
+      } catch (error) {
+        console.error("Error loading properties:", error)
+        setProperties([])
       } finally {
         setLoading(false)
       }
@@ -43,7 +38,7 @@ export default function PropertiesPage() {
     fetch()
   }, [])
 
-  const apply = useCallback(() => {
+  const filtered = useMemo(() => {
     let r = [...properties]
     if (search) {
       const q = search.toLowerCase()
@@ -56,10 +51,8 @@ export default function PropertiesPage() {
       if (sort === "price-desc") return b.price - a.price
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
-    setFiltered(r)
+    return r
   }, [properties, search, type, status, sort])
-
-  useEffect(() => { apply() }, [apply])
 
   const btnClass = (active: boolean) =>
     `px-4 py-2 rounded-lg text-sm transition-all ${

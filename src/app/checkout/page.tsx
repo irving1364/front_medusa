@@ -17,10 +17,13 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("")
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [orderNumber, setOrderNumber] = useState<number | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setStatus("sending")
+    setErrorMessage(null)
 
     try {
       const res = await fetch("/api/checkout", {
@@ -40,17 +43,23 @@ export default function CheckoutPage() {
           })),
         }),
       })
+      const data = await res.json().catch(() => ({}))
 
-      if (!res.ok) {
-        const err = await res.json()
-        console.error("Checkout error:", err)
+      if (!res.ok || !data.success) {
+        console.error("Checkout error:", data)
+        setErrorMessage(data.error || "No se pudo enviar la solicitud. Intente nuevamente.")
+        setStatus("idle")
+        return
       }
+
+      setOrderNumber(data.order?.display_id ?? null)
+      setStatus("sent")
+      // The cart is now a completed order: clear local state without API calls
+      resetCart()
     } catch (error) {
       console.error("Checkout error:", error)
-    } finally {
-      setStatus("sent")
-      // Use resetCart instead of clearCart to avoid API calls on a completed cart
-      resetCart()
+      setErrorMessage("No se pudo conectar con el servidor. Intente nuevamente.")
+      setStatus("idle")
     }
   }
 
@@ -84,7 +93,9 @@ export default function CheckoutPage() {
               <FiCheck className="w-8 h-8 text-success" />
             </div>
             <h1 className="text-2xl font-serif font-bold text-text-primary mb-3">¡Solicitud enviada!</h1>
-            <p className="text-text-muted mb-2">Hemos recibido su solicitud de información.</p>
+            <p className="text-text-muted mb-2">
+              Hemos recibido su solicitud de información{orderNumber ? <> con el número <span className="text-text-primary font-semibold">#{orderNumber}</span></> : null}.
+            </p>
             <p className="text-text-muted mb-8">Nuestro equipo se pondrá en contacto con usted a la brevedad.</p>
             <Link href="/propiedades" className="inline-flex items-center gap-2 px-6 py-3 bg-ivory text-dark-base font-medium rounded-lg hover:bg-ivory-light transition-all">
               Seguir explorando
@@ -178,6 +189,12 @@ export default function CheckoutPage() {
                     <label htmlFor="message" className="block text-xs font-medium text-text-secondary mb-1.5">Mensaje</label>
                     <textarea id="message" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputClass} resize-none`} placeholder="¿Algo específico que desee consultar?" />
                   </div>
+
+                  {errorMessage && (
+                    <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">
+                      {errorMessage}
+                    </p>
+                  )}
 
                   <button type="submit" disabled={status === "sending"}
                     className="w-full px-6 py-3.5 bg-ivory text-dark-base font-semibold rounded-lg hover:bg-ivory-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 glow-ivory-subtle hover:glow-ivory"

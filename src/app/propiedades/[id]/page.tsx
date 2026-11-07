@@ -5,8 +5,7 @@ import { useParams, notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { FiMapPin, FiMaximize2, FiGrid, FiDroplet, FiArrowLeft, FiShare2, FiHeart, FiCheck, FiCalendar, FiTag, FiShoppingBag } from "react-icons/fi"
-import { getProductByHandle, mapMedusaProductToProperty, type MedusaProduct as MedusaProductData } from "@/lib/medusa"
-import { getFallbackByHandle } from "@/lib/fallback-properties"
+import { getProductByHandle, mapMedusaProductToProperty } from "@/lib/medusa"
 import { useCart } from "@/context/CartContext"
 import type { Property } from "@/types"
 
@@ -18,50 +17,21 @@ export default function PropertyDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false)
   const { addItem, isLoading: cartLoading } = useCart()
 
-  const [medusaProduct, setMedusaProduct] = useState<MedusaProductData | null>(null)
-
   const handleAddToCart = async () => {
-    if (!property) return
-
-    // Always fetch the latest variant ID from Medusa to avoid stale state issues
-    let variantId = property.variantId
-    if (!variantId && medusaProduct) {
-      variantId = medusaProduct.variants[0]?.id || null
-    }
-    if (!variantId) {
-      // Try fetching the Medusa product directly
-      const freshProduct = await getProductByHandle(handle)
-      if (freshProduct) {
-        variantId = freshProduct.variants[0]?.id || null
-      }
-    }
-
-    if (variantId) {
-      await addItem(variantId, 1)
-      setAddedToCart(true)
-      setTimeout(() => setAddedToCart(false), 3000)
-    } else {
-      // No variant ID available (fallback data) - notify user
-      alert("Esta propiedad no está disponible para agregar al carrito. Por favor, solicite información a través del formulario de contacto.")
-    }
+    if (!property?.variantId) return
+    await addItem(property.variantId, 1)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 3000)
   }
 
   useEffect(() => {
     async function fetchProperty() {
       try {
         const product = await getProductByHandle(handle)
-        if (product) {
-          setMedusaProduct(product)
-          setProperty(mapMedusaProductToProperty(product))
-        } else {
-          setMedusaProduct(null)
-          const fallback = getFallbackByHandle(handle)
-          setProperty(fallback || null)
-        }
-      } catch {
-        setMedusaProduct(null)
-        const fallback = getFallbackByHandle(handle)
-        setProperty(fallback || null)
+        setProperty(product ? mapMedusaProductToProperty(product) : null)
+      } catch (error) {
+        console.error(`Error loading property ${handle}:`, error)
+        setProperty(null)
       } finally {
         setLoading(false)
       }
@@ -255,7 +225,7 @@ export default function PropertyDetailPage() {
                 <div className="space-y-4">
                   <button
                     onClick={handleAddToCart}
-                    disabled={cartLoading}
+                    disabled={cartLoading || !property.variantId}
                     className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-ivory text-dark-base font-semibold rounded-lg hover:bg-ivory-light transition-all duration-300 glow-ivory-subtle hover:glow-ivory disabled:opacity-50"
                   >
                     <FiShoppingBag className={`w-4 h-4 ${cartLoading ? "animate-bounce" : ""}`} />

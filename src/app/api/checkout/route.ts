@@ -3,10 +3,14 @@ import { NextRequest, NextResponse } from "next/server"
 const BACKEND_URL = (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000").trim()
 const PUBLISHABLE_KEY = (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || "").trim()
 const RESEND_KEY = (process.env.RESEND_API_KEY || "").trim()
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "karvenmedicalpa@gmail.com").trim()
-const ADMIN_PASSWORD_VAR = (process.env.ADMIN_PASSWORD || "").trim()
-const STORE_EMAIL = "karvenmedicalpa@gmail.com"
+const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend.dev>").trim()
+const STORE_EMAIL = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").trim()
 const STORE_NAME = "Karven - Inmobiliaria Médica"
+const STORE_PHONE = "+507 000-0000"
+const COUNTRY_CODE = "pa"
+const PAYMENT_PROVIDER = "pp_system_default"
+
+interface CheckoutItem { title: string; quantity: number; price: string; handle?: string }
 
 interface CheckoutBody {
   cartId: string
@@ -14,115 +18,65 @@ interface CheckoutBody {
   email: string
   phone?: string
   message?: string
-  items?: { title: string; quantity: number; price: string; handle?: string }[]
+  items?: CheckoutItem[]
 }
 
-// ─── Medusa Admin Auth ──────────────────────────────────────────────
-async function getAdminToken(): Promise<string | null> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/auth/user/emailpass`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD_VAR }),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    return data.token || null
-  } catch {
-    return null
+interface PlacedOrder { id: string; display_id: number; status: string; total: number; currency_code: string }
+
+class CheckoutError extends Error {
+  constructor(message: string, public step: string, public status = 400) {
+    super(message)
   }
 }
 
-// ─── Create Order in Medusa ─────────────────────────────────────────
-async function createOrder(cartId: string, customerEmail: string): Promise<{ id?: string; status: string; cartId: string }> {
-  const storeHeaders = { "Content-Type": "application/json", "x-publishable-api-key": PUBLISHABLE_KEY }
+// ─── Medusa Store API helper ────────────────────────────────────────
+async function store<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${BACKEND_URL}${path}`, {
+    method: body === undefined ? "GET" : "POST",
+    headers: { "Content-Type": "application/json", "x-publishable-api-key": PUBLISHABLE_KEY },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    cache: "no-store",
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new CheckoutError(data?.message || `Medusa respondió ${res.status} en ${path}`, path, res.status)
+  }
+  return data as T
+}
 
-  // Strategy 1: Set email on cart via store API
-  await fetch(`${BACKEND_URL}/store/carts/${cartId}`, {
-    method: "POST",
-    headers: storeHeaders,
-    body: JSON.stringify({ email: customerEmail }),
+function splitName(fullName: string): { first_name: string; last_name: string } {
+  const parts = fullName.trim().split(/\s+/)
+  const first_name = parts.shift() || fullName
+  return { first_name, last_name: parts.join(" ") || "-" }
+}
+
+// ─── Place the order in Medusa v2 ───────────────────────────────────
+// Flow validated against Medusa 2.13: update cart -> payment collection -> system payment session -> complete.
+async function placeOrder(body: CheckoutBody): Promise<PlacedOrder> {
+  const { cartId, name, email, phone, message } = body
+  const address = { ...splitName(name), address_1: "Solicitud de información", city: "Panamá", country_code: COUNTRY_CODE, phone: phone || undefined }
+
+  await store(`/store/carts/${cartId}`, {
+    email,
+    shipping_address: address,
+    billing_address: address,
+    metadata: { inquiry_name: name, inquiry_phone: phone || null, inquiry_message: message || null, source: "web-checkout" },
   })
 
-  // Strategy 2: Try adding payment session + completing via store API
-  try {
-    const paymentRes = await fetch(`${BACKEND_URL}/store/carts/${cartId}/payment-sessions`, {
-      method: "POST",
-      headers: storeHeaders,
-      body: JSON.stringify({ provider_id: "system" }),
-    })
-    if (paymentRes.ok) {
-      const completeRes = await fetch(`${BACKEND_URL}/store/carts/${cartId}/complete`, {
-        method: "POST",
-        headers: storeHeaders,
-      })
-      if (completeRes.ok) {
-        const data = await completeRes.json()
-        if (data.order?.id) return { id: data.order.id, status: "completed", cartId }
-      }
-    }
-  } catch {
-    // Payment session failed, try admin API
+  const { payment_collection } = await store<{ payment_collection: { id: string } }>(
+    "/store/payment-collections",
+    { cart_id: cartId }
+  )
+  await store(`/store/payment-collections/${payment_collection.id}/payment-sessions`, { provider_id: PAYMENT_PROVIDER })
+
+  const result = await store<{ type: "order" | "cart"; order?: PlacedOrder; error?: { message?: string } }>(
+    `/store/carts/${cartId}/complete`,
+    {}
+  )
+  if (result.type !== "order" || !result.order) {
+    throw new CheckoutError(result.error?.message || "Medusa no pudo completar el carrito", "complete")
   }
-
-  // Strategy 3: Complete via admin API (bypasses payment)
-  try {
-    const token = await getAdminToken()
-    if (token) {
-      const adminHeaders = { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
-
-      // Set email via admin API
-      await fetch(`${BACKEND_URL}/admin/carts/${cartId}`, {
-        method: "POST",
-        headers: adminHeaders,
-        body: JSON.stringify({ email: customerEmail }),
-      })
-
-      // Try to complete via admin API
-      const completeRes = await fetch(`${BACKEND_URL}/admin/carts/${cartId}/complete`, {
-        method: "POST",
-        headers: adminHeaders,
-      })
-      if (completeRes.ok) {
-        const data = await completeRes.json()
-        if (data.order?.id) return { id: data.order.id, status: "completed", cartId }
-      }
-
-      // Admin complete might not exist in v2, try draft order
-      const draftRes = await fetch(`${BACKEND_URL}/admin/draft-orders`, {
-        method: "POST",
-        headers: adminHeaders,
-        body: JSON.stringify({
-          email: customerEmail,
-          cart_id: cartId,
-        }),
-      })
-      if (draftRes.ok) {
-        const data = await draftRes.json()
-        if (data.draft_order?.id) return { id: data.draft_order.id, status: "draft", cartId }
-      }
-    }
-  } catch {
-    // Admin API also failed
-  }
-
-  // Strategy 4: Last resort - get cart details from admin API to at least log it
-  try {
-    const token = await getAdminToken()
-    if (token) {
-      const cartRes = await fetch(`${BACKEND_URL}/admin/carts/${cartId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (cartRes.ok) {
-        const cartData = await cartRes.json()
-        return { id: cartData.cart?.id, status: "inquiry_logged", cartId }
-      }
-    }
-  } catch {
-    // Everything failed
-  }
-
-  return { status: "inquiry_only", cartId }
+  return result.order
 }
 
 // ─── Send Email via Resend ──────────────────────────────────────────
@@ -134,17 +88,10 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Karven <onboarding@resend.dev>",
-        to: [to],
-        subject,
-        html,
-      }),
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: RESEND_FROM, to: [to], subject, html }),
     })
+    if (!res.ok) console.error("Resend error:", res.status, await res.text())
     return res.ok
   } catch (error) {
     console.error("Error sending email:", error)
@@ -153,9 +100,12 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
 }
 
 // ─── Email Templates ────────────────────────────────────────────────
-function buildItemsList(items?: { title: string; quantity: number; price: string }[]): string {
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+
+function buildItemsList(items?: CheckoutItem[]): string {
   if (!items || items.length === 0) return "<li>Propiedades en carrito</li>"
-  return items.map((i) => `<li>${i.title} × ${i.quantity} — ${i.price}</li>`).join("")
+  return items.map((i) => `<li>${escapeHtml(i.title)} × ${i.quantity} — ${escapeHtml(i.price)}</li>`).join("")
 }
 
 function getDateStr(): string {
@@ -164,84 +114,85 @@ function getDateStr(): string {
   })
 }
 
+function wrap(subtitle: string, content: string): string {
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#0a0a0a;color:#f5f0e8;border-radius:12px">
+      <div style="text-align:center;padding:20px 0;border-bottom:1px solid #2a2a2a">
+        <h1 style="color:#f5f0e8;font-size:24px;margin:0">${STORE_NAME}</h1>
+        <p style="color:#808078;font-size:14px">${subtitle}</p>
+      </div>
+      <div style="padding:20px 0">${content}</div>
+      <div style="text-align:center;padding:20px 0;border-top:1px solid #2a2a2a;color:#808078;font-size:12px">
+        <p>© ${new Date().getFullYear()} Karven. Todos los derechos reservados.</p>
+        <p style="margin-top:4px">Ciudad de Panamá, Panamá</p>
+      </div>
+    </div>`
+}
+
+function storeEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
+  const row = (label: string, value: string) =>
+    `<tr><td style="color:#808078;padding:8px 0">${label}</td><td style="color:#f5f0e8;padding:8px 0">${value}</td></tr>`
+  const email = escapeHtml(body.email)
+  return wrap("Nueva Solicitud de Información", `
+    <h2 style="color:#f5f0e8;font-size:18px">Datos del Cliente</h2>
+    <table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:14px">
+      ${row("Nombre:", escapeHtml(body.name))}
+      ${row("Email:", `<a href="mailto:${email}" style="color:#f5f0e8">${email}</a>`)}
+      ${row("Teléfono:", escapeHtml(body.phone || "No especificado"))}
+      ${row("Fecha:", getDateStr())}
+      ${row("Orden en Medusa:", `#${order.display_id} (${order.id})`)}
+    </table>
+    <h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Propiedades de Interés</h2>
+    <ul style="color:#c0c0b8;font-size:14px;line-height:1.8">${buildItemsList(body.items)}</ul>
+    ${body.message ? `<h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Mensaje</h2><p style="color:#c0c0b8;font-size:14px;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${escapeHtml(body.message)}</p>` : ""}
+  `)
+}
+
+function customerEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
+  return wrap("Hemos recibido su solicitud", `
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Estimado/a <strong style="color:#f5f0e8">${escapeHtml(body.name)}</strong>,</p>
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Gracias por contactarnos. Registramos su solicitud con el número <strong style="color:#f5f0e8">#${order.display_id}</strong> sobre las siguientes propiedades:</p>
+    <ul style="color:#c0c0b8;font-size:14px;line-height:1.8;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${buildItemsList(body.items)}</ul>
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6;margin-top:20px">Uno de nuestros asesores se pondrá en contacto con usted a la brevedad para brindarle toda la información detallada.</p>
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Si tiene alguna pregunta adicional, escríbanos a <a href="mailto:${STORE_EMAIL}" style="color:#f5f0e8">${STORE_EMAIL}</a> o llámenos al <strong style="color:#f5f0e8">${STORE_PHONE}</strong>.</p>
+  `)
+}
+
 // ─── POST Handler ───────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
+  let body: CheckoutBody
   try {
-    const body: CheckoutBody = await request.json()
-    const { cartId, name, email, phone, message, items } = body
+    body = (await request.json()) as CheckoutBody
+  } catch {
+    return NextResponse.json({ success: false, error: "Cuerpo de la petición inválido" }, { status: 400 })
+  }
 
-    if (!cartId || !name || !email) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    }
+  if (!body.cartId || !body.name?.trim() || !body.email?.trim()) {
+    return NextResponse.json({ success: false, error: "Faltan campos requeridos" }, { status: 400 })
+  }
 
-    // 1. Create order in Medusa
-    const order = await createOrder(cartId, email)
-
-    // 2. Build email content
-    const itemsHtml = buildItemsList(items)
-    const dateStr = getDateStr()
-    const phoneDisplay = phone || "No especificado"
-
-    // 3. Email to store
-    const storeHtml = `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#0a0a0a;color:#f5f0e8;border-radius:12px">
-        <div style="text-align:center;padding:20px 0;border-bottom:1px solid #2a2a2a">
-          <h1 style="color:#f5f0e8;font-size:24px;margin:0">${STORE_NAME}</h1>
-          <p style="color:#808078;font-size:14px">Nueva Solicitud de Información</p>
-        </div>
-        <div style="padding:20px 0">
-          <h2 style="color:#f5f0e8;font-size:18px">Datos del Cliente</h2>
-          <table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:14px">
-            <tr><td style="color:#808078;padding:8px 0">Nombre:</td><td style="color:#f5f0e8;padding:8px 0">${name}</td></tr>
-            <tr><td style="color:#808078;padding:8px 0">Email:</td><td style="color:#f5f0e8;padding:8px 0"><a href="mailto:${email}" style="color:#f5f0e8">${email}</a></td></tr>
-            <tr><td style="color:#808078;padding:8px 0">Teléfono:</td><td style="color:#f5f0e8;padding:8px 0">${phoneDisplay}</td></tr>
-            <tr><td style="color:#808078;padding:8px 0">Fecha:</td><td style="color:#f5f0e8;padding:8px 0">${dateStr}</td></tr>
-            <tr><td style="color:#808078;padding:8px 0">Orden:</td><td style="color:#f5f0e8;padding:8px 0">${order.id || order.status}${order.id ? ` (${order.status})` : ""}</td></tr>
-          </table>
-          <h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Propiedades de Interés</h2>
-          <ul style="color:#c0c0b8;font-size:14px;line-height:1.8">${itemsHtml}</ul>
-          ${message ? `<h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Mensaje</h2><p style="color:#c0c0b8;font-size:14px;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${message}</p>` : ""}
-        </div>
-        <div style="text-align:center;padding:20px 0;border-top:1px solid #2a2a2a;color:#808078;font-size:12px">
-          <p>© ${new Date().getFullYear()} Karven. Todos los derechos reservados.</p>
-        </div>
-      </div>`
-
-    // 4. Email to customer
-    const customerHtml = `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#0a0a0a;color:#f5f0e8;border-radius:12px">
-        <div style="text-align:center;padding:20px 0;border-bottom:1px solid #2a2a2a">
-          <h1 style="color:#f5f0e8;font-size:24px;margin:0">${STORE_NAME}</h1>
-          <p style="color:#808078;font-size:14px">Hemos recibido su solicitud</p>
-        </div>
-        <div style="padding:20px 0">
-          <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Estimado/a <strong style="color:#f5f0e8">${name}</strong>,</p>
-          <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Gracias por contactarnos. Hemos recibido su solicitud de información sobre las siguientes propiedades:</p>
-          <ul style="color:#c0c0b8;font-size:14px;line-height:1.8;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${itemsHtml}</ul>
-          <p style="color:#c0c0b8;font-size:15px;line-height:1.6;margin-top:20px">Uno de nuestros asesores se pondrá en contacto con usted a la brevedad para brindarle toda la información detallada.</p>
-          <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Si tiene alguna pregunta adicional, no dude en escribirnos a <a href="mailto:${STORE_EMAIL}" style="color:#f5f0e8">${STORE_EMAIL}</a> o llamarnos al <strong style="color:#f5f0e8">+507 000-0000</strong>.</p>
-        </div>
-        <div style="text-align:center;padding:20px 0;border-top:1px solid #2a2a2a;color:#808078;font-size:12px">
-          <p>© ${new Date().getFullYear()} Karven. Todos los derechos reservados.</p>
-          <p style="margin-top:4px">Ciudad de Panamá, Panamá</p>
-        </div>
-      </div>`
+  try {
+    const order = await placeOrder(body)
 
     const [emailStore, emailCustomer] = await Promise.all([
-      sendEmail(STORE_EMAIL, `🆕 Nueva solicitud de ${name} — ${items?.length || 0} propiedades`, storeHtml),
-      sendEmail(email, "Hemos recibido su solicitud — Karven", customerHtml),
+      sendEmail(STORE_EMAIL, `🆕 Solicitud #${order.display_id} de ${body.name} — ${body.items?.length || 0} propiedades`, storeEmailHtml(body, order)),
+      sendEmail(body.email, `Hemos recibido su solicitud #${order.display_id} — Karven`, customerEmailHtml(body, order)),
     ])
 
     return NextResponse.json({
       success: true,
-      order,
+      order: { id: order.id, display_id: order.display_id, status: order.status },
       notifications: { store: emailStore, customer: emailCustomer },
     })
   } catch (error) {
-    console.error("Checkout error:", error)
+    const isCheckoutError = error instanceof CheckoutError
+    console.error("Checkout error:", isCheckoutError ? `[${error.step}] ${error.message}` : error)
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Internal error" },
-      { status: 500 }
+      {
+        success: false,
+        error: isCheckoutError ? error.message : "No se pudo registrar la solicitud. Intente nuevamente.",
+      },
+      { status: isCheckoutError ? (error.status >= 500 ? 502 : 400) : 500 }
     )
   }
 }

@@ -33,6 +33,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartId, setCartId] = useState<string | null>(null)
   const [items, setItems] = useState<MedusaLineItem[]>([])
+  const [currencyCode, setCurrencyCode] = useState("PAB")
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -63,6 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (cart) {
           setCartId(cart.id)
           setItems(cart.items || [])
+          if (cart.currency_code) setCurrencyCode(cart.currency_code.toUpperCase())
         }
       } catch {
         // Silent fail - cart will be created on first add
@@ -131,7 +133,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-  const currencyCode = items[0]?.unit_price ? "PAB" : "PAB"
 
   return (
     <CartContext.Provider
