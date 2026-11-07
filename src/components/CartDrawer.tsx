@@ -12,14 +12,14 @@ export default function CartDrawer() {
   return (
     <>
       <div
-        className={`fixed inset-0 z-[90] bg-ink/50 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={closeCart}
       />
 
       <aside
-        className={`fixed top-0 right-0 z-[91] h-full w-full sm:w-[440px] bg-paper shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${
+        className={`fixed top-0 right-0 z-[91] h-full w-full sm:w-[440px] bg-paper-2 border-l border-line shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-label="Cotización"

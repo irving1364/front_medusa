@@ -28,9 +28,9 @@ export default function EnvironmentsSection() {
             gap={8}
             radius={20}
             expandRatio={0.46}
-            accentColor="#35A7B6"
-            overlayColor="#1F2329"
-            textColor="#F6F4EF"
+            accentColor="#2FB1C2"
+            overlayColor="#0A0C10"
+            textColor="#F2F4F7"
             parallax={0.35}
             tilt={0}
             grayscale

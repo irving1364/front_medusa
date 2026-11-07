@@ -123,7 +123,7 @@ export default function ProductDetailPage() {
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center font-display text-7xl text-text-3">{product.title.charAt(0)}</div>
                 )}
-                <span className="absolute top-4 left-4 px-2.5 py-1 rounded bg-paper/90 text-[11px] font-semibold tracking-[0.15em] text-ink tnum">{product.sku}</span>
+                <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">{product.sku}</span>
               </div>
             </GlareHover>
           </Reveal>
@@ -197,7 +197,7 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <div className="mt-12 border-t border-ink pt-6">
+            <div className="mt-12 border-t border-line-2 pt-6">
               <p className="font-display text-xl text-ink">¿Medidas distintas o varias unidades?</p>
               <p className="mt-2 text-sm text-text-2">Fabricamos a medida y cotizamos por volumen con planos de distribución.</p>
               <Link href="/contacto" className="btn btn-outline mt-5 text-sm">Hablar con fabricación <FiArrowUpRight className="w-4 h-4" /></Link>

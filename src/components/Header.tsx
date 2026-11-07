@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "/contacto", label: "Contacto" },
 ]
 
+/** Floating glass bar, detached from the page edge once the user scrolls. */
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,7 +23,7 @@ export default function Header() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 8)
+    const onScroll = () => setIsScrolled(window.scrollY > 12)
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
@@ -36,56 +37,57 @@ export default function Header() {
   const close = () => setIsMenuOpen(false)
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 bg-paper/90 backdrop-blur-md transition-[border-color] duration-300 border-b ${
-        isScrolled || isMenuOpen ? "border-line" : "border-transparent"
-      }`}
-    >
-      <div className="container-custom">
-        <div className="flex items-center justify-between h-[72px]">
-          <Link href="/" onClick={close} className="relative z-10 flex items-center gap-3" aria-label="Karven, inicio">
-            <span className="relative block w-8 h-8">
-              <Image src="/images/logo-isotipo-oscuro.png" alt="" fill className="object-contain" sizes="32px" priority />
+    <header className="fixed inset-x-0 top-0 z-50 pointer-events-none">
+      <div className={`container-custom transition-[padding] duration-500 ${isScrolled ? "pt-3" : "pt-4"}`}>
+        <div
+          className={`pointer-events-auto relative flex items-center justify-between h-14 px-2 sm:px-3 rounded-2xl transition-[background-color,border-color,box-shadow] duration-500 border ${
+            isScrolled || isMenuOpen ? "glass" : "bg-transparent border-transparent"
+          }`}
+        >
+          <Link href="/" onClick={close} className="relative z-10 flex items-center gap-3 pl-2" aria-label="Karven, inicio">
+            <span className="relative block w-7 h-7">
+              <Image src="/images/logo-isotipo-blanco.png" alt="" fill className="object-contain" sizes="28px" priority />
             </span>
-            <span className="relative hidden sm:block h-5 w-[88px]">
-              <Image src="/images/logo-logotipo-oscuro.png" alt="Karven" fill className="object-contain object-left" sizes="88px" priority />
+            <span className="relative hidden sm:block h-4 w-[82px]">
+              <Image src="/images/logo-logotipo-blanco.png" alt="Karven" fill className="object-contain object-left" sizes="82px" priority />
             </span>
-            <span className="hidden lg:block pl-3 ml-1 border-l border-line text-[10px] uppercase tracking-[0.22em] text-text-3">
+            <span className="hidden xl:block pl-3 ml-1 border-l border-line-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-3">
               Mobiliario médico · Panamá
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7" aria-label="Principal">
+          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2" aria-label="Principal">
             {NAV_LINKS.map((link) => {
               const active = pathname === link.href || pathname.startsWith(link.href + "/")
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative text-[13px] font-medium tracking-wide transition-colors ${active ? "text-ink" : "text-text-2 hover:text-ink"}`}
+                  className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                    active ? "text-ink bg-white/[0.06]" : "text-text-2 hover:text-ink hover:bg-white/[0.04]"
+                  }`}
                 >
                   {link.label}
-                  <span className={`absolute -bottom-1.5 left-0 h-px bg-teal transition-all duration-500 ${active ? "w-full" : "w-0"}`} />
                 </Link>
               )
             })}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={openCart} className="relative p-2.5 rounded-full text-text-2 hover:text-ink transition-colors" aria-label="Abrir cotización">
+          <div className="flex items-center gap-1">
+            <button onClick={openCart} className="relative p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-white/[0.05] transition-colors" aria-label="Abrir cotización">
               <FiShoppingBag className="w-[18px] h-[18px]" />
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-teal text-white text-[10px] font-bold flex items-center justify-center tnum">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-teal text-paper text-[10px] font-bold flex items-center justify-center tnum">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
             </button>
-            <Link href="/contacto" className="hidden lg:inline-flex btn btn-ink text-[13px] py-2.5 px-5">
+            <Link href="/contacto" className="hidden lg:inline-flex btn btn-teal text-[13px] py-2 px-4 rounded-lg">
               Cotizar <FiArrowUpRight className="w-3.5 h-3.5" />
             </Link>
             <button
               onClick={() => setIsMenuOpen((v) => !v)}
-              className="relative z-10 lg:hidden p-2.5 rounded-full text-ink"
+              className="relative z-10 lg:hidden p-2.5 rounded-lg text-ink hover:bg-white/[0.05]"
               aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={isMenuOpen}
             >
@@ -97,12 +99,12 @@ export default function Header() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 top-[72px] bg-paper transition-opacity duration-400 lg:hidden overflow-y-auto ${
+        className={`fixed inset-0 top-0 -z-10 bg-paper/95 backdrop-blur-xl transition-opacity duration-400 lg:hidden overflow-y-auto ${
           isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden={!isMenuOpen}
       >
-        <div className="container-custom py-8">
+        <div className="container-custom pt-24 pb-10">
           {NAV_LINKS.map((link, i) => (
             <Link
               key={link.href}
@@ -119,12 +121,12 @@ export default function Header() {
             {FAMILIES.map((f) => (
               <li key={f.handle}>
                 <Link href={`/equipamiento?familia=${f.handle}`} onClick={close} className="text-sm text-text-2 hover:text-ink">
-                  <span className="tnum text-text-3 mr-2">{f.number}</span>{f.title}
+                  <span className="mono text-text-3 mr-2">{f.number}</span>{f.title}
                 </Link>
               </li>
             ))}
           </ul>
-          <Link href="/contacto" onClick={close} className="btn btn-ink mt-10 w-full">Solicitar cotización</Link>
+          <Link href="/contacto" onClick={close} className="btn btn-teal mt-10 w-full">Solicitar cotización</Link>
         </div>
       </div>
     </header>

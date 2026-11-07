@@ -31,7 +31,7 @@ export default function ContactPage() {
         <div className="mt-12 grid lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-4">
             <Reveal>
-              <dl className="border-t border-ink">
+              <dl className="border-t border-line-2">
                 {INFO.map(([k, v, href]) => (
                   <div key={k} className="grid grid-cols-[6rem_1fr] gap-4 py-3.5 border-b border-line text-sm">
                     <dt className="text-text-3">{k}</dt>

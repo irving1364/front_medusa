@@ -35,10 +35,10 @@ export default function FamilyIndex() {
                   <li
                     onMouseEnter={() => setActive(i)}
                     onFocus={() => setActive(i)}
-                    className={`group border-t border-line last:border-b transition-colors ${isActive ? "bg-paper-2/60" : ""}`}
+                    className={`group border-t border-line last:border-b transition-colors ${isActive ? "bg-white/[0.03]" : ""}`}
                   >
                     <Link href={`/equipamiento?familia=${f.handle}`} className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_2.5rem_1fr_auto] items-center gap-4 py-5 px-2 -mx-2">
-                      <span className="tnum text-sm text-text-3">{f.number}</span>
+                      <span className="mono text-sm text-text-3">{f.number}</span>
                       <span className={`hidden sm:inline-flex transition-colors ${isActive ? "text-teal" : "text-text-3"}`}><FamilyIcon name={f.icon} className="w-6 h-6" /></span>
                       <span>
                         <span className="block font-display text-2xl sm:text-3xl text-ink leading-tight">{f.title}</span>
@@ -69,10 +69,10 @@ export default function FamilyIndex() {
                     className={`object-cover transition-opacity duration-700 ${i === active ? "opacity-100" : "opacity-0"}`}
                   />
                 ))}
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 text-paper">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-paper/70 tnum">{current.number} · {current.subfamilies.length} subfamilias</p>
-                  <p className="mt-2 text-sm leading-relaxed text-paper/90 max-w-sm">{current.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-paper/90 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 text-ink">
+                  <p className="mono text-[10px] uppercase tracking-[0.18em] text-text-2">{current.number} · {current.subfamilies.length} subfamilias</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink/90 max-w-sm">{current.description}</p>
                 </div>
               </div>
             </div>

@@ -34,7 +34,7 @@ export default function EnvironmentsPage() {
                     <div className="lg:col-span-6">
                       <div className="plate aspect-[4/3] rounded-3xl border border-line">
                         <Image src={e.image} alt={e.title} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-                        <span className="absolute top-4 left-4 px-2.5 py-1 rounded bg-paper/90 text-[11px] font-semibold tracking-[0.15em] text-ink tnum">0{i + 1}</span>
+                        <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">0{i + 1}</span>
                       </div>
                     </div>
                     <div className="lg:col-span-6">

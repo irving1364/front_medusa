@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Fraunces } from "next/font/google"
+import { Inter, Inter_Tight, Geist_Mono } from "next/font/google"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import CartDrawer from "@/components/CartDrawer"
@@ -7,18 +7,9 @@ import Loader from "@/components/Loader"
 import { CartProvider } from "@/context/CartContext"
 import "./globals.css"
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-})
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  axes: ["opsz", "SOFT", "WONK"],
-})
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
+const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight", display: "swap", weight: ["500", "600", "700"] })
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap", weight: ["400", "500"] })
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -30,21 +21,21 @@ export const metadata: Metadata = {
     template: "%s | Karven",
   },
   description:
-    "Karven diseña y suministra mobiliario médico y clínico de alto nivel en Panamá: camillas, mesas quirúrgicas, unidades odontológicas, mobiliario de consultorio y laboratorio.",
+    "Karven fabrica mobiliario médico y clínico en acero inoxidable en Panamá: camillas, mesas quirúrgicas, carros clínicos, lavamanos quirúrgicos, mobiliario de consultorio y laboratorio.",
   keywords: [
     "mobiliario médico", "muebles médicos", "camillas", "mesas quirúrgicas",
-    "unidades odontológicas", "equipamiento clínico", "Panamá", "Karven",
+    "acero inoxidable", "equipamiento clínico", "Panamá", "Karven",
   ],
   icons: {
     icon: [
-      { url: "/images/logo-isotipo-oscuro.png", sizes: "32x32", type: "image/png" },
-      { url: "/images/logo-isotipo-oscuro.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/logo-isotipo-blanco.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/logo-isotipo-blanco.png", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/images/logo-isotipo-oscuro.png", sizes: "180x180" }],
+    apple: [{ url: "/images/logo-isotipo-blanco.png", sizes: "180x180" }],
   },
   openGraph: {
     title: "Karven | Mobiliario Médico",
-    description: "Mobiliario médico y clínico de alto nivel en Panamá. Diseño, suministro e instalación.",
+    description: "Mobiliario clínico en acero inoxidable, fabricado en Panamá. Diseño, fabricación e instalación.",
     type: "website",
     locale: "es_PA",
     siteName: "Karven Medical Furniture",
@@ -54,13 +45,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${fraunces.variable} h-full`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${interTight.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-paper text-text antialiased">
         <CartProvider>
           <Loader />

@@ -162,7 +162,7 @@ export default function CatalogView() {
           {loading ? (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl border border-line bg-white overflow-hidden animate-pulse"><div className="aspect-[4/3] bg-paper-2" /><div className="p-5 space-y-3"><div className="h-3 w-20 bg-paper-2 rounded" /><div className="h-5 w-3/4 bg-paper-2 rounded" /></div></div>
+                <div key={i} className="rounded-2xl border border-line bg-paper-2 overflow-hidden animate-pulse"><div className="aspect-[4/3] bg-paper-3" /><div className="p-5 space-y-3"><div className="h-3 w-20 bg-paper-3 rounded" /><div className="h-5 w-3/4 bg-paper-3 rounded" /></div></div>
               ))}
             </div>
           ) : visible.length === 0 ? (

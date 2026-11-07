@@ -62,7 +62,7 @@ export default function FabricationPage() {
             <Reveal><p className="eyebrow text-teal">Materiales</p><h2 className="display-md mt-4 text-ink">Qué acero va en cada pieza</h2></Reveal>
           </div>
           <div className="lg:col-span-8">
-            <dl className="border-t border-ink">
+            <dl className="border-t border-line-2">
               {MATERIALS.map((m, i) => (
                 <Reveal key={m.code} delay={i * 0.06} distance={16}>
                   <div className="grid sm:grid-cols-[9rem_1fr] gap-2 sm:gap-8 py-5 border-b border-line">
@@ -76,16 +76,16 @@ export default function FabricationPage() {
         </div>
       </section>
 
-      <section className="section bg-ink text-paper">
+      <section className="section bg-paper-2 text-ink">
         <div className="container-custom">
           <Reveal><p className="eyebrow text-teal-3">Proceso</p><h2 className="display-md mt-4 max-w-2xl text-balance">Del levantamiento a la instalación, seis pasos.</h2></Reveal>
-          <ol className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line-ink border border-line-ink">
+          <ol className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line">
             {PROCESS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.07} className="bg-ink">
-                <li className="p-7 h-full hover:bg-ink-2 transition-colors duration-500">
+              <Reveal key={s.n} delay={i * 0.07} className="bg-paper-2">
+                <li className="p-7 h-full hover:bg-paper-3 transition-colors duration-500">
                   <span className="font-display text-3xl text-teal-3 tnum">{s.n}</span>
                   <h3 className="mt-5 font-display text-2xl">{s.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-text-on-ink-2">{s.text}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-2">{s.text}</p>
                 </li>
               </Reveal>
             ))}
@@ -103,7 +103,7 @@ export default function FabricationPage() {
           </div>
           <div className="lg:col-span-8">
             <Reveal delay={0.1}>
-              <table className="spec-table border-t border-ink">
+              <table className="spec-table border-t border-line-2">
                 <tbody>
                   {CAPABILITIES.map(([k, v]) => (<tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>))}
                 </tbody>
