@@ -3,218 +3,177 @@
 import { useState, type FormEvent } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { FiArrowLeft, FiShoppingBag, FiTrash2, FiSend, FiCheck, FiHome } from "react-icons/fi"
+import { FiArrowLeft, FiShoppingBag, FiTrash2, FiSend, FiCheck, FiMinus, FiPlus } from "react-icons/fi"
 import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
 
 export default function CheckoutPage() {
-  const { items, itemCount, subtotal, currencyCode, cartId, removeItem, resetCart, isLoading } = useCart()
-  const router = useRouter()
+  const { items, itemCount, subtotal, currencyCode, cartId, removeItem, updateItem, resetCart, isLoading } = useCart()
 
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [phone, setPhone] = useState("")
-  const [message, setMessage] = useState("")
+  const [form, setForm] = useState({ name: "", email: "", phone: "", organization: "", message: "" })
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [orderNumber, setOrderNumber] = useState<number | null>(null)
+
+  const update = (field: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [field]: value }))
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setStatus("sending")
     setErrorMessage(null)
-
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cartId,
-          name,
-          email,
-          phone,
-          message,
-          items: items.map((i) => ({
-            title: i.title,
-            quantity: i.quantity,
-            price: formatPrice(i.unit_price, currencyCode),
-            handle: i.product_handle,
-          })),
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          message: [form.organization && `Institución: ${form.organization}`, form.message].filter(Boolean).join("\n"),
+          items: items.map((i) => ({ title: i.title, quantity: i.quantity, price: formatPrice(i.unit_price, currencyCode), handle: i.product_handle })),
         }),
       })
       const data = await res.json().catch(() => ({}))
-
       if (!res.ok || !data.success) {
-        console.error("Checkout error:", data)
         setErrorMessage(data.error || "No se pudo enviar la solicitud. Intente nuevamente.")
         setStatus("idle")
         return
       }
-
       setOrderNumber(data.order?.display_id ?? null)
       setStatus("sent")
-      // The cart is now a completed order: clear local state without API calls
       resetCart()
-    } catch (error) {
-      console.error("Checkout error:", error)
+    } catch {
       setErrorMessage("No se pudo conectar con el servidor. Intente nuevamente.")
       setStatus("idle")
     }
   }
 
-  // Empty cart
-  if (items.length === 0 && status !== "sent") {
-    return (
-      <div className="pt-20 min-h-screen bg-dark-base">
-        <div className="container-custom px-4 sm:px-6 py-20">
-          <div className="max-w-lg mx-auto text-center">
-            <div className="w-20 h-20 mx-auto rounded-full bg-ivory-glow/10 border border-ivory/20 flex items-center justify-center mb-6">
-              <FiShoppingBag className="w-8 h-8 text-ivory/60" />
-            </div>
-            <h1 className="text-2xl font-serif font-bold text-text-primary mb-3">Carrito vacío</h1>
-            <p className="text-text-muted mb-8">Agregue propiedades a su carrito para solicitar información.</p>
-            <Link href="/propiedades" className="inline-flex items-center gap-2 px-6 py-3 bg-ivory text-dark-base font-medium rounded-lg hover:bg-ivory-light transition-all">
-              <FiHome className="w-4 h-4" /> Ver Propiedades
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Success state
   if (status === "sent") {
     return (
-      <div className="pt-20 min-h-screen bg-dark-base">
-        <div className="container-custom px-4 sm:px-6 py-20">
-          <div className="max-w-lg mx-auto text-center">
-            <div className="w-20 h-20 mx-auto rounded-full bg-success/20 border border-success/30 flex items-center justify-center mb-6">
-              <FiCheck className="w-8 h-8 text-success" />
-            </div>
-            <h1 className="text-2xl font-serif font-bold text-text-primary mb-3">¡Solicitud enviada!</h1>
-            <p className="text-text-muted mb-2">
-              Hemos recibido su solicitud de información{orderNumber ? <> con el número <span className="text-text-primary font-semibold">#{orderNumber}</span></> : null}.
-            </p>
-            <p className="text-text-muted mb-8">Nuestro equipo se pondrá en contacto con usted a la brevedad.</p>
-            <Link href="/propiedades" className="inline-flex items-center gap-2 px-6 py-3 bg-ivory text-dark-base font-medium rounded-lg hover:bg-ivory-light transition-all">
-              Seguir explorando
-            </Link>
-          </div>
+      <div className="bg-paper min-h-screen pb-32">
+        <PageBand title="Solicitud enviada" />
+        <div className="container-custom max-w-xl text-center pt-16">
+          <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-soft text-teal">
+            <FiCheck className="w-7 h-7" />
+          </span>
+          <h1 className="display-md mt-8 text-ink">Solicitud enviada</h1>
+          <p className="mt-4 text-text-2">
+            Registramos su solicitud de cotización{orderNumber ? <> con el número <span className="font-semibold text-ink">#{orderNumber}</span></> : null}.
+            Recibirá una confirmación por correo y un asesor le responderá en menos de 48 horas hábiles.
+          </p>
+          <Link href="/productos" className="btn btn-ink mt-10">Seguir explorando</Link>
         </div>
       </div>
     )
   }
 
-  const inputClass = "w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-ivory/50 focus:ring-1 focus:ring-ivory/20 transition-all duration-200"
+  if (items.length === 0) {
+    return (
+      <div className="bg-paper min-h-screen pb-32">
+        <PageBand title="Solicitar cotización" />
+        <div className="container-custom max-w-xl text-center pt-16">
+          <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-paper-2 text-text-3">
+            <FiShoppingBag className="w-7 h-7" />
+          </span>
+          <h1 className="display-md mt-8 text-ink">Su lista está vacía</h1>
+          <p className="mt-4 text-text-2">Agregue mobiliario desde el catálogo para solicitar una cotización.</p>
+          <Link href="/productos" className="btn btn-ink mt-10">Ver catálogo</Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="pt-20 min-h-screen bg-dark-base">
-      <div className="border-b border-dark-border">
-        <div className="container-custom px-4 sm:px-6 py-4">
-          <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-ivory-light transition-colors">
-            <FiArrowLeft className="w-4 h-4" /> Volver
-          </button>
+    <div className="bg-paper">
+      <div className="bg-ink text-paper pt-32 pb-12 lg:pt-40 lg:pb-16">
+        <div className="container-custom">
+          <Link href="/productos" className="inline-flex items-center gap-2 text-xs text-text-on-ink-3 hover:text-paper transition-colors">
+            <FiArrowLeft className="w-3.5 h-3.5" /> Seguir en el catálogo
+          </Link>
+          <h1 className="display-lg mt-6">Solicitar cotización</h1>
+          <p className="mt-4 max-w-xl text-text-on-ink-2">Revise su lista y complete sus datos. Le enviaremos una cotización formal con entrega e instalación incluidas.</p>
         </div>
       </div>
 
-      <div className="container-custom px-4 sm:px-6 py-8 sm:py-12">
-        <div className="max-w-3xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-ivory/20 bg-ivory-glow/10 mb-4">
-              <FiShoppingBag className="w-3 h-3 text-ivory" />
-              <span className="text-[11px] uppercase tracking-[0.15em] text-ivory-light font-medium">Checkout</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text-primary mb-2">Confirmar Solicitud</h1>
-            <p className="text-text-secondary">Revise las propiedades seleccionadas y complete sus datos para recibir información.</p>
-          </div>
-
-          <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-            {/* Cart items */}
-            <div className="lg:col-span-3 space-y-4">
-              <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-                Propiedades seleccionadas ({itemCount})
-              </h2>
-
-              {items.map((item) => (
-                <div key={item.id} className="flex gap-4 p-4 rounded-xl bg-dark-elevated border border-dark-border">
-                  <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-dark-surface">
-                    {item.thumbnail ? (
-                      <Image src={item.thumbnail} alt={item.title} fill className="object-cover" sizes="64px" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-lg font-serif text-ivory/30">{item.title.charAt(0)}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/propiedades/${item.product_handle}`} className="text-sm font-medium text-text-primary hover:text-ivory-light transition-colors line-clamp-1">
-                      {item.title}
-                    </Link>
-                    <p className="text-xs text-text-muted mt-1">{formatPrice(item.unit_price, currencyCode)}</p>
-                    <p className="text-xs text-text-muted mt-0.5">Cant: {item.quantity}</p>
-                  </div>
-                  <button onClick={() => removeItem(item.id)} disabled={isLoading} className="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-error/10 transition-all self-start disabled:opacity-30">
-                    <FiTrash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-
-              <div className="flex justify-between items-center pt-4 border-t border-dark-border">
-                <span className="text-sm text-text-muted">Total estimado</span>
-                <span className="text-lg font-bold text-text-primary">{formatPrice(subtotal, currencyCode)}</span>
-              </div>
-            </div>
-
-            {/* Form */}
-            <div className="lg:col-span-2">
-              <div className="p-6 rounded-xl bg-dark-elevated border border-dark-border sticky top-28">
-                <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-6">Sus Datos</h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="block text-xs font-medium text-text-secondary mb-1.5">Nombre Completo *</label>
-                    <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="Su nombre" />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-xs font-medium text-text-secondary mb-1.5">Correo Electrónico *</label>
-                    <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="correo@ejemplo.com" />
-                  </div>
-                  <div>
-                    <label htmlFor="phone" className="block text-xs font-medium text-text-secondary mb-1.5">Teléfono</label>
-                    <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} placeholder="+507 0000-0000" />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-xs font-medium text-text-secondary mb-1.5">Mensaje</label>
-                    <textarea id="message" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputClass} resize-none`} placeholder="¿Algo específico que desee consultar?" />
-                  </div>
-
-                  {errorMessage && (
-                    <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">
-                      {errorMessage}
-                    </p>
+      <div className="container-custom py-12 lg:py-16 grid lg:grid-cols-12 gap-10 lg:gap-16">
+        <section className="lg:col-span-7">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-text-3">Artículos ({itemCount})</h2>
+          <ul className="mt-4 divide-y divide-line border-y border-line">
+            {items.map((item) => (
+              <li key={item.id} className="flex gap-5 py-5">
+                <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-paper-2">
+                  {item.thumbnail ? (
+                    <Image src={item.thumbnail} alt={item.title} fill className="object-cover" sizes="96px" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-display text-2xl text-text-3">{item.title.charAt(0)}</div>
                   )}
-
-                  <button type="submit" disabled={status === "sending"}
-                    className="w-full px-6 py-3.5 bg-ivory text-dark-base font-semibold rounded-lg hover:bg-ivory-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 glow-ivory-subtle hover:glow-ivory"
-                  >
-                    {status === "sending" ? (
-                      <><div className="w-4 h-4 border-2 border-dark-base border-t-transparent rounded-full animate-spin" /> Enviando...</>
-                    ) : (
-                      <><FiSend className="w-4 h-4" /> Enviar Solicitud</>
-                    )}
-                  </button>
-                </form>
-
-                <p className="text-[11px] text-text-muted mt-4 text-center">
-                  Al enviar, un asesor se comunicará con usted para brindarle información detallada de las propiedades seleccionadas.
-                </p>
-              </div>
-            </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Link href={`/productos/${item.product_handle}`} className="font-display text-xl text-ink hover:text-teal transition-colors">{item.title}</Link>
+                  <p className="text-sm text-text-3 mt-1">{formatPrice(item.unit_price, currencyCode)} c/u</p>
+                  <div className="mt-3 flex items-center gap-4">
+                    <div className="inline-flex items-center border border-line rounded-full">
+                      <button onClick={() => updateItem(item.id, item.quantity - 1)} disabled={isLoading} className="p-2 text-text-2 hover:text-ink disabled:opacity-40" aria-label="Restar"><FiMinus className="w-3.5 h-3.5" /></button>
+                      <span className="w-8 text-center text-sm font-medium text-ink">{item.quantity}</span>
+                      <button onClick={() => updateItem(item.id, item.quantity + 1)} disabled={isLoading} className="p-2 text-text-2 hover:text-ink disabled:opacity-40" aria-label="Sumar"><FiPlus className="w-3.5 h-3.5" /></button>
+                    </div>
+                    <button onClick={() => removeItem(item.id)} disabled={isLoading} className="inline-flex items-center gap-1.5 text-xs text-text-3 hover:text-error transition-colors disabled:opacity-40">
+                      <FiTrash2 className="w-3.5 h-3.5" /> Quitar
+                    </button>
+                  </div>
+                </div>
+                <div className="text-right text-sm font-medium text-ink whitespace-nowrap">{formatPrice(item.unit_price * item.quantity, currencyCode)}</div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-sm text-text-2">Subtotal estimado</span>
+            <span className="font-display text-3xl text-ink">{formatPrice(subtotal, currencyCode)}</span>
           </div>
-        </div>
+          <p className="mt-2 text-xs text-text-3">Precios de referencia sin ITBMS. La cotización formal incluye transporte, instalación y descuentos por volumen.</p>
+        </section>
+
+        <section className="lg:col-span-5">
+          <form onSubmit={handleSubmit} className="card p-6 sm:p-8 lg:sticky lg:top-28 space-y-5">
+            <h2 className="font-display text-2xl text-ink">Sus datos</h2>
+            <Field label="Nombre completo *" id="name"><input id="name" required value={form.name} onChange={(e) => update("name", e.target.value)} className="input" placeholder="Su nombre" /></Field>
+            <Field label="Correo electrónico *" id="email"><input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} className="input" placeholder="correo@clinica.com" /></Field>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <Field label="Teléfono" id="phone"><input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} className="input" placeholder="+507 0000-0000" /></Field>
+              <Field label="Institución" id="organization"><input id="organization" value={form.organization} onChange={(e) => update("organization", e.target.value)} className="input" placeholder="Clínica u hospital" /></Field>
+            </div>
+            <Field label="Comentarios" id="message"><textarea id="message" rows={4} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Plazos, dirección de entrega, requisitos especiales…" /></Field>
+
+            {errorMessage && <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">{errorMessage}</p>}
+
+            <button type="submit" disabled={status === "sending"} className="btn btn-teal w-full disabled:opacity-60">
+              {status === "sending" ? "Enviando…" : <>Enviar solicitud <FiSend className="w-4 h-4" /></>}
+            </button>
+            <p className="text-[11px] text-text-3 text-center">Al enviar, un asesor de Karven se comunicará con usted con la cotización formal.</p>
+          </form>
+        </section>
       </div>
+    </div>
+  )
+}
+
+function PageBand({ title }: { title: string }) {
+  return (
+    <div className="bg-ink text-paper pt-32 pb-10 lg:pt-40 lg:pb-14">
+      <div className="container-custom">
+        <p className="eyebrow text-teal-3">Cotización</p>
+        <h1 className="display-lg mt-4">{title}</h1>
+      </div>
+    </div>
+  )
+}
+
+function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-xs font-medium uppercase tracking-[0.12em] text-text-2 mb-2">{label}</label>
+      {children}
     </div>
   )
 }

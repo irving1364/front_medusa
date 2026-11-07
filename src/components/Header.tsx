@@ -3,172 +3,148 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { FiMenu, FiX, FiPhone, FiShoppingBag } from "react-icons/fi"
+import { usePathname } from "next/navigation"
+import { FiMenu, FiX, FiShoppingBag, FiArrowUpRight } from "react-icons/fi"
 import { useCart } from "@/context/CartContext"
 
 const NAV_LINKS = [
-  { href: "/", label: "Inicio" },
-  { href: "/propiedades", label: "Propiedades" },
+  { href: "/productos", label: "Catálogo" },
   { href: "/nosotros", label: "Nosotros" },
   { href: "/contacto", label: "Contacto" },
 ]
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { openCart, itemCount } = useCart()
+  const pathname = usePathname()
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    const onScroll = () => setIsScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? "hidden" : ""
+    document.body.style.overflow = isMenuOpen ? "hidden" : ""
     return () => { document.body.style.overflow = "" }
-  }, [isMobileMenuOpen])
+  }, [isMenuOpen])
+
+  // Every page opens with a dark band, so the header is light-on-dark at the top
+  // and flips to paper-on-scroll.
+  const onDark = !isScrolled && !isMenuOpen
+  const textColor = onDark ? "text-paper" : "text-ink"
+  const mutedColor = onDark ? "text-paper/70 hover:text-paper" : "text-text-2 hover:text-ink"
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled
-          ? "bg-dark-base/90 backdrop-blur-xl border-b border-dark-border"
-          : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ${
+        isScrolled && !isMenuOpen
+          ? "bg-paper/85 backdrop-blur-xl border-b border-line"
+          : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="container-custom px-4 sm:px-6">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo - using white logotipo */}
-          <Link href="/" className="relative z-10 flex items-center gap-3 group">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+      <div className="container-custom">
+        <div className="flex items-center justify-between h-[76px]">
+          <Link href="/" className="relative z-10 flex items-center gap-3" aria-label="Karven, inicio">
+            <span className="relative block w-9 h-9">
               <Image
-                src="/images/logo-isotipo-blanco.png"
-                alt="Karven"
+                src={onDark ? "/images/logo-isotipo-blanco.png" : "/images/logo-isotipo-oscuro.png"}
+                alt=""
                 fill
                 className="object-contain"
-                sizes="48px"
+                sizes="36px"
+                priority
               />
-            </div>
-            <div className="hidden sm:block relative h-8 w-28">
+            </span>
+            <span className="relative hidden sm:block h-6 w-24">
               <Image
-                src="/images/logo-logotipo-blanco.png"
+                src={onDark ? "/images/logo-logotipo-blanco.png" : "/images/logo-logotipo-oscuro.png"}
                 alt="Karven"
                 fill
                 className="object-contain object-left"
-                sizes="112px"
+                sizes="96px"
+                priority
               />
-            </div>
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors duration-200 rounded-lg hover:bg-ivory-glow/10"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden lg:flex items-center gap-8">
+            {NAV_LINKS.map((link) => {
+              const active = pathname === link.href || pathname.startsWith(link.href + "/")
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative text-[13px] font-medium tracking-wide transition-colors ${mutedColor} ${active ? (onDark ? "text-paper" : "text-ink") : ""}`}
+                >
+                  {link.label}
+                  <span className={`absolute -bottom-1.5 left-0 h-px bg-teal-3 transition-all duration-500 ${active ? "w-full" : "w-0"}`} />
+                </Link>
+              )
+            })}
           </nav>
 
-          {/* Desktop Right */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Cart Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={openCart}
-              className="relative p-2.5 rounded-lg text-text-secondary hover:text-ivory-light hover:bg-ivory-glow/10 transition-all"
-              aria-label="Abrir carrito"
+              className={`relative p-2.5 rounded-full transition-colors ${mutedColor}`}
+              aria-label="Abrir cotización"
             >
-              <FiShoppingBag className="w-5 h-5" />
+              <FiShoppingBag className="w-[18px] h-[18px]" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-ivory text-dark-base text-[10px] font-bold flex items-center justify-center shadow-lg shadow-ivory-glow">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-teal text-white text-[10px] font-bold flex items-center justify-center">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
             </button>
 
-            <a href="tel:+50700000000" className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors">
-              <FiPhone className="w-4 h-4 text-ivory" />
-              <span>+507 000-0000</span>
-            </a>
             <Link
               href="/contacto"
-              className="px-5 py-2.5 text-sm font-medium text-dark-base bg-ivory hover:bg-ivory-light transition-all duration-300 rounded-lg"
+              className={`hidden lg:inline-flex btn text-[13px] py-2.5 px-5 ${onDark ? "btn-paper" : "btn-ink"}`}
             >
-              Solicitar Información
+              Solicitar cotización
+              <FiArrowUpRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
-
-          {/* Mobile Right */}
-          <div className="flex lg:hidden items-center gap-3">
-            {/* Cart Button */}
-            <button
-              onClick={openCart}
-              className="relative p-2 text-text-secondary hover:text-ivory-light transition-colors"
-              aria-label="Abrir carrito"
-            >
-              <FiShoppingBag className="w-5 h-5" />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-ivory text-dark-base text-[9px] font-bold flex items-center justify-center">
-                  {itemCount > 9 ? "9+" : itemCount}
-                </span>
-              )}
-            </button>
 
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="relative z-10 p-2 text-text-secondary hover:text-text-primary transition-colors"
-              aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              onClick={() => setIsMenuOpen((v) => !v)}
+              className={`relative z-10 lg:hidden p-2.5 rounded-full transition-colors ${textColor}`}
+              aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={isMenuOpen}
             >
-              {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+              {isMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <div
-        className={`fixed inset-0 bg-dark-base/95 backdrop-blur-lg transition-all duration-500 lg:hidden ${
-          isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 bg-paper transition-opacity duration-500 lg:hidden ${
+          isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
+        aria-hidden={!isMenuOpen}
       >
-        <div className="flex flex-col items-center justify-center h-full gap-8">
-          {/* Mobile menu logo */}
-          <div className="relative w-16 h-16 mb-4">
-            <Image
-              src="/images/logo-isotipo-blanco.png"
-              alt="Karven"
-              fill
-              className="object-contain"
-              sizes="64px"
-            />
-          </div>
-
+        <div className="container-custom h-full flex flex-col justify-center gap-2 pb-16">
           {NAV_LINKS.map((link, i) => (
             <Link
               key={link.href}
               href={link.href}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-2xl text-text-secondary hover:text-text-primary transition-colors animate-fade-in"
-              style={{ animationDelay: `${i * 100}ms` }}
+              onClick={() => setIsMenuOpen(false)}
+              className="font-display display-lg text-ink py-2 border-b border-line animate-rise"
+              style={{ animationDelay: `${120 + i * 80}ms` }}
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/contacto"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="mt-4 px-8 py-3 text-base font-medium text-dark-base bg-ivory hover:bg-ivory-light transition-all duration-300 rounded-lg"
-          >
-            Solicitar Información
-          </Link>
-          <a href="tel:+50700000000" className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
-            <FiPhone className="w-4 h-4" />
-            +507 000-0000
-          </a>
+          <div className="mt-8 flex flex-col gap-3 animate-rise" style={{ animationDelay: "420ms" }}>
+            <Link href="/contacto" onClick={() => setIsMenuOpen(false)} className="btn btn-ink">
+              Solicitar cotización <FiArrowUpRight className="w-4 h-4" />
+            </Link>
+            <p className="text-sm text-text-3">Ciudad de Panamá · Lun a Vie 8:00 – 6:00</p>
+          </div>
         </div>
       </div>
     </header>

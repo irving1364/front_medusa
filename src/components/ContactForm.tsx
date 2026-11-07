@@ -1,79 +1,103 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
-import { FiSend, FiCheck, FiAlertCircle } from "react-icons/fi"
+import { FiSend, FiCheck } from "react-icons/fi"
 
 const INTEREST_OPTIONS = [
-  "Compra de Propiedad M&eacute;dica",
-  "Arrendamiento",
-  "Venta de Propiedad",
-  "Informaci&oacute;n General",
+  "Camillas y camas hospitalarias",
+  "Mesas quirúrgicas",
+  "Unidades odontológicas",
+  "Mobiliario de consultorio",
+  "Laboratorio",
+  "Carros y estaciones de enfermería",
+  "Proyecto completo (varias áreas)",
   "Otro",
 ]
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "", interest: "" })
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+  const [form, setForm] = useState({ name: "", email: "", phone: "", organization: "", interest: "", message: "" })
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
+  const [error, setError] = useState<string | null>(null)
+
+  const update = (field: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [field]: value }))
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setStatus("sending")
-    await new Promise((r) => setTimeout(r, 1500))
-    setStatus("sent")
-    setTimeout(() => setStatus("idle"), 3000)
+    setError(null)
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.success) {
+        setError(data.error || "No se pudo enviar el mensaje. Intente nuevamente.")
+        setStatus("idle")
+        return
+      }
+      setStatus("sent")
+    } catch {
+      setError("No se pudo conectar con el servidor. Intente nuevamente.")
+      setStatus("idle")
+    }
   }
 
-  const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }))
-
-  const inputClass = "w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-ivory/50 focus:ring-1 focus:ring-ivory/20 transition-all duration-200"
+  if (status === "sent") {
+    return (
+      <div className="py-10 text-center">
+        <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-teal-soft text-teal">
+          <FiCheck className="w-6 h-6" />
+        </span>
+        <h3 className="mt-6 font-display text-2xl text-ink">Mensaje recibido</h3>
+        <p className="mt-2 text-sm text-text-2">Un asesor le responderá en menos de 48 horas hábiles.</p>
+      </div>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-2">Nombre Completo *</label>
-          <input id="name" type="text" required value={formData.name} onChange={(e) => update("name", e.target.value)} className={inputClass} placeholder="Su nombre" />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">Correo Electr&oacute;nico *</label>
-          <input id="email" type="email" required value={formData.email} onChange={(e) => update("email", e.target.value)} className={inputClass} placeholder="correo@ejemplo.com" />
-        </div>
+        <Field label="Nombre completo *" id="name">
+          <input id="name" required value={form.name} onChange={(e) => update("name", e.target.value)} className="input" placeholder="Su nombre" />
+        </Field>
+        <Field label="Correo electrónico *" id="email">
+          <input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} className="input" placeholder="correo@clinica.com" />
+        </Field>
       </div>
-
       <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-text-secondary mb-2">Tel&eacute;fono</label>
-          <input id="phone" type="tel" value={formData.phone} onChange={(e) => update("phone", e.target.value)} className={inputClass} placeholder="+507 0000-0000" />
-        </div>
-        <div>
-          <label htmlFor="interest" className="block text-sm font-medium text-text-secondary mb-2">Inter&eacute;s</label>
-          <select id="interest" value={formData.interest} onChange={(e) => update("interest", e.target.value)} className={inputClass}>
-            <option value="" disabled>Seleccione una opci&oacute;n</option>
-            {INTEREST_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
-        </div>
+        <Field label="Teléfono" id="phone">
+          <input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} className="input" placeholder="+507 0000-0000" />
+        </Field>
+        <Field label="Clínica, hospital o empresa" id="organization">
+          <input id="organization" value={form.organization} onChange={(e) => update("organization", e.target.value)} className="input" placeholder="Nombre de la institución" />
+        </Field>
       </div>
+      <Field label="¿Qué necesita equipar?" id="interest">
+        <select id="interest" value={form.interest} onChange={(e) => update("interest", e.target.value)} className="input">
+          <option value="">Seleccione una opción</option>
+          {INTEREST_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+        </select>
+      </Field>
+      <Field label="Mensaje *" id="message">
+        <textarea id="message" required rows={5} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Cuéntenos el alcance: áreas, cantidades aproximadas y plazos." />
+      </Field>
 
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-text-secondary mb-2">Mensaje *</label>
-        <textarea id="message" required rows={5} value={formData.message} onChange={(e) => update("message", e.target.value)} className={`${inputClass} resize-none`} placeholder="Cu&eacute;ntenos sobre su proyecto o requisitos..." />
-      </div>
+      {error && <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={status === "sending" || status === "sent"}
-        className="w-full sm:w-auto px-8 py-4 bg-ivory text-dark-base font-semibold rounded-lg hover:bg-ivory-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 glow-ivory-subtle hover:glow-ivory group"
-      >
-        {status === "sending" ? (
-          <><div className="w-4 h-4 border-2 border-dark-base border-t-transparent rounded-full animate-spin" /> Enviando...</>
-        ) : status === "sent" ? (
-          <><FiCheck className="w-4 h-4" /> Mensaje Enviado</>
-        ) : status === "error" ? (
-          <><FiAlertCircle className="w-4 h-4" /> Error - Intentar de Nuevo</>
-        ) : (
-          <>Enviar Mensaje <FiSend className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
-        )}
+      <button type="submit" disabled={status === "sending"} className="btn btn-ink w-full sm:w-auto disabled:opacity-60">
+        {status === "sending" ? "Enviando…" : <>Enviar mensaje <FiSend className="w-4 h-4" /></>}
       </button>
     </form>
+  )
+}
+
+function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-xs font-medium uppercase tracking-[0.12em] text-text-2 mb-2">{label}</label>
+      {children}
+    </div>
   )
 }

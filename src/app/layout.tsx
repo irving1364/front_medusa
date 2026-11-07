@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Playfair_Display } from "next/font/google"
+import { Inter, Fraunces } from "next/font/google"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import CartDrawer from "@/components/CartDrawer"
@@ -13,43 +13,45 @@ const inter = Inter({
   display: "swap",
 })
 
-const playfair = Playfair_Display({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-fraunces",
   display: "swap",
+  axes: ["opsz", "SOFT", "WONK"],
 })
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 
 export const metadata: Metadata = {
   title: {
-    default: "Karven | Inmobiliaria Médica Premium",
+    default: "Karven | Mobiliario Médico",
     template: "%s | Karven",
   },
   description:
-    "Descubra propiedades médicas premium. Karven es líder en bienes raíces para el sector salud en Panamá, ofreciendo consultorios, clínicas y espacios médicos de primer nivel.",
+    "Karven diseña y suministra mobiliario médico y clínico de alto nivel en Panamá: camillas, mesas quirúrgicas, unidades odontológicas, mobiliario de consultorio y laboratorio.",
   keywords: [
-    "inmobiliaria médica", "bienes raíces médicos", "consultorios médicos",
-    "Panamá", "espacios clínicos", "propiedades médicas",
+    "mobiliario médico", "muebles médicos", "camillas", "mesas quirúrgicas",
+    "unidades odontológicas", "equipamiento clínico", "Panamá", "Karven",
   ],
   icons: {
     icon: [
-      { url: "/images/logo-isotipo-blanco.png", sizes: "32x32", type: "image/png" },
-      { url: "/images/logo-isotipo-blanco.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/logo-isotipo-oscuro.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/logo-isotipo-oscuro.png", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/images/logo-isotipo-blanco.png", sizes: "180x180" }],
+    apple: [{ url: "/images/logo-isotipo-oscuro.png", sizes: "180x180" }],
   },
   openGraph: {
-    title: "Karven | Inmobiliaria Médica Premium",
-    description: "Descubra propiedades médicas premium en Panamá. Espacios diseñados para el sector salud.",
+    title: "Karven | Mobiliario Médico",
+    description: "Mobiliario médico y clínico de alto nivel en Panamá. Diseño, suministro e instalación.",
     type: "website",
     locale: "es_PA",
-    siteName: "Karven",
+    siteName: "Karven Medical Furniture",
     images: [{ url: "/images/logo-imagotipo-blanco.png", width: 1200, height: 630 }],
   },
   robots: { index: true, follow: true },
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-  ),
+  metadataBase: new URL(SITE_URL),
 }
 
 export default function RootLayout({
@@ -58,8 +60,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${playfair.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-dark-base text-text-primary antialiased">
+    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${fraunces.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-paper text-text antialiased">
         <CartProvider>
           <Loader />
           <Header />

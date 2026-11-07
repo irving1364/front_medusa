@@ -1,4 +1,4 @@
-export interface Property {
+export interface Product {
   id: string
   title: string
   subtitle: string | null
@@ -9,23 +9,27 @@ export interface Property {
   price: number
   currencyCode: string
   variantId: string | null
-  location: string | null
-  area: string | null
-  bedrooms: number | null
-  bathrooms: number | null
-  type: string | null
-  status: "disponible" | "vendido" | "rentado"
+  sku: string | null
+  collection: { title: string; handle: string } | null
+  /** Specs read from Medusa product metadata */
+  material: string | null
+  dimensions: string | null
+  capacity: string | null
+  warranty: string | null
+  color: string | null
   features: string[]
-  category: string | null
+  badge: string | null
   createdAt: string
 }
 
-export interface PropertyFilters {
-  category?: string
-  type?: string
-  minPrice?: number
-  maxPrice?: number
-  location?: string
-  status?: string
+export interface Collection {
+  id: string
+  title: string
+  handle: string
+}
+
+export interface ProductFilters {
+  collection?: string
   search?: string
+  sort?: "newest" | "price-asc" | "price-desc"
 }

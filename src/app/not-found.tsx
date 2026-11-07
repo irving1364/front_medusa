@@ -3,25 +3,15 @@ import { FiArrowLeft } from "react-icons/fi"
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-base">
-      <div className="text-center px-4">
-        <div className="text-9xl sm:text-[10rem] font-serif font-bold text-gradient-gold mb-6">
-          404
+    <div className="min-h-screen flex items-center justify-center bg-ink text-paper">
+      <div className="container-custom text-center py-32">
+        <p className="eyebrow text-teal-3 justify-center">Error 404</p>
+        <h1 className="display-xl mt-6">Esta página no existe.</h1>
+        <p className="mt-6 text-text-on-ink-2 max-w-md mx-auto">El enlace puede haber cambiado. Vuelva al inicio o explore el catálogo.</p>
+        <div className="mt-10 flex justify-center gap-3">
+          <Link href="/" className="btn btn-paper"><FiArrowLeft className="w-4 h-4" /> Inicio</Link>
+          <Link href="/productos" className="btn btn-outline-paper">Catálogo</Link>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text-primary mb-4">
-          Página No Encontrada
-        </h1>
-        <p className="text-text-secondary max-w-md mx-auto mb-8 leading-relaxed">
-          La página que está buscando no existe o ha sido movida.
-          Por favor, verifique la URL o regrese al inicio.
-        </p>
-        <Link
-          href="/"
-          className="group inline-flex items-center gap-2 px-8 py-4 bg-gold text-dark-base font-semibold rounded-lg hover:bg-gold-light transition-all duration-300 glow-gold-subtle hover:glow-gold"
-        >
-          <FiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Volver al Inicio
-        </Link>
       </div>
     </div>
   )

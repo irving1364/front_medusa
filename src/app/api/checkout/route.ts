@@ -5,7 +5,7 @@ const PUBLISHABLE_KEY = (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || "
 const RESEND_KEY = (process.env.RESEND_API_KEY || "").trim()
 const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend.dev>").trim()
 const STORE_EMAIL = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").trim()
-const STORE_NAME = "Karven - Inmobiliaria Médica"
+const STORE_NAME = "Karven Medical Furniture"
 const STORE_PHONE = "+507 000-0000"
 const COUNTRY_CODE = "pa"
 const PAYMENT_PROVIDER = "pp_system_default"
@@ -104,7 +104,7 @@ const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 
 function buildItemsList(items?: CheckoutItem[]): string {
-  if (!items || items.length === 0) return "<li>Propiedades en carrito</li>"
+  if (!items || items.length === 0) return "<li>Artículos en la lista</li>"
   return items.map((i) => `<li>${escapeHtml(i.title)} × ${i.quantity} — ${escapeHtml(i.price)}</li>`).join("")
 }
 
@@ -133,7 +133,7 @@ function storeEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
   const row = (label: string, value: string) =>
     `<tr><td style="color:#808078;padding:8px 0">${label}</td><td style="color:#f5f0e8;padding:8px 0">${value}</td></tr>`
   const email = escapeHtml(body.email)
-  return wrap("Nueva Solicitud de Información", `
+  return wrap("Nueva solicitud de cotización", `
     <h2 style="color:#f5f0e8;font-size:18px">Datos del Cliente</h2>
     <table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:14px">
       ${row("Nombre:", escapeHtml(body.name))}
@@ -142,7 +142,7 @@ function storeEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
       ${row("Fecha:", getDateStr())}
       ${row("Orden en Medusa:", `#${order.display_id} (${order.id})`)}
     </table>
-    <h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Propiedades de Interés</h2>
+    <h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Artículos solicitados</h2>
     <ul style="color:#c0c0b8;font-size:14px;line-height:1.8">${buildItemsList(body.items)}</ul>
     ${body.message ? `<h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Mensaje</h2><p style="color:#c0c0b8;font-size:14px;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${escapeHtml(body.message)}</p>` : ""}
   `)
@@ -151,9 +151,9 @@ function storeEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
 function customerEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
   return wrap("Hemos recibido su solicitud", `
     <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Estimado/a <strong style="color:#f5f0e8">${escapeHtml(body.name)}</strong>,</p>
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Gracias por contactarnos. Registramos su solicitud con el número <strong style="color:#f5f0e8">#${order.display_id}</strong> sobre las siguientes propiedades:</p>
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Gracias por contactarnos. Registramos su solicitud de cotización con el número <strong style="color:#f5f0e8">#${order.display_id}</strong> para los siguientes artículos:</p>
     <ul style="color:#c0c0b8;font-size:14px;line-height:1.8;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${buildItemsList(body.items)}</ul>
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6;margin-top:20px">Uno de nuestros asesores se pondrá en contacto con usted a la brevedad para brindarle toda la información detallada.</p>
+    <p style="color:#c0c0b8;font-size:15px;line-height:1.6;margin-top:20px">Uno de nuestros asesores se pondrá en contacto con usted a la brevedad con la cotización formal, incluyendo entrega e instalación.</p>
     <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Si tiene alguna pregunta adicional, escríbanos a <a href="mailto:${STORE_EMAIL}" style="color:#f5f0e8">${STORE_EMAIL}</a> o llámenos al <strong style="color:#f5f0e8">${STORE_PHONE}</strong>.</p>
   `)
 }
@@ -175,8 +175,8 @@ export async function POST(request: NextRequest) {
     const order = await placeOrder(body)
 
     const [emailStore, emailCustomer] = await Promise.all([
-      sendEmail(STORE_EMAIL, `🆕 Solicitud #${order.display_id} de ${body.name} — ${body.items?.length || 0} propiedades`, storeEmailHtml(body, order)),
-      sendEmail(body.email, `Hemos recibido su solicitud #${order.display_id} — Karven`, customerEmailHtml(body, order)),
+      sendEmail(STORE_EMAIL, `🆕 Cotización #${order.display_id} de ${body.name} — ${body.items?.length || 0} artículos`, storeEmailHtml(body, order)),
+      sendEmail(body.email, `Su solicitud de cotización #${order.display_id} — Karven`, customerEmailHtml(body, order)),
     ])
 
     return NextResponse.json({

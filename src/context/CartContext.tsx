@@ -5,6 +5,7 @@ import {
   getOrCreateCart,
   addToCart as medusaAddToCart,
   removeFromCart as medusaRemoveFromCart,
+  updateCartItem as medusaUpdateCartItem,
   retrieveCart,
   removeStoredCartId,
 } from "@/lib/medusa"
@@ -22,6 +23,7 @@ export interface CartContextType {
   closeCart: () => void
   toggleCart: () => void
   addItem: (variantId: string, quantity?: number) => Promise<void>
+  updateItem: (lineItemId: string, quantity: number) => Promise<void>
   removeItem: (lineItemId: string) => Promise<void>
   clearCart: () => void
   refreshCart: () => Promise<void>
@@ -36,7 +38,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [currencyCode, setCurrencyCode] = useState("PAB")
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
 
   const refreshCart = useCallback(async () => {
     if (!cartId) {
@@ -45,17 +46,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     try {
       const cart = await retrieveCart(cartId)
-      if (cart) {
-        setItems(cart.items || [])
-      }
+      if (cart) setItems(cart.items || [])
     } catch {
-      // Cart might be expired
       setCartId(null)
       setItems([])
     }
   }, [cartId])
 
-  // Initialize cart on mount
   useEffect(() => {
     async function init() {
       setIsLoading(true)
@@ -70,7 +67,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Silent fail - cart will be created on first add
       } finally {
         setIsLoading(false)
-        setIsInitialized(true)
       }
     }
     init()
@@ -87,12 +83,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCartId(cart.id)
       }
       const updatedCart = await medusaAddToCart(currentCartId, variantId, quantity)
-      if (updatedCart) {
-        setItems(updatedCart.items || [])
-      }
-      setIsOpen(true) // Open cart drawer on add
+      if (updatedCart) setItems(updatedCart.items || [])
+      setIsOpen(true)
     } catch (error) {
       console.error("Error adding item:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [cartId])
+
+  const updateItem = useCallback(async (lineItemId: string, quantity: number) => {
+    if (!cartId) return
+    setIsLoading(true)
+    try {
+      const updatedCart = quantity <= 0
+        ? await medusaRemoveFromCart(cartId, lineItemId)
+        : await medusaUpdateCartItem(cartId, lineItemId, quantity)
+      if (updatedCart) setItems(updatedCart.items || [])
+    } catch (error) {
+      console.error("Error updating item:", error)
     } finally {
       setIsLoading(false)
     }
@@ -103,9 +112,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
     try {
       const updatedCart = await medusaRemoveFromCart(cartId, lineItemId)
-      if (updatedCart) {
-        setItems(updatedCart.items || [])
-      }
+      if (updatedCart) setItems(updatedCart.items || [])
     } catch (error) {
       console.error("Error removing item:", error)
     } finally {
@@ -114,18 +121,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartId])
 
   const clearCart = useCallback(() => {
-    // Remove all items sequentially (makes API calls)
     if (!cartId) return
     setIsLoading(true)
-    Promise.all(items.map((item) => medusaRemoveFromCart(cartId!, item.id)))
-      .then(() => {
-        setItems([])
-      })
+    Promise.all(items.map((item) => medusaRemoveFromCart(cartId, item.id)))
+      .then(() => setItems([]))
       .finally(() => setIsLoading(false))
   }, [cartId, items])
 
   const resetCart = useCallback(() => {
-    // Clear cart state WITHOUT API calls - used after order completion
+    // Clear cart state WITHOUT API calls - used after the cart became an order
     setItems([])
     setCartId(null)
     removeStoredCartId()
@@ -137,21 +141,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <CartContext.Provider
       value={{
-        items,
-        itemCount,
-        subtotal,
-        currencyCode,
-        isOpen,
-        isLoading,
-        cartId,
+        items, itemCount, subtotal, currencyCode, isOpen, isLoading, cartId,
         openCart: () => setIsOpen(true),
         closeCart: () => setIsOpen(false),
         toggleCart: () => setIsOpen((v) => !v),
-        addItem,
-        removeItem,
-        clearCart,
-        resetCart,
-        refreshCart,
+        addItem, updateItem, removeItem, clearCart, resetCart, refreshCart,
       }}
     >
       {children}
@@ -161,8 +155,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart(): CartContextType {
   const context = useContext(CartContext)
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider")
-  }
+  if (!context) throw new Error("useCart must be used within a CartProvider")
   return context
 }

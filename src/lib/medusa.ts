@@ -1,5 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
-import type { Property } from "@/types"
+import type { Product, Collection } from "@/types"
 
 const BACKEND_URL = (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000").trim()
 const PUBLISHABLE_API_KEY = (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || "").trim()
@@ -23,6 +23,8 @@ export function getMedusaClient(): Medusa {
   return medusaClient
 }
 
+// ─── Medusa shapes (subset we read) ─────────────────────────────────
+
 export interface MedusaProduct {
   id: string
   title: string
@@ -35,14 +37,13 @@ export interface MedusaProduct {
   variants: {
     id: string
     title: string
+    sku: string | null
     // Only present when the request includes region_id (Store API never returns raw `prices`)
     calculated_price?: { calculated_amount: number; currency_code: string } | null
   }[]
-  collection: { title: string; handle: string } | null
-  categories: { id: string; name: string }[]
+  collection: { id: string; title: string; handle: string } | null
   metadata: Record<string, unknown> | null
   created_at: string
-  updated_at: string
 }
 
 export interface MedusaRegion {
@@ -51,8 +52,27 @@ export interface MedusaRegion {
   currency_code: string
 }
 
+export interface MedusaCart {
+  id: string
+  items: MedusaLineItem[]
+  total: number
+  subtotal: number
+  currency_code: string
+}
+
+export interface MedusaLineItem {
+  id: string
+  title: string
+  thumbnail: string | null
+  quantity: number
+  unit_price: number
+  product_id: string
+  variant_id: string
+  product_handle: string
+}
+
 // Fields requested for every product query. `*` adds a relation, `+` adds a field.
-const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*categories,*collection,+metadata"
+const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,+metadata"
 
 // ─── Region ─────────────────────────────────────────────────────────
 
@@ -77,40 +97,11 @@ export async function getRegion(): Promise<MedusaRegion | null> {
   return regionPromise
 }
 
-export interface MedusaCollection {
-  id: string
-  title: string
-  handle: string
-  products: MedusaProduct[]
-}
-
-export interface MedusaCart {
-  id: string
-  items: MedusaLineItem[]
-  total: number
-  subtotal: number
-  currency_code: string
-}
-
-export interface MedusaLineItem {
-  id: string
-  title: string
-  thumbnail: string | null
-  quantity: number
-  unit_price: number
-  product_id: string
-  variant_id: string
-  product_handle: string
-}
-
 // ─── Mapping ────────────────────────────────────────────────────────
 
-const VALID_STATUSES: Property["status"][] = ["disponible", "vendido", "rentado"]
-
-function toNumber(value: unknown): number | null {
+function toText(value: unknown): string | null {
   if (value === null || value === undefined || value === "") return null
-  const n = Number(value)
-  return Number.isFinite(n) ? n : null
+  return String(value)
 }
 
 function toFeatures(value: unknown): string[] {
@@ -119,10 +110,9 @@ function toFeatures(value: unknown): string[] {
   return []
 }
 
-export function mapMedusaProductToProperty(product: MedusaProduct): Property {
+export function mapMedusaProduct(product: MedusaProduct): Product {
   const variant = product.variants?.[0]
   const meta = product.metadata || {}
-  const status = String(meta.status || "").toLowerCase() as Property["status"]
   return {
     id: product.id,
     title: product.title,
@@ -134,14 +124,15 @@ export function mapMedusaProductToProperty(product: MedusaProduct): Property {
     price: variant?.calculated_price?.calculated_amount ?? 0,
     currencyCode: (variant?.calculated_price?.currency_code || PREFERRED_CURRENCY).toUpperCase(),
     variantId: variant?.id || null,
-    location: (meta.location as string) || null,
-    area: meta.area != null ? String(meta.area) : null,
-    bedrooms: toNumber(meta.bedrooms),
-    bathrooms: toNumber(meta.bathrooms),
-    type: (meta.type as string) || null,
-    status: VALID_STATUSES.includes(status) ? status : "disponible",
+    sku: variant?.sku || null,
+    collection: product.collection ? { title: product.collection.title, handle: product.collection.handle } : null,
+    material: toText(meta.material),
+    dimensions: toText(meta.dimensions),
+    capacity: toText(meta.capacity),
+    warranty: toText(meta.warranty),
+    color: toText(meta.color),
     features: toFeatures(meta.features),
-    category: product.collection?.title || null,
+    badge: toText(meta.badge),
     createdAt: product.created_at,
   }
 }
@@ -152,10 +143,8 @@ export async function getProducts(params?: {
   limit?: number
   offset?: number
   collection_id?: string[]
-  category_id?: string[]
-  order?: string
   q?: string
-}): Promise<{ products: MedusaProduct[]; count: number; offset: number; limit: number }> {
+}): Promise<{ products: Product[]; count: number }> {
   const client = getMedusaClient()
   try {
     const region = await getRegion()
@@ -164,18 +153,18 @@ export async function getProducts(params?: {
       offset: params?.offset || 0,
       ...(region ? { region_id: region.id } : {}),
       ...(params?.collection_id?.length ? { collection_id: params.collection_id } : {}),
-      ...(params?.category_id?.length ? { category_id: params.category_id } : {}),
       ...(params?.q ? { q: params.q } : {}),
       fields: PRODUCT_FIELDS,
     })
-    return response as unknown as { products: MedusaProduct[]; count: number; offset: number; limit: number }
+    const products = (response.products as unknown as MedusaProduct[]).map(mapMedusaProduct)
+    return { products, count: response.count ?? products.length }
   } catch (error) {
     console.error("Error fetching products:", error)
-    return { products: [], count: 0, offset: 0, limit: params?.limit || 12 }
+    return { products: [], count: 0 }
   }
 }
 
-export async function getProductByHandle(handle: string): Promise<MedusaProduct | null> {
+export async function getProductByHandle(handle: string): Promise<Product | null> {
   const client = getMedusaClient()
   try {
     // Medusa v2 doesn't support retrieving by handle via GET /store/products/:id.
@@ -187,18 +176,20 @@ export async function getProductByHandle(handle: string): Promise<MedusaProduct 
       ...(region ? { region_id: region.id } : {}),
       fields: PRODUCT_FIELDS,
     })
-    return (response.products?.[0] as unknown as MedusaProduct) || null
+    const raw = response.products?.[0] as unknown as MedusaProduct | undefined
+    return raw ? mapMedusaProduct(raw) : null
   } catch (error) {
     console.error(`Error fetching product ${handle}:`, error)
     return null
   }
 }
 
-export async function getCollections(): Promise<MedusaCollection[]> {
+export async function getCollections(): Promise<Collection[]> {
   const client = getMedusaClient()
   try {
-    const response = await client.store.collection.list({ fields: "*products" })
-    return response.collections as unknown as MedusaCollection[]
+    const response = await client.store.collection.list({ limit: 50 })
+    const collections = (response.collections || []) as { id: string; title: string; handle: string }[]
+    return collections.map((c) => ({ id: c.id, title: c.title, handle: c.handle }))
   } catch (error) {
     console.error("Error fetching collections:", error)
     return []
@@ -263,17 +254,10 @@ export async function retrieveCart(cartId: string): Promise<MedusaCart | null> {
   }
 }
 
-export async function addToCart(
-  cartId: string,
-  variantId: string,
-  quantity: number = 1
-): Promise<MedusaCart | null> {
+export async function addToCart(cartId: string, variantId: string, quantity: number = 1): Promise<MedusaCart | null> {
   const client = getMedusaClient()
   try {
-    const response = await client.store.cart.createLineItem(cartId, {
-      variant_id: variantId,
-      quantity,
-    })
+    const response = await client.store.cart.createLineItem(cartId, { variant_id: variantId, quantity })
     return response.cart as unknown as MedusaCart
   } catch (error) {
     console.error("Error adding to cart:", error)
@@ -281,16 +265,10 @@ export async function addToCart(
   }
 }
 
-export async function updateCartItem(
-  cartId: string,
-  lineItemId: string,
-  quantity: number
-): Promise<MedusaCart | null> {
+export async function updateCartItem(cartId: string, lineItemId: string, quantity: number): Promise<MedusaCart | null> {
   const client = getMedusaClient()
   try {
-    const response = await client.store.cart.updateLineItem(cartId, lineItemId, {
-      quantity,
-    })
+    const response = await client.store.cart.updateLineItem(cartId, lineItemId, { quantity })
     return response.cart as unknown as MedusaCart
   } catch (error) {
     console.error("Error updating cart item:", error)
@@ -298,10 +276,7 @@ export async function updateCartItem(
   }
 }
 
-export async function removeFromCart(
-  cartId: string,
-  lineItemId: string
-): Promise<MedusaCart | null> {
+export async function removeFromCart(cartId: string, lineItemId: string): Promise<MedusaCart | null> {
   const client = getMedusaClient()
   try {
     const response = await client.store.cart.deleteLineItem(cartId, lineItemId)
@@ -314,9 +289,9 @@ export async function removeFromCart(
 
 // ─── Formatting ─────────────────────────────────────────────────────
 
-export function formatPrice(amount: number, currencyCode: string = "usd"): string {
-  const symbols: Record<string, string> = { USD: "$", PAB: "B/.", MXN: "MX$", EUR: "\u20ac" }
+export function formatPrice(amount: number, currencyCode: string = "PAB"): string {
+  const symbols: Record<string, string> = { USD: "$", PAB: "B/.", MXN: "MX$", EUR: "€" }
   const code = currencyCode.toUpperCase()
   const sym = symbols[code] || "$"
-  return `${sym}${amount.toLocaleString("es-PA", { minimumFractionDigits: 0 })}`
+  return `${sym} ${amount.toLocaleString("es-PA", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
 }

@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "react-bits": {
+      "source": "Philotheephilix/reactbits.dev-skill",
+      "sourceType": "github",
+      "skillPath": "react-bits/SKILL.md",
+      "computedHash": "f6cb9221649745f0187d88d63be11968a61f393041ea1d3128cdfeb81600ecdf"
+    },
     "storefront-best-practices": {
       "source": "medusajs/medusa-agent-skills",
       "sourceType": "github",
