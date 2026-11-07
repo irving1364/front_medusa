@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { FiPlus, FiCheck } from "react-icons/fi"
 import { useState } from "react"
+import { FiPlus, FiCheck } from "react-icons/fi"
 import SpotlightCard from "@/components/reactbits/SpotlightCard/SpotlightCard"
 import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
@@ -26,33 +26,27 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     setTimeout(() => setAdded(false), 2000)
   }
 
+  const materialShort = product.material?.replace("Acero inoxidable ", "Inox ") || null
+
   return (
     <SpotlightCard
       theme="light"
-      spotlightColor="rgba(20, 138, 154, 0.35)"
-      intensity={0.22}
-      spotlightSize={320}
-      borderGlow={0.8}
+      spotlightColor="rgba(20, 138, 154, 0.28)"
+      intensity={0.16}
+      spotlightSize={300}
+      borderGlow={0.6}
       className="group h-full rounded-2xl border border-line bg-white"
     >
-      <Link href={`/productos/${product.handle}`} className="flex h-full flex-col">
-        <div className="img-frame aspect-[4/3] rounded-b-none rounded-t-2xl">
+      <Link href={`/equipamiento/${product.handle}`} className="flex h-full flex-col">
+        <div className="plate aspect-[4/3] rounded-t-2xl">
           {product.thumbnail ? (
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              fill
-              priority={priority}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover"
-            />
+            <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center font-display text-5xl text-text-3">{product.title.charAt(0)}</div>
           )}
+          <span className="absolute top-3 left-3 px-2 py-1 rounded bg-paper/90 text-[10px] font-semibold tracking-[0.15em] text-ink tnum">{product.sku || "—"}</span>
           {product.badge && (
-            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-paper/90 backdrop-blur text-[10px] font-semibold uppercase tracking-[0.15em] text-ink">
-              {product.badge}
-            </span>
+            <span className="absolute top-3 right-3 px-2 py-1 rounded bg-teal text-paper text-[10px] font-semibold uppercase tracking-[0.15em]">{product.badge}</span>
           )}
           <button
             onClick={quickAdd}
@@ -66,14 +60,15 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          {product.collection && (
-            <p className="text-[11px] uppercase tracking-[0.18em] text-teal">{product.collection.title}</p>
-          )}
+          {product.collection && <p className="text-[11px] uppercase tracking-[0.16em] text-teal">{product.collection.title}</p>}
           <h3 className="mt-2 font-display text-xl leading-snug text-ink group-hover:text-teal transition-colors">{product.title}</h3>
           {product.subtitle && <p className="mt-1 text-sm text-text-3 line-clamp-2">{product.subtitle}</p>}
-          <div className="mt-auto pt-5 flex items-center justify-between">
-            <span className="text-sm font-medium text-ink">{formatPrice(product.price, product.currencyCode)}</span>
-            {product.sku && <span className="text-[11px] text-text-3 tracking-wider">{product.sku}</span>}
+          <div className="mt-auto pt-5 flex items-end justify-between gap-3 border-t border-line">
+            <div className="text-[11px] text-text-3 leading-snug">
+              {materialShort && <span className="block">{materialShort}</span>}
+              {product.dimensions && <span className="block tnum">{product.dimensions}</span>}
+            </div>
+            <span className="text-sm font-medium text-ink tnum whitespace-nowrap">{formatPrice(product.price, product.currencyCode)}</span>
           </div>
         </div>
       </Link>

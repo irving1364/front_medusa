@@ -3,12 +3,12 @@ import { Suspense } from "react"
 import CatalogView from "./CatalogView"
 
 export const metadata: Metadata = {
-  title: "Catálogo de mobiliario médico",
+  title: "Equipamiento",
   description:
-    "Camillas, mesas quirúrgicas, unidades odontológicas, mobiliario de consultorio, laboratorio y carros de enfermería. Cotización formal en 48 horas.",
+    "Catálogo de mobiliario clínico en acero inoxidable: clínico fijo y móvil, quirúrgico, higiene, laboratorio, patología y arquitectura clínica. Fabricado en Panamá.",
 }
 
-export default function ProductsPage() {
+export default function EquipmentPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-paper" />}>
       <CatalogView />

@@ -12,8 +12,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/propiedades", destination: "/productos", permanent: true },
-      { source: "/propiedades/:handle", destination: "/productos/:handle", permanent: true },
+      { source: "/propiedades", destination: "/equipamiento", permanent: true },
+      { source: "/propiedades/:handle", destination: "/equipamiento/:handle", permanent: true },
+      { source: "/productos", destination: "/equipamiento", permanent: true },
+      { source: "/productos/:handle", destination: "/equipamiento/:handle", permanent: true },
+      { source: "/nosotros", destination: "/fabricacion", permanent: true },
     ]
   },
 }

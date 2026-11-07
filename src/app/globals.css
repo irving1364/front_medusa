@@ -222,3 +222,35 @@ body {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ── Catalogue plates (uniform treatment for provisional imagery) ───── */
+@layer components {
+  .plate {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-paper-2);
+  }
+  .plate img {
+    filter: grayscale(1) contrast(1.05) brightness(1.02);
+    transition: filter 0.9s var(--ease-out-expo), transform 1.2s var(--ease-out-expo);
+  }
+  .plate::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(14, 107, 120, 0.08), rgba(31, 35, 41, 0.18));
+    mix-blend-mode: multiply;
+    transition: opacity 0.9s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .group:hover .plate img, .plate:hover img { filter: grayscale(0) contrast(1) brightness(1); transform: scale(1.03); }
+  .group:hover .plate::after, .plate:hover::after { opacity: 0; }
+
+  .tnum { font-variant-numeric: tabular-nums; }
+  .rule { border-top: 1px solid var(--color-line); }
+  .rule-strong { border-top: 1px solid var(--color-ink); }
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { padding: 0.65rem 0; border-top: 1px solid var(--color-line); vertical-align: top; text-align: left; }
+  .spec-table th { width: 38%; font-weight: 500; color: var(--color-text-3); padding-right: 1rem; }
+  .spec-table td { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+}

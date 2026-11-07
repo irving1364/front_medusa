@@ -4,14 +4,15 @@ import { useState, type FormEvent } from "react"
 import { FiSend, FiCheck } from "react-icons/fi"
 
 const INTEREST_OPTIONS = [
-  "Camillas y camas hospitalarias",
-  "Mesas quirúrgicas",
-  "Unidades odontológicas",
-  "Mobiliario de consultorio",
-  "Laboratorio",
-  "Carros y estaciones de enfermería",
+  "Clínico fijo (camillas, mesas, mobiliario inox)",
+  "Clínico móvil (carros, atriles, soportes)",
+  "Quirúrgico (mesas de operaciones e instrumental)",
+  "Higiene (lavamanos quirúrgicos, estaciones de lavado)",
+  "Laboratorio (mesones, almacenamiento técnico)",
+  "Patología (mesas especiales, superficies sanitarias)",
+  "Arquitectura clínica (protecciones, pasamanos)",
   "Proyecto completo (varias áreas)",
-  "Otro",
+  "Pieza a medida",
 ]
 
 export default function ContactForm() {
@@ -81,7 +82,7 @@ export default function ContactForm() {
         </select>
       </Field>
       <Field label="Mensaje *" id="message">
-        <textarea id="message" required rows={5} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Cuéntenos el alcance: áreas, cantidades aproximadas y plazos." />
+        <textarea id="message" required rows={5} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Áreas, cantidades aproximadas, medidas y plazos. Puede pegar un enlace a planos o fotos." />
       </Field>
 
       {error && <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">{error}</p>}

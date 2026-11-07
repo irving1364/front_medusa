@@ -1,22 +1,18 @@
 import Hero from "@/components/Hero"
-import Marquee from "@/components/Marquee"
-import CategoryGrid from "@/components/CategoryGrid"
+import FamilyIndex from "@/components/FamilyIndex"
+import EnvironmentsSection from "@/components/EnvironmentsSection"
 import FeaturedProducts from "@/components/FeaturedProducts"
-import WhyKarven from "@/components/WhyKarven"
-import ProcessSection from "@/components/ProcessSection"
-import TestimonialsSection from "@/components/TestimonialsSection"
+import FabricationSection from "@/components/FabricationSection"
 import CTASection from "@/components/CTASection"
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Marquee />
-      <CategoryGrid />
+      <FamilyIndex />
+      <EnvironmentsSection />
       <FeaturedProducts />
-      <WhyKarven />
-      <ProcessSection />
-      <TestimonialsSection />
+      <FabricationSection />
       <CTASection />
     </>
   )

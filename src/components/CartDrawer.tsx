@@ -42,7 +42,7 @@ export default function CartDrawer() {
             </div>
             <h3 className="font-display text-xl text-ink mb-2">Aún no hay artículos</h3>
             <p className="text-sm text-text-2 mb-8 max-w-xs">Agregue mobiliario desde el catálogo y envíenos la lista para recibir una cotización formal.</p>
-            <Link href="/productos" onClick={closeCart} className="btn btn-ink">
+            <Link href="/equipamiento" onClick={closeCart} className="btn btn-ink">
               Ver catálogo <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -60,7 +60,7 @@ export default function CartDrawer() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <Link href={`/productos/${item.product_handle}`} onClick={closeCart} className="text-sm font-medium text-ink hover:text-teal transition-colors line-clamp-2">
+                      <Link href={`/equipamiento/${item.product_handle}`} onClick={closeCart} className="text-sm font-medium text-ink hover:text-teal transition-colors line-clamp-2">
                         {item.title}
                       </Link>
                       <p className="text-xs text-text-3 mt-1">{formatPrice(item.unit_price, currencyCode)}</p>
