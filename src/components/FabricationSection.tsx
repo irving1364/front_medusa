@@ -7,6 +7,7 @@ import BorderGlow from "@/components/reactbits/BorderGlow/BorderGlow"
 import Reveal from "@/components/ui/Reveal"
 import FamilyIcon from "@/components/ui/FamilyIcon"
 import { FAMILIES, ENVIRONMENTS } from "@/lib/catalog"
+import { useTheme } from "@/lib/theme"
 
 const MATERIALS = [
   ["AISI 304", "Mobiliario clínico general", true],
@@ -20,10 +21,11 @@ const PROCESS = ["Levantamiento", "Diseño y cotización", "Corte láser y plega
 const SUBFAMILIES = FAMILIES.flatMap((f) => f.subfamilies)
 
 function Card({ children }: { children: React.ReactNode }) {
+  const theme = useTheme()
   return (
     <BorderGlow
       className="h-full"
-      backgroundColor="#10131A"
+      backgroundColor={theme === "light" ? "#FFFFFF" : "#10131A"}
       borderRadius={20}
       glowColor="47 177 194"
       glowRadius={46}
@@ -74,7 +76,7 @@ export default function FabricationSection() {
               <div className="p-6 h-full flex flex-col">
                 <div className="flex flex-wrap gap-2">
                   {FAMILIES.map((f) => (
-                    <Link key={f.handle} href={`/equipamiento?familia=${f.handle}`} className="w-11 h-11 rounded-xl border border-line-2 bg-white/[0.03] flex items-center justify-center text-text-2 hover:text-teal hover:border-teal/50 transition-colors" aria-label={f.title}>
+                    <Link key={f.handle} href={`/equipamiento?familia=${f.handle}`} className="w-11 h-11 rounded-xl border border-line-2 bg-tint/[0.03] flex items-center justify-center text-text-2 hover:text-teal hover:border-teal/50 transition-colors" aria-label={f.title}>
                       <FamilyIcon name={f.icon} className="w-5 h-5" />
                     </Link>
                   ))}
@@ -126,8 +128,8 @@ export default function FabricationSection() {
               <div className="p-6 h-full flex flex-col">
                 <ul className="rounded-xl border border-line bg-paper/60 p-1.5 space-y-0.5">
                   {MATERIALS.map(([code, use, active]) => (
-                    <li key={code} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs ${active ? "bg-white/[0.06] text-ink" : "text-text-3"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-teal" : "bg-white/20"}`} />
+                    <li key={code} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs ${active ? "bg-tint/[0.06] text-ink" : "text-text-3"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-teal" : "bg-tint/20"}`} />
                       <span className="mono w-24 shrink-0">{code}</span>
                       <span className="truncate">{use}</span>
                     </li>
@@ -144,7 +146,7 @@ export default function FabricationSection() {
               <div className="p-6 h-full flex flex-col">
                 <div className="rounded-xl border border-line bg-paper/60 overflow-hidden">
                   <div className="flex items-center gap-2 px-3 h-8 border-b border-line">
-                    <span className="w-2 h-2 rounded-full bg-white/15" /><span className="w-2 h-2 rounded-full bg-white/15" /><span className="w-2 h-2 rounded-full bg-white/15" />
+                    <span className="w-2 h-2 rounded-full bg-tint/15" /><span className="w-2 h-2 rounded-full bg-tint/15" /><span className="w-2 h-2 rounded-full bg-tint/15" />
                     <span className="ml-2 mono text-[10px] text-text-3">proceso.txt</span>
                   </div>
                   <ol className="p-3 font-mono text-[11px] leading-5 text-text-2">

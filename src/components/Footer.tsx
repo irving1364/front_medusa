@@ -1,16 +1,20 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { FAMILIES, ENVIRONMENTS } from "@/lib/catalog"
+import { useTheme } from "@/lib/theme"
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const logo = useTheme() === "light" ? "oscuro" : "blanco"
   return (
     <footer className="bg-paper border-t border-line-2">
       <div className="container-custom pt-16 pb-10">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
             <Link href="/" className="inline-block relative w-40 h-12" aria-label="Karven">
-              <Image src="/images/logo-imagotipo-blanco.png" alt="Karven Medical Furniture" fill className="object-contain object-left" sizes="160px" />
+              <Image src={`/images/logo-imagotipo-${logo}.png`} alt="Karven Medical Furniture" fill className="object-contain object-left" sizes="160px" />
             </Link>
             <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-2">
               Fabricamos mobiliario clínico en acero inoxidable 304 y 316 para hospitales, clínicas, consultorios y laboratorios. Ciudad de Panamá.

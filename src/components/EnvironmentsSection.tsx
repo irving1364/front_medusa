@@ -5,8 +5,11 @@ import { FiArrowUpRight } from "react-icons/fi"
 import AccordionGallery from "@/components/reactbits/AccordionGallery/AccordionGallery"
 import Reveal from "@/components/ui/Reveal"
 import { ENVIRONMENTS } from "@/lib/catalog"
+import { useTheme } from "@/lib/theme"
 
 export default function EnvironmentsSection() {
+  const theme = useTheme()
+  const light = theme === "light"
   return (
     <section className="section bg-paper-2">
       <div className="container-custom">
@@ -29,8 +32,8 @@ export default function EnvironmentsSection() {
             radius={20}
             expandRatio={0.46}
             accentColor="#2FB1C2"
-            overlayColor="#0A0C10"
-            textColor="#F2F4F7"
+            overlayColor={light ? "#F4F6F8" : "#0A0C10"}
+            textColor={light ? "#0A0C10" : "#F2F4F7"}
             parallax={0.35}
             tilt={0}
             grayscale

@@ -7,6 +7,7 @@ import { FiPlus, FiCheck, FiArrowUpRight } from "react-icons/fi"
 import SpotlightCard from "@/components/reactbits/SpotlightCard/SpotlightCard"
 import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
+import { useTheme } from "@/lib/theme"
 import type { Product } from "@/types"
 
 interface ProductCardProps {
@@ -18,6 +19,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, priority = false, size = "default" }: ProductCardProps) {
   const { addItem, isLoading } = useCart()
+  const theme = useTheme()
   const [added, setAdded] = useState(false)
 
   const quickAdd = async (e: React.MouseEvent) => {
@@ -32,7 +34,7 @@ export default function ProductCard({ product, priority = false, size = "default
 
   return (
     <SpotlightCard
-      theme="dark"
+      theme={theme}
       spotlightColor="rgba(47, 177, 194, 0.22)"
       intensity={0.14}
       spotlightSize={320}

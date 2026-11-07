@@ -4,8 +4,10 @@ import Link from "next/link"
 import { FiArrowRight } from "react-icons/fi"
 import DotField from "@/components/reactbits/DotField/DotField"
 import Reveal from "@/components/ui/Reveal"
+import { useTheme } from "@/lib/theme"
 
 export default function CTASection() {
+  const theme = useTheme()
   return (
     <section className="bg-paper">
       <div className="container-custom pb-20 lg:pb-28">
@@ -13,6 +15,8 @@ export default function CTASection() {
           <div className="relative panel overflow-hidden">
             <div className="absolute inset-0">
               <DotField
+                key={theme}
+                lightMode={theme === "light"}
                 dotRadius={1.2}
                 dotSpacing={16}
                 gradientFrom="#2FB1C2"

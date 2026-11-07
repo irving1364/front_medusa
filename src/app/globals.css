@@ -6,13 +6,15 @@
    Token names are semantic: "paper" = page/surface background,
    "ink" = foreground. Keep them that way if the theme flips again.
    ─────────────────────────────────────────────────────────────── */
-@theme inline {
+@theme {
   /* Surfaces */
   --color-paper: #0A0C10;
   --color-paper-2: #10131A;
   --color-paper-3: #161A22;
   --color-paper-4: #1C212B;
   --color-white: #FFFFFF;
+  /* "tint" = the foreground colour used for translucent overlays (white on dark, ink on light) */
+  --color-tint: #FFFFFF;
 
   /* Foreground */
   --color-ink: #F2F4F7;
@@ -63,8 +65,44 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ── Light theme (same semantic tokens, re-valued) ───────────────
+   Activated with <html data-theme="light">; default is dark. */
+:root[data-theme="light"] {
+  --color-paper: #F4F6F8;
+  --color-paper-2: #FFFFFF;
+  --color-paper-3: #EDF0F3;
+  --color-paper-4: #E3E7EC;
+  --color-tint: #0A0C10;
+
+  --color-ink: #0F1318;
+  --color-ink-2: #1C222A;
+  --color-ink-3: #2F363F;
+  --color-ink-4: #4A525C;
+
+  --color-teal: #0E7A88;
+  --color-teal-2: #0B6570;
+  --color-teal-3: #148A9A;
+  --color-teal-soft: rgba(14, 122, 136, 0.10);
+  --color-teal-glow: rgba(14, 122, 136, 0.22);
+
+  --color-text: #0F1318;
+  --color-text-2: #4A525C;
+  --color-text-3: #7A838F;
+  --color-text-on-ink: #F4F6F8;
+
+  --color-line: #E1E5EA;
+  --color-line-2: #CCD2D9;
+  --color-line-3: #B3BAC4;
+  --color-line-ink: #E1E5EA;
+
+  --color-success: #1E8E5A;
+  --color-warning: #B8860B;
+  --color-error: #C0392B;
+}
+
 /* ── Base ─────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; color-scheme: dark; }
+html[data-theme="light"] { color-scheme: light; }
 
 body {
   background-color: var(--color-paper);
@@ -153,41 +191,43 @@ body {
   }
   .btn:active { transform: scale(0.98); }
 
-  .btn-ink { background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px -14px rgba(255,255,255,0.35); }
-  .btn-ink:hover { background: #fff; }
+  .btn-ink { background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-tint) 8%, transparent), 0 10px 30px -14px color-mix(in srgb, var(--color-tint) 35%, transparent); }
+  .btn-ink:hover { background: var(--color-ink-2); }
 
   .btn-teal { background: var(--color-teal); color: var(--color-paper); box-shadow: 0 0 0 1px rgba(47,177,194,0.3), 0 12px 32px -14px rgba(47,177,194,0.8); }
   .btn-teal:hover { background: var(--color-teal-2); }
 
   .btn-paper { background: var(--color-ink); color: var(--color-paper); }
-  .btn-paper:hover { background: #fff; }
+  .btn-paper:hover { background: var(--color-ink-2); }
 
-  .btn-outline { border: 1px solid var(--color-line-2); color: var(--color-ink); background: rgba(255,255,255,0.02); }
-  .btn-outline:hover { border-color: var(--color-line-3); background: rgba(255,255,255,0.06); }
+  .btn-outline { border: 1px solid var(--color-line-2); color: var(--color-ink); background: color-mix(in srgb, var(--color-tint) 2%, transparent); }
+  .btn-outline:hover { border-color: var(--color-line-3); background: color-mix(in srgb, var(--color-tint) 6%, transparent); }
 
   .btn-outline-paper { border: 1px solid var(--color-line-2); color: var(--color-ink); background: transparent; }
-  .btn-outline-paper:hover { border-color: var(--color-line-3); background: rgba(255,255,255,0.06); }
+  .btn-outline-paper:hover { border-color: var(--color-line-3); background: color-mix(in srgb, var(--color-tint) 6%, transparent); }
 
   /* ── Surfaces ────────────────────────────────────────────────── */
   .card {
     background: var(--color-paper-2);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tint) 4%, transparent);
   }
   .panel {
-    background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-tint) 3.5%, transparent), color-mix(in srgb, var(--color-tint) 1.2%, transparent));
     border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 30px 80px -40px rgba(0,0,0,0.8);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tint) 5%, transparent), 0 30px 80px -40px rgba(0,0,0,0.8);
   }
+  :root[data-theme="light"] .panel { box-shadow: 0 30px 80px -40px rgba(15,19,24,0.25); }
   .glass {
-    background: rgba(16, 19, 26, 0.72);
+    background: color-mix(in srgb, var(--color-paper-2) 72%, transparent);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 20px 60px -30px rgba(0,0,0,0.9);
+    border: 1px solid color-mix(in srgb, var(--color-tint) 8%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tint) 6%, transparent), 0 20px 60px -30px rgba(0,0,0,0.9);
   }
+  :root[data-theme="light"] .glass { box-shadow: 0 20px 60px -30px rgba(15,19,24,0.25); }
   .chip {
     display: inline-flex;
     align-items: center;
@@ -195,7 +235,7 @@ body {
     padding: 0.35rem 0.7rem;
     border-radius: 0.5rem;
     border: 1px solid var(--color-line-2);
-    background: rgba(255,255,255,0.03);
+    background: color-mix(in srgb, var(--color-tint) 3%, transparent);
     font-size: 0.75rem;
     color: var(--color-text-2);
     white-space: nowrap;
@@ -216,7 +256,7 @@ body {
   }
 
   .dotgrid {
-    background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-image: radial-gradient(color-mix(in srgb, var(--color-tint) 8%, transparent) 1px, transparent 1px);
     background-size: 22px 22px;
   }
 
@@ -266,6 +306,12 @@ body {
   }
   .group:hover .plate img, .plate:hover img { filter: grayscale(0) contrast(1) brightness(1); transform: scale(1.03); }
   .group:hover .plate::after, .plate:hover::after { opacity: 0; }
+  /* Hero plate: the product is the subject, so keep it brighter than catalogue thumbnails. */
+  .plate-hero img { filter: grayscale(0.85) contrast(1.04) brightness(0.96); }
+  .plate-hero::after { background: linear-gradient(180deg, rgba(47, 177, 194, 0.05), rgba(10, 12, 16, 0.18)); }
+  :root[data-theme="light"] .plate img { filter: grayscale(1) contrast(1.02) brightness(1.02); }
+  :root[data-theme="light"] .plate::after { background: linear-gradient(180deg, rgba(14, 122, 136, 0.06), rgba(15, 19, 24, 0.08)); }
+  :root[data-theme="light"] .plate-hero img { filter: grayscale(0.85) contrast(1) brightness(1.02); }
 
   .tnum { font-variant-numeric: tabular-nums; }
   .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

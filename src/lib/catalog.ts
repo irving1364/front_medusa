@@ -200,10 +200,17 @@ export const ENVIRONMENTS: Environment[] = [
 ]
 
 export const HERO_PRODUCT = {
-  image: IMG.bed,
+  image: unsplash("1519494080410-f9aa76cb4283", 2000),
   handle: "cama-hospitalaria-electrica-k300",
+  sku: "KC-300",
   label: "Cama clínica eléctrica KC-300",
   spec: "Inox 304 · 3 motores · 250 kg",
+  specs: [
+    ["Material", "AISI 304"],
+    ["Motores", "3 · 24 V"],
+    ["Carga", "250 kg"],
+    ["Ruedas", "Ø150 · freno central"],
+  ] as [string, string][],
 }
 
 export const ALL_SUBFAMILIES: (Subfamily & { family: Family })[] = FAMILIES.flatMap((f) =>

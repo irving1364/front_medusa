@@ -35,7 +35,7 @@ export default function FamilyIndex() {
                   <li
                     onMouseEnter={() => setActive(i)}
                     onFocus={() => setActive(i)}
-                    className={`group border-t border-line last:border-b transition-colors ${isActive ? "bg-white/[0.03]" : ""}`}
+                    className={`group border-t border-line last:border-b transition-colors ${isActive ? "bg-tint/[0.03]" : ""}`}
                   >
                     <Link href={`/equipamiento?familia=${f.handle}`} className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_2.5rem_1fr_auto] items-center gap-4 py-5 px-2 -mx-2">
                       <span className="mono text-sm text-text-3">{f.number}</span>

@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { FiMenu, FiX, FiShoppingBag, FiArrowUpRight } from "react-icons/fi"
+import { FiMenu, FiX, FiShoppingBag, FiArrowUpRight, FiSun, FiMoon } from "react-icons/fi"
 import { useCart } from "@/context/CartContext"
 import { FAMILIES } from "@/lib/catalog"
+import { useTheme, setTheme } from "@/lib/theme"
 
 const NAV_LINKS = [
   { href: "/equipamiento", label: "Equipamiento" },
@@ -21,6 +22,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { openCart, itemCount } = useCart()
   const pathname = usePathname()
+  const theme = useTheme()
+  const logo = theme === "light" ? "oscuro" : "blanco"
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 12)
@@ -35,6 +38,7 @@ export default function Header() {
   }, [isMenuOpen])
 
   const close = () => setIsMenuOpen(false)
+  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light")
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 pointer-events-none">
@@ -46,10 +50,10 @@ export default function Header() {
         >
           <Link href="/" onClick={close} className="relative z-10 flex items-center gap-3 pl-2" aria-label="Karven, inicio">
             <span className="relative block w-7 h-7">
-              <Image src="/images/logo-isotipo-blanco.png" alt="" fill className="object-contain" sizes="28px" priority />
+              <Image src={`/images/logo-isotipo-${logo}.png`} alt="" fill className="object-contain" sizes="28px" priority />
             </span>
             <span className="relative hidden sm:block h-4 w-[82px]">
-              <Image src="/images/logo-logotipo-blanco.png" alt="Karven" fill className="object-contain object-left" sizes="82px" priority />
+              <Image src={`/images/logo-logotipo-${logo}.png`} alt="Karven" fill className="object-contain object-left" sizes="82px" priority />
             </span>
             <span className="hidden xl:block pl-3 ml-1 border-l border-line-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-3">
               Mobiliario médico · Panamá
@@ -64,7 +68,7 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                    active ? "text-ink bg-white/[0.06]" : "text-text-2 hover:text-ink hover:bg-white/[0.04]"
+                    active ? "text-ink bg-tint/[0.06]" : "text-text-2 hover:text-ink hover:bg-tint/[0.04]"
                   }`}
                 >
                   {link.label}
@@ -74,7 +78,10 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <button onClick={openCart} className="relative p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-white/[0.05] transition-colors" aria-label="Abrir cotización">
+            <button onClick={toggleTheme} className="p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-tint/[0.05] transition-colors" aria-label={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
+              {theme === "light" ? <FiMoon className="w-[17px] h-[17px]" /> : <FiSun className="w-[17px] h-[17px]" />}
+            </button>
+            <button onClick={openCart} className="relative p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-tint/[0.05] transition-colors" aria-label="Abrir cotización">
               <FiShoppingBag className="w-[18px] h-[18px]" />
               {itemCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-teal text-paper text-[10px] font-bold flex items-center justify-center tnum">
@@ -87,7 +94,7 @@ export default function Header() {
             </Link>
             <button
               onClick={() => setIsMenuOpen((v) => !v)}
-              className="relative z-10 lg:hidden p-2.5 rounded-lg text-ink hover:bg-white/[0.05]"
+              className="relative z-10 lg:hidden p-2.5 rounded-lg text-ink hover:bg-tint/[0.05]"
               aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={isMenuOpen}
             >

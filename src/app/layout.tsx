@@ -5,6 +5,7 @@ import Footer from "@/components/Footer"
 import CartDrawer from "@/components/CartDrawer"
 import Loader from "@/components/Loader"
 import { CartProvider } from "@/context/CartContext"
+import { THEME_BOOT_SCRIPT } from "@/lib/theme"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" })
@@ -47,7 +48,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" data-scroll-behavior="smooth" className={`${inter.variable} ${interTight.variable} ${geistMono.variable} h-full`}>
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning className={`${inter.variable} ${interTight.variable} ${geistMono.variable} h-full`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-paper text-text antialiased">
         <CartProvider>
           <Loader />

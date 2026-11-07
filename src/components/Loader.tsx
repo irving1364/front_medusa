@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import { useTheme } from "@/lib/theme"
 
 export default function Loader() {
+  const logo = useTheme() === "light" ? "oscuro" : "blanco"
   const [phase, setPhase] = useState<"visible" | "leaving" | "hidden">("visible")
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function Loader() {
     >
       <div className="flex flex-col items-center gap-6">
         <div className="relative w-16 h-16 animate-fade-in">
-          <Image src="/images/logo-isotipo-blanco.png" alt="" fill className="object-contain" sizes="64px" priority />
+          <Image src={`/images/logo-isotipo-${logo}.png`} alt="" fill className="object-contain" sizes="64px" priority />
         </div>
         <div className="w-40 h-px bg-line overflow-hidden">
           <div className="h-full w-full bg-teal-3 origin-left" style={{ animation: "loader-bar 1s cubic-bezier(0.16,1,0.3,1) both" }} />
