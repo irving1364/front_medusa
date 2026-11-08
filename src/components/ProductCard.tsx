@@ -44,7 +44,7 @@ export default function ProductCard({ product, priority = false, size = "default
       <Link href={`/equipamiento/${product.handle}`} className="flex h-full flex-col">
         <div className={`plate plate-color rounded-t-[18px] ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
           {product.thumbnail ? (
-            <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-cover" />
+            <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-contain p-3 bg-white" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center font-display text-5xl text-text-3">{product.title.charAt(0)}</div>
           )}
