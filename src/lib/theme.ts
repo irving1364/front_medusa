@@ -25,6 +25,20 @@ export function setTheme(theme: Theme) {
   window.dispatchEvent(new CustomEvent(EVENT, { detail: theme }))
 }
 
+/** Temporarily force a theme for one route (no storage write). Returns a restore function. */
+export function forceTheme(theme: Theme) {
+  const previous = readTheme()
+  document.documentElement.setAttribute("data-theme", theme)
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: theme }))
+  return () => {
+    let stored: string | null = null
+    try { stored = localStorage.getItem(STORAGE_KEY) } catch {}
+    const back: Theme = stored === "light" || stored === "dark" ? stored : previous
+    document.documentElement.setAttribute("data-theme", back)
+    window.dispatchEvent(new CustomEvent(EVENT, { detail: back }))
+  }
+}
+
 function subscribe(onChange: () => void) {
   window.addEventListener(EVENT, onChange)
   return () => window.removeEventListener(EVENT, onChange)
