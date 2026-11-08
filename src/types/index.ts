@@ -23,6 +23,9 @@ export interface Product {
   color: string | null
   features: string[]
   badge: string | null
+  /** Technical datasheet PDF uploaded from the Medusa admin (metadata.datasheet_url / datasheet_name) */
+  datasheetUrl: string | null
+  datasheetName: string | null
   createdAt: string
 }
 

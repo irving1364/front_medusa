@@ -8,6 +8,7 @@ import { FiArrowLeft, FiCheck, FiMinus, FiPlus, FiShoppingBag, FiArrowUpRight } 
 import GlareHover from "@/components/reactbits/GlareHover/GlareHover"
 import Reveal from "@/components/ui/Reveal"
 import ProductCard from "@/components/ProductCard"
+import ProductDatasheet from "@/components/ProductDatasheet"
 import { getProductByHandle, getProducts, formatPrice } from "@/lib/medusa"
 import { getSubfamily, ENVIRONMENTS } from "@/lib/catalog"
 import { useCart } from "@/context/CartContext"
@@ -174,6 +175,8 @@ export default function ProductDetailPage() {
                 </table>
               </div>
             )}
+
+            {product.datasheetUrl && <ProductDatasheet url={product.datasheetUrl} name={product.datasheetName} productTitle={product.title} />}
 
             {product.features.length > 0 && (
               <div className="mt-10">

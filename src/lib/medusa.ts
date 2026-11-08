@@ -137,6 +137,8 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     color: toText(meta.color),
     features: toFeatures(meta.features),
     badge: toText(meta.badge),
+    datasheetUrl: toText(meta.datasheet_url),
+    datasheetName: toText(meta.datasheet_name),
     createdAt: product.created_at,
   }
 }
