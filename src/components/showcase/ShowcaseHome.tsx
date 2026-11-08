@@ -36,7 +36,18 @@ export default function ShowcaseHome() {
   const [products, setProducts] = useState<Product[]>([])
   const [active, setActive] = useState(0)
 
-  useEffect(() => forceTheme("dark"), [])
+  // Dark only: force on mount and re-apply if anything else flips the theme while we are mounted.
+  useEffect(() => {
+    const restore = forceTheme("dark")
+    const guard = () => {
+      if (document.documentElement.getAttribute("data-theme") !== "dark") forceTheme("dark")
+    }
+    window.addEventListener("karven-theme-change", guard)
+    return () => {
+      window.removeEventListener("karven-theme-change", guard)
+      restore()
+    }
+  }, [])
 
   useEffect(() => {
     getProducts({ limit: 10 })

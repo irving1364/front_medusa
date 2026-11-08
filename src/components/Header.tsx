@@ -24,6 +24,8 @@ export default function Header() {
   const pathname = usePathname()
   const theme = useTheme()
   const logo = theme === "light" ? "oscuro" : "blanco"
+  /** Routes designed for one theme only (WebGL light effects need a dark canvas). */
+  const themeLocked = pathname.startsWith("/showcase")
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 12)
@@ -78,9 +80,11 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <button onClick={toggleTheme} className="p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-tint/[0.05] transition-colors" aria-label={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
-              {theme === "light" ? <FiMoon className="w-[17px] h-[17px]" /> : <FiSun className="w-[17px] h-[17px]" />}
-            </button>
+            {!themeLocked && (
+              <button onClick={toggleTheme} className="p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-tint/[0.05] transition-colors" aria-label={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}>
+                {theme === "light" ? <FiMoon className="w-[17px] h-[17px]" /> : <FiSun className="w-[17px] h-[17px]" />}
+              </button>
+            )}
             <button onClick={openCart} className="relative p-2.5 rounded-lg text-text-2 hover:text-ink hover:bg-tint/[0.05] transition-colors" aria-label="Abrir cotización">
               <FiShoppingBag className="w-[18px] h-[18px]" />
               {itemCount > 0 && (
