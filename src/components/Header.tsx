@@ -6,12 +6,11 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { FiMenu, FiX, FiShoppingBag, FiArrowUpRight, FiSun, FiMoon } from "react-icons/fi"
 import { useCart } from "@/context/CartContext"
-import { FAMILIES } from "@/lib/catalog"
+import { useCategories } from "@/context/CategoriesContext"
 import { useTheme, setTheme } from "@/lib/theme"
 
 const NAV_LINKS = [
   { href: "/equipamiento", label: "Equipamiento" },
-  { href: "/entornos", label: "Entornos" },
   { href: "/fabricacion", label: "Fabricación" },
   { href: "/contacto", label: "Contacto" },
 ]
@@ -22,6 +21,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { openCart, itemCount } = useCart()
   const pathname = usePathname()
+  const { parents } = useCategories()
   const theme = useTheme()
   const logo = theme === "light" ? "oscuro" : "blanco"
   /** Routes designed for one theme only (WebGL light effects need a dark canvas). */
@@ -127,12 +127,12 @@ export default function Header() {
               {link.label} <FiArrowUpRight className="w-5 h-5 text-text-3" />
             </Link>
           ))}
-          <p className="eyebrow text-text-3 mt-10 mb-4">Familias</p>
-          <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
-            {FAMILIES.map((f) => (
-              <li key={f.handle}>
-                <Link href={`/equipamiento?familia=${f.handle}`} onClick={close} className="text-sm text-text-2 hover:text-ink">
-                  <span className="mono text-text-3 mr-2">{f.number}</span>{f.title}
+          <p className="eyebrow text-text-3 mt-10 mb-4">Líneas de producto</p>
+          <ul className="space-y-3">
+            {parents.map((p) => (
+              <li key={p.handle}>
+                <Link href={`/equipamiento?linea=`} onClick={close} className="text-sm text-text-2 hover:text-ink">
+                  <span className="mono text-text-3 mr-2">{p.number}</span>{p.name}
                 </Link>
               </li>
             ))}

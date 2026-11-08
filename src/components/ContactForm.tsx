@@ -4,13 +4,9 @@ import { useState, type FormEvent } from "react"
 import { FiSend, FiCheck } from "react-icons/fi"
 
 const INTEREST_OPTIONS = [
-  "Clínico fijo (camillas, mesas, mobiliario inox)",
-  "Clínico móvil (carros, atriles, soportes)",
-  "Quirúrgico (mesas de operaciones e instrumental)",
-  "Higiene (lavamanos quirúrgicos, estaciones de lavado)",
-  "Laboratorio (mesones, almacenamiento técnico)",
-  "Patología (mesas especiales, superficies sanitarias)",
-  "Arquitectura clínica (protecciones, pasamanos)",
+  "Mobiliario médico (camillas, sillones, mesas, carros, lavamanos, atriles, auxiliares, cunas)",
+  "Mobiliario veterinario (mesas, jaulas, higiene y lavado, auxiliares)",
+  "Mobiliario técnico (muebles base y aéreos, mesones, fregadores, gabinetes)",
   "Proyecto completo (varias áreas)",
   "Pieza a medida",
 ]

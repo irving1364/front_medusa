@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
       { source: "/productos/:handle", destination: "/equipamiento/:handle", permanent: true },
       { source: "/nosotros", destination: "/fabricacion", permanent: true },
       { source: "/minimal", destination: "/showcase", permanent: false },
+      { source: "/entornos", destination: "/equipamiento", permanent: true },
     ]
   },
 }

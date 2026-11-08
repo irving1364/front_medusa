@@ -10,7 +10,7 @@ import Reveal from "@/components/ui/Reveal"
 import ProductCard from "@/components/ProductCard"
 import ProductDatasheet from "@/components/ProductDatasheet"
 import { getProductByHandle, getProducts, formatPrice } from "@/lib/medusa"
-import { getSubfamily, ENVIRONMENTS } from "@/lib/catalog"
+import { useCategories } from "@/context/CategoriesContext"
 import { useCart } from "@/context/CartContext"
 import type { Product } from "@/types"
 
@@ -21,15 +21,17 @@ export default function ProductDetailPage() {
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
   const { addItem, isLoading: cartLoading } = useCart()
+  const { get, parentOf } = useCategories()
 
   useEffect(() => {
     let cancelled = false
     getProductByHandle(handle)
       .then(async (p) => {
         let related: Product[] = []
-        if (p?.collection) {
-          const res = await getProducts({ limit: 12 })
-          related = res.products.filter((r) => r.collection?.handle === p.collection?.handle && r.id !== p.id).slice(0, 3)
+        if (p?.categories.length) {
+          const res = await getProducts({ limit: 60 })
+          const key = p.categories[0]?.handle
+          related = res.products.filter((r) => key && r.categories.some((c) => c.handle === key) && r.id !== p.id).slice(0, 3)
         }
         if (!cancelled) setLoaded({ handle, product: p, related })
       })
@@ -74,8 +76,8 @@ export default function ProductDetailPage() {
     )
   }
 
-  const sub = getSubfamily(product.collection?.handle)
-  const environments = ENVIRONMENTS.filter((e) => product.collection && e.subfamilies.includes(product.collection.handle))
+  const category = get(product.categories[0]?.handle)
+  const line = parentOf(category)
   const images = product.images.length ? product.images : product.thumbnail ? [{ id: "thumb", url: product.thumbnail }] : []
   const specs = [
     ["Referencia", product.sku],
@@ -109,8 +111,8 @@ export default function ProductDetailPage() {
       <div className="container-custom">
         <nav className="flex flex-wrap items-center gap-2 text-xs text-text-3 border-b border-line pb-4" aria-label="Ruta">
           <Link href="/equipamiento" className="inline-flex items-center gap-1.5 hover:text-ink"><FiArrowLeft className="w-3.5 h-3.5" /> Equipamiento</Link>
-          {sub && (<><span>/</span><Link href={`/equipamiento?familia=${sub.family.handle}`} className="hover:text-ink"><span className="tnum">{sub.family.number}</span> {sub.family.title}</Link></>)}
-          {product.collection && (<><span>/</span><Link href={`/equipamiento?coleccion=${product.collection.handle}`} className="hover:text-ink">{product.collection.title}</Link></>)}
+          {line && (<><span>/</span><Link href={`/equipamiento?linea=${line.handle}`} className="hover:text-ink">{line.name}</Link></>)}
+          {category && (<><span>/</span><Link href={`/equipamiento?categoria=${category.handle}`} className="hover:text-ink"><span className="mono">{category.code}</span> {category.name}</Link></>)}
         </nav>
       </div>
 
@@ -142,7 +144,7 @@ export default function ProductDetailPage() {
 
         <div className="lg:col-span-5">
           <Reveal distance={20} delay={0.08}>
-            {product.collection && <p className="eyebrow text-teal">{product.collection.title}</p>}
+            {(category || product.collection) && <p className="eyebrow text-teal">{category ? ` · ` : product.collection?.title}</p>}
             <h1 className="display-md mt-4 text-ink text-balance">{product.title}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-text-2">{product.subtitle}</p>}
 
@@ -189,16 +191,6 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {environments.length > 0 && (
-              <div className="mt-10">
-                <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-text-3">Se usa en</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {environments.map((e) => (
-                    <Link key={e.handle} href={`/entornos#${e.handle}`} className="px-3 py-1.5 rounded-full border border-line text-sm text-text-2 hover:border-ink hover:text-ink transition-colors">{e.title}</Link>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="mt-12 border-t border-line-2 pt-6">
               <p className="font-display text-xl text-ink">¿Medidas distintas o varias unidades?</p>
@@ -212,8 +204,8 @@ export default function ProductDetailPage() {
       {related.length > 0 && (
         <section className="container-custom pb-20">
           <div className="rule-strong pt-5 flex items-end justify-between gap-4">
-            <h2 className="display-md text-ink">Misma subfamilia</h2>
-            {product.collection && <Link href={`/equipamiento?coleccion=${product.collection.handle}`} className="text-sm text-text-2 hover:text-ink underline underline-offset-4">Ver {product.collection.title.toLowerCase()}</Link>}
+            <h2 className="display-md text-ink">Misma categoría</h2>
+            {category && <Link href={`/equipamiento?categoria=${category.handle}`} className="text-sm text-text-2 hover:text-ink underline underline-offset-4">Ver {category.name.toLowerCase()}</Link>}
           </div>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {related.map((r) => <ProductCard key={r.id} product={r} />)}

@@ -42,6 +42,7 @@ export interface MedusaProduct {
     calculated_price?: { calculated_amount: number; currency_code: string } | null
   }[]
   collection: { id: string; title: string; handle: string } | null
+  categories?: { id: string; name: string; handle: string }[] | null
   metadata: Record<string, unknown> | null
   created_at: string
 }
@@ -72,7 +73,7 @@ export interface MedusaLineItem {
 }
 
 // Fields requested for every product query. `*` adds a relation, `+` adds a field.
-const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,+metadata"
+const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,*categories,+metadata"
 
 // ─── Region ─────────────────────────────────────────────────────────
 
@@ -126,6 +127,7 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     variantId: variant?.id || null,
     sku: variant?.sku || null,
     collection: product.collection ? { title: product.collection.title, handle: product.collection.handle } : null,
+    categories: (product.categories || []).map((c) => ({ id: c.id, name: c.name, handle: c.handle })),
     material: toText(meta.material),
     gauge: toText(meta.gauge),
     finish: toText(meta.finish),

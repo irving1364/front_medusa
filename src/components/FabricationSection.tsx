@@ -4,8 +4,9 @@ import Link from "next/link"
 import BorderGlow from "@/components/reactbits/BorderGlow/BorderGlow"
 import Reveal from "@/components/ui/Reveal"
 import FamilyIcon from "@/components/ui/FamilyIcon"
-import { FAMILIES, ENVIRONMENTS } from "@/lib/catalog"
+import { SECTORS } from "@/lib/catalog"
 import { useTheme } from "@/lib/theme"
+import { useCategories } from "@/context/CategoriesContext"
 
 const MATERIALS = [
   ["AISI 304", "Mobiliario clínico general", true],
@@ -15,8 +16,6 @@ const MATERIALS = [
 ] as const
 
 const PROCESS = ["Levantamiento", "Diseño y cotización", "Corte láser y plegado CNC", "Soldadura TIG continua", "Pulido grano 180 y pasivado", "Instalación con equipo propio"]
-
-const SUBFAMILIES = FAMILIES.flatMap((f) => f.subfamilies)
 
 function Card({ children }: { children: React.ReactNode }) {
   const theme = useTheme()
@@ -42,6 +41,8 @@ function Card({ children }: { children: React.ReactNode }) {
 
 /** "Feature cards" section in the Apple sense: one short claim per card, the visual does the explaining. */
 export default function FabricationSection() {
+  const { parents, all } = useCategories()
+  const children = all.filter((c) => c.parentHandle)
   return (
     <section className="section bg-paper">
       <div className="container-custom">
@@ -59,15 +60,19 @@ export default function FabricationSection() {
           <Reveal delay={0}>
             <Card>
               <div className="p-7 h-full flex flex-col">
-                <div className="flex flex-wrap gap-2">
-                  {FAMILIES.map((f) => (
-                    <Link key={f.handle} href={`/equipamiento?familia=${f.handle}`} className="w-11 h-11 rounded-xl border border-line-2 bg-tint/[0.03] flex items-center justify-center text-text-2 hover:text-teal hover:border-teal/50 transition-colors" aria-label={f.title}>
-                      <FamilyIcon name={f.icon} className="w-5 h-5" />
-                    </Link>
+                <ul className="space-y-2">
+                  {parents.map((p) => (
+                    <li key={p.handle}>
+                      <Link href={`/equipamiento?linea=${p.handle}`} className="flex items-center gap-3 rounded-xl border border-line-2 bg-tint/[0.03] px-3 py-2 text-sm text-text-2 hover:text-teal hover:border-teal/50 transition-colors">
+                        <FamilyIcon name={p.line} className="w-5 h-5 shrink-0" />
+                        <span className="flex-1 truncate">{p.name}</span>
+                        <span className="mono text-[10px] text-text-3">{p.code}</span>
+                      </Link>
+                    </li>
                   ))}
-                </div>
-                <h3 className="mt-auto pt-8 font-display text-xl text-ink">Siete familias.</h3>
-                <p className="mt-1.5 body-lg text-text-2">De la camilla de examen al lavamanos quirúrgico.</p>
+                </ul>
+                <h3 className="mt-auto pt-8 font-display text-xl text-ink">Tres líneas de producto.</h3>
+                <p className="mt-1.5 body-lg text-text-2">Médico, veterinario y técnico. Todo en acero 304 o 316.</p>
               </div>
             </Card>
           </Reveal>
@@ -77,12 +82,12 @@ export default function FabricationSection() {
               <div className="p-7 h-full flex flex-col">
                 <div className="[mask-image:linear-gradient(180deg,#000_55%,transparent)]">
                   <div className="flex flex-wrap gap-2 max-h-[96px] overflow-hidden">
-                    {SUBFAMILIES.map((s) => (
-                      <Link key={s.handle} href={`/equipamiento?coleccion=${s.handle}`} className="chip !text-[11px] !py-1 !px-2 hover:text-ink hover:border-line-3">{s.title}</Link>
+                    {children.map((c) => (
+                      <Link key={c.handle} href={`/equipamiento?categoria=${c.handle}`} className="chip !text-[11px] !py-1 !px-2 hover:text-ink hover:border-line-3">{c.name}</Link>
                     ))}
                   </div>
                 </div>
-                <h3 className="mt-auto pt-8 font-display text-xl text-ink">Veinte subfamilias.</h3>
+                <h3 className="mt-auto pt-8 font-display text-xl text-ink">{children.length || "Dieciséis"} categorías.</h3>
                 <p className="mt-1.5 body-lg text-text-2">Cada una con ficha técnica por referencia.</p>
               </div>
             </Card>
@@ -94,16 +99,16 @@ export default function FabricationSection() {
                 <div className="relative h-[88px] px-8">
                   <div className="absolute inset-x-8 top-1/2 h-px bg-line-2" />
                   <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex items-center justify-between">
-                    {ENVIRONMENTS.map((e, i) => (
-                      <Link key={e.handle} href={`/entornos#${e.handle}`} className={`group relative flex flex-col items-center ${i % 2 ? "translate-y-4" : "-translate-y-4"}`}>
+                    {SECTORS.map((s, i) => (
+                      <span key={s} className={`group relative flex flex-col items-center ${i % 2 ? "translate-y-4" : "-translate-y-4"}`}>
                         <span className="w-3 h-3 rounded-full border border-teal/60 bg-teal/20 group-hover:bg-teal transition-colors" />
-                        <span className={`absolute whitespace-nowrap text-[10px] text-text-3 group-hover:text-ink transition-colors ${i % 2 ? "top-5" : "bottom-5"}`}>{e.title.replace("Central de ", "")}</span>
-                      </Link>
+                        <span className={`absolute whitespace-nowrap text-[10px] text-text-3 group-hover:text-ink transition-colors ${i % 2 ? "top-5" : "bottom-5"}`}>{s}</span>
+                      </span>
                     ))}
                   </div>
                 </div>
-                <h3 className="mt-auto pt-8 font-display text-xl text-ink">Seis entornos.</h3>
-                <p className="mt-1.5 body-lg text-text-2">Del quirófano a la central de esterilización.</p>
+                <h3 className="mt-auto pt-8 font-display text-xl text-ink">Seis sectores.</h3>
+                <p className="mt-1.5 body-lg text-text-2">Hospitales, clínicas, veterinarias, farmacias, laboratorios y morgues.</p>
               </div>
             </Card>
           </Reveal>

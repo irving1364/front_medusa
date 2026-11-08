@@ -66,7 +66,7 @@ export default function ProductCard({ product, priority = false, size = "default
         <div className="flex flex-1 flex-col p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              {product.collection && <p className="mono text-[10px] uppercase tracking-[0.14em] text-teal">{product.collection.title}</p>}
+              {(product.categories[0] || product.collection) && <p className="mono text-[10px] uppercase tracking-[0.14em] text-teal">{product.categories[0]?.name || product.collection?.title}</p>}
               <h3 className={`mt-1.5 font-display leading-snug text-ink group-hover:text-teal-3 transition-colors ${size === "wide" ? "text-2xl" : "text-lg"}`}>{product.title}</h3>
             </div>
             <FiArrowUpRight className="w-4 h-4 mt-1 shrink-0 text-text-3 group-hover:text-ink transition-colors" />

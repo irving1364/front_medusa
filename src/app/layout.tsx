@@ -5,6 +5,7 @@ import Footer from "@/components/Footer"
 import CartDrawer from "@/components/CartDrawer"
 import Loader from "@/components/Loader"
 import { CartProvider } from "@/context/CartContext"
+import { CategoriesProvider } from "@/context/CategoriesContext"
 import { THEME_BOOT_SCRIPT, DEFAULT_THEME } from "@/lib/theme"
 import "./globals.css"
 
@@ -54,11 +55,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-full flex flex-col bg-paper text-text antialiased">
         <CartProvider>
+        <CategoriesProvider>
           <Loader />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <CartDrawer />
+        </CategoriesProvider>
         </CartProvider>
       </body>
     </html>

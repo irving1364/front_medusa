@@ -8,7 +8,7 @@ import ProductCard from "@/components/ProductCard"
 import Reveal from "@/components/ui/Reveal"
 import FamilyIcon from "@/components/ui/FamilyIcon"
 import { getProducts } from "@/lib/medusa"
-import { FAMILIES, getFamily, getSubfamily } from "@/lib/catalog"
+import { useCategories } from "@/context/CategoriesContext"
 import type { Product } from "@/types"
 
 const SORT_OPTIONS = [
@@ -19,18 +19,21 @@ const SORT_OPTIONS = [
 ] as const
 type Sort = (typeof SORT_OPTIONS)[number]["value"]
 
+/** Catalogue browser: three product lines (parents) and their categories (children) from Medusa. */
 export default function CatalogView() {
   const router = useRouter()
   const params = useSearchParams()
-  const familyHandle = params.get("familia") || ""
-  const subHandle = params.get("coleccion") || ""
+  const { parents, get, parentOf, loading: loadingCategories } = useCategories()
+  // `linea` = parent handle, `categoria` = child handle (legacy `familia` / `coleccion` still accepted)
+  const lineHandle = params.get("linea") || params.get("familia") || ""
+  const categoryHandle = params.get("categoria") || params.get("coleccion") || ""
 
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState<Sort>("newest")
 
-  // Load the full catalogue once; filtering by family/subfamily is done client-side.
+  // Load the full catalogue once; filtering by line/category is done client-side.
   useEffect(() => {
     let cancelled = false
     getProducts({ limit: 200 })
@@ -40,21 +43,25 @@ export default function CatalogView() {
     return () => { cancelled = true }
   }, [])
 
-  const family = getFamily(familyHandle)
-  const subfamily = getSubfamily(subHandle)
-  const activeFamily = family || subfamily?.family || null
+  const category = get(categoryHandle)
+  const line = get(lineHandle) || parentOf(category) || null
+  const activeLine = line && !line.parentHandle ? line : null
+
+  const inCategory = (p: Product, handle: string) => p.categories.some((c) => c.handle === handle)
+  const countFor = (handle: string) => allProducts.filter((p) => inCategory(p, handle)).length
+  const countForLine = (handles: string[]) => allProducts.filter((p) => p.categories.some((c) => handles.includes(c.handle))).length
 
   const visible = useMemo(() => {
     let list = [...allProducts]
-    if (subfamily) list = list.filter((p) => p.collection?.handle === subfamily.handle)
-    else if (family) {
-      const handles = new Set(family.subfamilies.map((s) => s.handle))
-      list = list.filter((p) => p.collection && handles.has(p.collection.handle))
+    if (category) list = list.filter((p) => inCategory(p, category.handle))
+    else if (activeLine) {
+      const handles = new Set(activeLine.children.map((c) => c.handle))
+      list = list.filter((p) => p.categories.some((c) => handles.has(c.handle)))
     }
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter((p) =>
-        [p.title, p.subtitle, p.sku, p.collection?.title, p.material].some((v) => v?.toLowerCase().includes(q))
+        [p.title, p.subtitle, p.sku, p.categories.map((c) => c.name).join(" "), p.material].some((v) => v?.toLowerCase().includes(q))
       )
     }
     list.sort((a, b) => {
@@ -64,14 +71,13 @@ export default function CatalogView() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
     return list
-  }, [allProducts, family, subfamily, search, sort])
+  }, [allProducts, activeLine, category, search, sort])
 
-  const countFor = (handle: string) => allProducts.filter((p) => p.collection?.handle === handle).length
   const go = (query: string) => router.replace(`/equipamiento${query}`, { scroll: false })
 
-  const heading = subfamily ? subfamily.title : activeFamily ? activeFamily.title : "Equipamiento"
-  const intro = subfamily ? subfamily.description : activeFamily ? activeFamily.description
-    : "Mobiliario clínico en acero inoxidable 304 y 316, fabricado en Ciudad de Panamá. Agregue piezas a su lista y envíela para recibir una cotización formal."
+  const heading = category ? category.name : activeLine ? activeLine.name : "Equipamiento"
+  const intro = category ? category.items || category.description : activeLine ? activeLine.description
+    : "Mobiliario médico, veterinario y técnico en acero inoxidable 304 y 316, fabricado en Ciudad de Panamá. Agregue piezas a su lista y envíela para recibir una cotización formal."
 
   return (
     <div className="bg-paper pt-28 lg:pt-32">
@@ -80,43 +86,43 @@ export default function CatalogView() {
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
             <p className="eyebrow text-teal">
-              {activeFamily ? <><span className="tnum">{activeFamily.number}</span> · {subfamily ? activeFamily.title : "Familia"}</> : "Catálogo"}
+              {category ? <><span className="mono">{category.code}</span> · {activeLine?.name}</> : activeLine ? <><span className="mono">{activeLine.code}</span> · Línea</> : "Catálogo"}
             </p>
             <h1 className="display-lg mt-4 text-ink text-balance">{heading}</h1>
           </div>
           <p className="lg:col-span-4 text-base leading-relaxed text-text-2">{intro}</p>
         </div>
 
-        {/* Family tabs */}
-        <nav className="mt-10 flex gap-1.5 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 pb-1 [scrollbar-width:none]" aria-label="Familias">
-          <Chip active={!activeFamily} onClick={() => go("")}>Todo</Chip>
-          {FAMILIES.map((f) => (
-            <Chip key={f.handle} active={activeFamily?.handle === f.handle} onClick={() => go(`?familia=${f.handle}`)}>
-              <span className="tnum mr-1.5 opacity-60">{f.number}</span>{f.short}
+        {/* Line tabs */}
+        <nav className="mt-10 flex gap-1.5 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 pb-1 [scrollbar-width:none]" aria-label="Líneas de producto">
+          <Chip active={!activeLine} onClick={() => go("")}>Todo</Chip>
+          {parents.map((p) => (
+            <Chip key={p.handle} active={activeLine?.handle === p.handle} onClick={() => go(`?linea=${p.handle}`)}>
+              <span className="mono mr-1.5 opacity-60">{p.number}</span>{p.name.replace("Mobiliario ", "")}
             </Chip>
           ))}
         </nav>
       </div>
 
       <div className="container-custom mt-8 grid lg:grid-cols-12 gap-10">
-        {/* Sidebar: subfamilies of the active family (or all families) */}
+        {/* Sidebar: categories of the active line (or all lines) */}
         <aside className="lg:col-span-3">
           <div className="lg:sticky lg:top-24">
-            {activeFamily ? (
+            {activeLine ? (
               <>
                 <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-text-3">
-                  <FamilyIcon name={activeFamily.icon} className="w-4 h-4 text-teal" /> Subfamilias
+                  <FamilyIcon name={activeLine.line} className="w-4 h-4 text-teal" /> Categorías
                 </p>
                 <ul className="mt-3 border-t border-line">
                   <li>
-                    <button onClick={() => go(`?familia=${activeFamily.handle}`)} className={`w-full flex justify-between py-2.5 text-sm border-b border-line ${!subfamily ? "text-ink font-medium" : "text-text-2 hover:text-ink"}`}>
-                      <span>Toda la familia</span>
+                    <button onClick={() => go(`?linea=${activeLine.handle}`)} className={`w-full flex justify-between py-2.5 text-sm border-b border-line ${!category ? "text-ink font-medium" : "text-text-2 hover:text-ink"}`}>
+                      <span>Toda la línea</span>
                     </button>
                   </li>
-                  {activeFamily.subfamilies.map((s) => (
-                    <li key={s.handle}>
-                      <button onClick={() => go(`?coleccion=${s.handle}`)} className={`w-full flex justify-between gap-3 py-2.5 text-sm text-left border-b border-line ${subfamily?.handle === s.handle ? "text-ink font-medium" : "text-text-2 hover:text-ink"}`}>
-                        <span>{s.title}</span><span className="tnum text-text-3">{countFor(s.handle)}</span>
+                  {activeLine.children.map((c) => (
+                    <li key={c.handle}>
+                      <button onClick={() => go(`?categoria=${c.handle}`)} className={`w-full flex justify-between gap-3 py-2.5 text-sm text-left border-b border-line ${category?.handle === c.handle ? "text-ink font-medium" : "text-text-2 hover:text-ink"}`}>
+                        <span><span className="mono text-text-3 mr-2">{c.number}</span>{c.name}</span><span className="tnum text-text-3">{countFor(c.handle)}</span>
                       </button>
                     </li>
                   ))}
@@ -124,13 +130,14 @@ export default function CatalogView() {
               </>
             ) : (
               <>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-3">Familias</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-3">Líneas</p>
                 <ol className="mt-3 border-t border-line">
-                  {FAMILIES.map((f) => (
-                    <li key={f.handle}>
-                      <button onClick={() => go(`?familia=${f.handle}`)} className="w-full flex items-center gap-3 py-2.5 text-sm text-left text-text-2 hover:text-ink border-b border-line">
-                        <span className="tnum text-text-3 w-5">{f.number}</span><span className="flex-1">{f.title}</span>
-                        <span className="tnum text-text-3">{f.subfamilies.reduce((n, s) => n + countFor(s.handle), 0)}</span>
+                  {loadingCategories && parents.length === 0 && <li className="py-2.5 text-sm text-text-3">Cargando…</li>}
+                  {parents.map((p) => (
+                    <li key={p.handle}>
+                      <button onClick={() => go(`?linea=${p.handle}`)} className="w-full flex items-center gap-3 py-2.5 text-sm text-left text-text-2 hover:text-ink border-b border-line">
+                        <span className="mono text-text-3 w-5">{p.number}</span><span className="flex-1">{p.name}</span>
+                        <span className="tnum text-text-3">{countForLine(p.children.map((c) => c.handle))}</span>
                       </button>
                     </li>
                   ))}
@@ -168,7 +175,7 @@ export default function CatalogView() {
           ) : visible.length === 0 ? (
             <div className="py-20 text-center">
               <h2 className="font-display text-3xl text-ink">Sin referencias en esta vista</h2>
-              <p className="mt-3 text-text-2">Esta subfamilia se fabrica bajo pedido. Cuéntenos qué necesita y le cotizamos.</p>
+              <p className="mt-3 text-text-2">Esta categoría se fabrica bajo pedido. Cuéntenos qué necesita y le cotizamos.</p>
               <div className="mt-8 flex justify-center gap-3">
                 <Link href="/contacto" className="btn btn-ink">Solicitar cotización</Link>
                 <button onClick={() => { setSearch(""); go("") }} className="btn btn-outline">Ver todo</button>

@@ -15,7 +15,8 @@ import ScrollRail from "@/components/showcase/ScrollRail"
 import ScrollStack, { ScrollStackItem } from "@/components/reactbits/ScrollStack/ScrollStack"
 import GradientWaves from "@/components/reactbits/GradientWaves/GradientWaves"
 import Reveal from "@/components/ui/Reveal"
-import { FAMILIES, HERO_PRODUCT } from "@/lib/catalog"
+import { HERO_PRODUCT } from "@/lib/catalog"
+import { useCategories } from "@/context/CategoriesContext"
 import { getProducts } from "@/lib/medusa"
 import { forceTheme } from "@/lib/theme"
 import type { Product } from "@/types"
@@ -32,6 +33,7 @@ const PROCESS = [
 /** Cinematic alternative home. Dark by design: the route forces the dark theme while mounted. */
 export default function ShowcaseHome() {
   const [products, setProducts] = useState<Product[]>([])
+  const { parents, all } = useCategories()
 
   // Dark only: force on mount and re-apply if anything else flips the theme while we are mounted.
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function ShowcaseHome() {
   }, [])
 
   const chromaItems = [
-    ...FAMILIES.map((f) => ({ image: f.image, title: f.title, subtitle: `${f.subfamilies.length} subfamilias`, accent: "#2FB1C2", url: `/equipamiento?familia=${f.handle}`, alt: f.title })),
+    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/equipamiento?linea=${p.handle}`, alt: p.name })),
     { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/equipamiento", alt: "Catálogo" },
   ]
 
@@ -145,7 +147,7 @@ export default function ShowcaseHome() {
           <Reveal>
             <div className="section-head">
               <p className="eyebrow text-teal justify-center">Equipamiento</p>
-              <h2 className="display-md mt-4 text-ink">Siete familias. Veinte subfamilias.</h2>
+              <h2 className="display-md mt-4 text-ink">{parents.length} líneas. {all.length - parents.length} categorías.</h2>
               <p className="subtitle">Pase el cursor: cada pieza recupera su color.</p>
             </div>
           </Reveal>
@@ -153,7 +155,7 @@ export default function ShowcaseHome() {
             <ChromaGrid
               items={chromaItems}
               columns={4}
-              minCardWidth={220}
+              minCardWidth={240}
               gap={14}
               radius={320}
               softness={0.65}

@@ -11,6 +11,8 @@ export interface Product {
   variantId: string | null
   sku: string | null
   collection: { title: string; handle: string } | null
+  /** Medusa product categories (child categories of the Karven tree, e.g. MED-01) */
+  categories: { id: string; name: string; handle: string }[]
   /** Technical specs read from Medusa product metadata */
   material: string | null
   gauge: string | null
