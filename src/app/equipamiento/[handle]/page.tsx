@@ -147,7 +147,7 @@ export default function ProductDetailPage() {
 
         <div className="lg:col-span-5">
           <Reveal distance={20} delay={0.08}>
-            {(category || product.collection) && <p className="eyebrow text-teal">{category ? ` · ` : product.collection?.title}</p>}
+            {(category || product.collection) && <p className="eyebrow text-teal">{category ? `${category.code} · ${category.name}` : product.collection?.title}</p>}
             <h1 className="display-md mt-4 text-ink text-balance">{product.title}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-text-2">{product.subtitle}</p>}
 
