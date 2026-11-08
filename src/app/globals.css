@@ -145,9 +145,14 @@ body {
   @media (min-width: 640px) { .container-custom { padding-inline: 2rem; } }
   @media (min-width: 1280px) { .container-custom { padding-inline: 3rem; } }
 
-  .section { padding-block: 5rem; }
-  @media (min-width: 768px) { .section { padding-block: 7rem; } }
-  @media (min-width: 1280px) { .section { padding-block: 8.5rem; } }
+  .section { padding-block: 3.75rem; }
+  @media (min-width: 734px) { .section { padding-block: 5rem; } }
+  @media (min-width: 1068px) { .section { padding-block: 6.25rem; } }
+  @media (min-width: 1440px) { .section { padding-block: 7.5rem; } }
+  /* Centered section opener: headline ≤ 8 words, one-line subtitle, optional link */
+  .section-head { max-width: 46rem; margin-inline: auto; text-align: center; }
+  .section-head > .subtitle { margin-top: 1rem; }
+  .section-head > .link-arrow { margin-top: 1.25rem; }
 
   /* ── Typographic utilities ───────────────────────────────────── */
   .eyebrow {
@@ -169,11 +174,27 @@ body {
     opacity: 0.9;
   }
 
-  .display-xl { font-size: clamp(2.75rem, 6.5vw, 5.75rem); line-height: 1.0; }
-  .display-lg { font-size: clamp(2.25rem, 4.6vw, 4rem); line-height: 1.04; }
-  .display-md { font-size: clamp(1.75rem, 3vw, 2.625rem); line-height: 1.1; }
+  /* Apple-style ladder: hero 48–80, section 32–48, subtitle 21–28, body 17 */
+  .display-xl { font-size: clamp(3rem, 6vw, 5rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.03em; }
+  .display-lg { font-size: clamp(2.5rem, 4.6vw, 4rem); line-height: 1.06; font-weight: 700; letter-spacing: -0.03em; }
+  .display-md { font-size: clamp(2rem, 3.2vw, 3rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.025em; }
+  .subtitle { font-size: clamp(1.125rem, 1.6vw, 1.5rem); line-height: 1.45; font-weight: 400; color: var(--color-text-2); }
+  .body-lg { font-size: 1.0625rem; line-height: 1.53; }
 
   .text-balance { text-wrap: balance; }
+
+  /* Apple-style "Learn more ›" link */
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--color-teal);
+    transition: color 0.2s, gap 0.3s var(--ease-out-expo);
+  }
+  .link-arrow::after { content: "›"; font-size: 1.25em; line-height: 1; transform: translateY(-0.05em); }
+  .link-arrow:hover { color: var(--color-teal-2); gap: 0.5rem; text-decoration: underline; text-underline-offset: 4px; }
 
   /* ── Buttons ─────────────────────────────────────────────────── */
   .btn {
@@ -181,9 +202,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
-    padding: 0.85rem 1.4rem;
-    border-radius: 0.75rem;
-    font-size: 0.9rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: -0.005em;
     transition: transform 0.4s var(--ease-out-expo), background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
@@ -210,9 +231,13 @@ body {
   .card {
     background: var(--color-paper-2);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
+    border-radius: 18px;
     box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tint) 4%, transparent);
   }
+  /* Apple multi-layer shadows; only meaningful on light surfaces */
+  .shadow-card { transition: box-shadow 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo); }
+  :root[data-theme="light"] .shadow-card { box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08); border-color: transparent; }
+  :root[data-theme="light"] .shadow-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.12); transform: translateY(-2px); }
   .panel {
     background: linear-gradient(180deg, color-mix(in srgb, var(--color-tint) 3.5%, transparent), color-mix(in srgb, var(--color-tint) 1.2%, transparent));
     border: 1px solid var(--color-line);

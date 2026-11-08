@@ -17,7 +17,7 @@ export default function EnvironmentsPage() {
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
             <p className="eyebrow text-teal">Entornos</p>
-            <h1 className="display-lg mt-4 text-ink text-balance">Lo que lleva cada sala.</h1>
+            <h1 className="display-lg mt-4 text-ink text-balance">Cada sala, completa.</h1>
           </div>
           <p className="lg:col-span-4 text-base leading-relaxed text-text-2">
             Una guía por área para armar la lista completa. Cada entorno enlaza a las subfamilias que lo equipan; si falta algo, lo fabricamos a medida.

@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { FiArrowUpRight } from "react-icons/fi"
 import ProductCard from "./ProductCard"
 import Reveal from "@/components/ui/Reveal"
 import { getProducts } from "@/lib/medusa"
 import type { Product } from "@/types"
 
-/** Two feature slots on top, three standard cards below (reads like a magazine spread, not a shop grid). */
+/** Product grid: two feature slots, then three standard cards. Centered opener in the Apple manner. */
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,22 +23,21 @@ export default function FeaturedProducts() {
   const rest = products.slice(2, 5)
 
   return (
-    <section className="section bg-paper">
+    <section className="section bg-paper-2">
       <div className="container-custom">
         <Reveal>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div>
-              <p className="eyebrow text-teal">Referencias</p>
-              <h2 className="display-md mt-4 text-ink">Piezas de catálogo</h2>
-            </div>
-            <Link href="/equipamiento" className="btn btn-outline self-start md:self-auto">Todo el equipamiento <FiArrowUpRight className="w-4 h-4" /></Link>
+          <div className="section-head">
+            <p className="eyebrow text-teal justify-center">Referencias</p>
+            <h2 className="display-md mt-4 text-ink">Piezas de catálogo.</h2>
+            <p className="subtitle">Referencias listas para cotizar. Todo se fabrica bajo pedido y a medida.</p>
+            <Link href="/equipamiento" className="link-arrow">Todo el equipamiento</Link>
           </div>
         </Reveal>
 
         {loading ? (
-          <div className="mt-10 grid md:grid-cols-2 gap-4">
+          <div className="mt-14 grid md:grid-cols-2 gap-5">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-line bg-paper-2 overflow-hidden animate-pulse">
+              <div key={i} className="rounded-[18px] border border-line bg-paper-2 overflow-hidden animate-pulse">
                 <div className="aspect-[16/10] bg-paper-3" />
                 <div className="p-5 space-y-3"><div className="h-3 w-20 bg-paper-3 rounded" /><div className="h-5 w-3/4 bg-paper-3 rounded" /></div>
               </div>
@@ -47,14 +45,14 @@ export default function FeaturedProducts() {
           </div>
         ) : (
           <>
-            <div className="mt-10 grid md:grid-cols-2 gap-4">
+            <div className="mt-14 lg:mt-16 grid md:grid-cols-2 gap-5">
               {wide.map((p, i) => (
                 <Reveal key={p.id} delay={i * 0.08} distance={24}>
                   <ProductCard product={p} priority size="wide" />
                 </Reveal>
               ))}
             </div>
-            <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {rest.map((p, i) => (
                 <Reveal key={p.id} delay={0.1 + i * 0.07} distance={24}>
                   <ProductCard product={p} />
@@ -64,7 +62,7 @@ export default function FeaturedProducts() {
           </>
         )}
         {!loading && products.length === 0 && (
-          <p className="mt-10 text-sm text-text-3">El catálogo se está actualizando. Vuelva a intentarlo en unos minutos.</p>
+          <p className="mt-10 text-sm text-text-3 text-center">El catálogo se está actualizando. Vuelva a intentarlo en unos minutos.</p>
         )}
       </div>
     </section>

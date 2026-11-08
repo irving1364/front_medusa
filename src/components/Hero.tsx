@@ -2,62 +2,54 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { FiArrowRight, FiArrowUpRight } from "react-icons/fi"
+import { FiArrowUpRight } from "react-icons/fi"
 import SplitText from "@/components/reactbits/SplitText/SplitText"
 import GradientWaves from "@/components/reactbits/GradientWaves/GradientWaves"
-import { FAMILIES, HERO_PRODUCT } from "@/lib/catalog"
+import { HERO_PRODUCT } from "@/lib/catalog"
 import { useTheme } from "@/lib/theme"
 
-const SUBFAMILY_COUNT = FAMILIES.reduce((n, f) => n + f.subfamilies.length, 0)
-
+/** Apple-style opener: centered headline (≤ 8 words), one-line subtitle, one CTA + one link, product below. */
 export default function Hero() {
   const theme = useTheme()
   const light = theme === "light"
 
   return (
-    <section className="relative bg-paper pt-32 lg:pt-40 overflow-hidden">
+    <section className="relative bg-paper-2 pt-36 lg:pt-44 pb-6 overflow-hidden">
       <div className="container-custom">
-        {/* Headline row */}
-        <div className="grid lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-8">
-            <Link href="/equipamiento" className="chip animate-fade-in hover:border-line-3 hover:text-ink transition-colors">
-              <span className="px-1.5 py-0.5 rounded bg-teal/15 text-teal text-[10px] font-semibold tracking-wide uppercase">Catálogo</span>
-              {FAMILIES.length} familias · {SUBFAMILY_COUNT} subfamilias <FiArrowRight className="w-3 h-3 opacity-70" />
-            </Link>
-            <SplitText
-              text="Mobiliario clínico en acero inoxidable, fabricado en Panamá."
-              tag="h1"
-              className="display-lg mt-6 text-ink text-balance max-w-4xl"
-              splitType="words"
-              effect="rise"
-              trigger="load"
-              delay={40}
-              duration={1}
-              ease="power4.out"
-              textAlign="left"
-              threshold={0}
-              rootMargin="0px"
-            />
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-rise" style={{ animationDelay: "500ms" }}>
-              <Link href="/equipamiento" className="btn btn-ink">Ver equipamiento <FiArrowRight className="w-4 h-4" /></Link>
-              <Link href="/contacto" className="btn btn-outline">Solicitar cotización</Link>
-            </div>
-          </div>
-          <p className="lg:col-span-4 text-base leading-relaxed text-text-2 max-w-sm lg:justify-self-end animate-rise" style={{ animationDelay: "650ms" }}>
-            Camillas, mesas, carros, lavamanos quirúrgicos y superficies sanitarias para hospitales, clínicas y laboratorios.
-            Soldadura TIG, pulido sanitario, instalación con equipo propio.
+        <div className="section-head">
+          <p className="eyebrow text-teal justify-center animate-fade-in">Karven · Mobiliario médico</p>
+          <SplitText
+            text="Acero inoxidable. Hecho en Panamá."
+            tag="h1"
+            className="display-xl mt-5 text-ink text-balance"
+            splitType="words"
+            effect="rise"
+            trigger="load"
+            delay={50}
+            duration={1}
+            ease="power4.out"
+            textAlign="center"
+            threshold={0}
+            rootMargin="0px"
+          />
+          <p className="subtitle mt-5 animate-rise" style={{ animationDelay: "400ms" }}>
+            Mobiliario clínico soldado, pulido y listo para desinfección diaria.
           </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 animate-rise" style={{ animationDelay: "550ms" }}>
+            <Link href="/equipamiento" className="btn btn-teal">Ver equipamiento</Link>
+            <Link href="/contacto" className="link-arrow">Solicitar cotización</Link>
+          </div>
         </div>
 
-        {/* Stage: one product, nothing else */}
-        <div className="relative mt-12 lg:mt-16 panel overflow-hidden animate-rise" style={{ animationDelay: "350ms" }}>
+        {/* Product stage */}
+        <div className="relative mt-14 lg:mt-20 panel overflow-hidden animate-rise" style={{ animationDelay: "350ms" }}>
           <div className="absolute inset-0" aria-hidden="true">
             <GradientWaves
               key={theme}
               horizonColor={light ? "#8BE0EA" : "#0E6B78"}
               waveColor="#2FB1C2"
               crestColor={light ? "#FFFFFF" : "#C6F0F5"}
-              backgroundColor={light ? "#F4F6F8" : "#0A0C10"}
+              backgroundColor={light ? "#FFFFFF" : "#10131A"}
               lightMode={light}
               speed={0.2}
               amplitude={1.8}
@@ -73,7 +65,7 @@ export default function Hero() {
               mouseStrength={0.3}
               swellOnClick={false}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-paper/90 via-paper/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-paper-2/90 via-paper-2/20 to-transparent" />
           </div>
 
           <div className="relative p-3 sm:p-4 lg:p-5">

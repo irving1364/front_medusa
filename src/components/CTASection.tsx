@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { FiArrowRight } from "react-icons/fi"
 import DotField from "@/components/reactbits/DotField/DotField"
 import Reveal from "@/components/ui/Reveal"
 import { useTheme } from "@/lib/theme"
@@ -9,8 +8,8 @@ import { useTheme } from "@/lib/theme"
 export default function CTASection() {
   const theme = useTheme()
   return (
-    <section className="bg-paper">
-      <div className="container-custom pb-20 lg:pb-28">
+    <section className="section bg-paper">
+      <div className="container-custom">
         <Reveal>
           <div className="relative panel overflow-hidden">
             <div className="absolute inset-0">
@@ -33,16 +32,15 @@ export default function CTASection() {
                 holdToZoom={false}
                 sparkle={false}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/70 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-paper-2/80 via-paper-2/40 to-paper-2/80 pointer-events-none" />
             </div>
-            <div className="relative grid lg:grid-cols-12 gap-8 items-end p-8 sm:p-12 lg:p-16 pointer-events-none">
-              <div className="lg:col-span-8">
-                <p className="eyebrow text-teal">Cotización</p>
-                <h2 className="display-md mt-4 text-ink text-balance max-w-2xl">Envíenos la lista de piezas o los planos del área. Respondemos con una cotización formal.</h2>
-              </div>
-              <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end pointer-events-auto">
-                <Link href="/contacto" className="btn btn-teal">Solicitar cotización <FiArrowRight className="w-4 h-4" /></Link>
-                <Link href="/equipamiento" className="btn btn-outline">Armar lista desde el catálogo</Link>
+            <div className="relative section-head py-16 sm:py-20 lg:py-24 px-6 pointer-events-none">
+              <p className="eyebrow text-teal justify-center">Cotización</p>
+              <h2 className="display-md mt-4 text-ink text-balance">Envíe la lista. Reciba la cotización.</h2>
+              <p className="subtitle">Una lista de piezas o los planos del área bastan para empezar.</p>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pointer-events-auto">
+                <Link href="/contacto" className="btn btn-teal">Solicitar cotización</Link>
+                <Link href="/equipamiento" className="link-arrow">Armar lista desde el catálogo</Link>
               </div>
             </div>
           </div>

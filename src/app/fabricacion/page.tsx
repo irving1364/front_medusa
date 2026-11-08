@@ -42,7 +42,7 @@ export default function FabricationPage() {
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
             <p className="eyebrow text-teal">Fabricación</p>
-            <h1 className="display-lg mt-4 text-ink text-balance">Taller propio, acero inoxidable y soldadura TIG.</h1>
+            <h1 className="display-lg mt-4 text-ink text-balance">Taller propio. Acero inoxidable. Soldadura TIG.</h1>
           </div>
           <p className="lg:col-span-4 text-base leading-relaxed text-text-2">
             Fabricamos en Ciudad de Panamá. Cada pieza se diseña con quien la va a usar, se suelda sin cordones visibles y se pule para soportar desinfección diaria durante años.

@@ -39,10 +39,10 @@ export default function ProductCard({ product, priority = false, size = "default
       intensity={0.14}
       spotlightSize={320}
       borderGlow={0.7}
-      className="group h-full rounded-2xl border border-line bg-paper-2"
+      className="group h-full rounded-[18px] border border-line bg-paper-2 shadow-card"
     >
       <Link href={`/equipamiento/${product.handle}`} className="flex h-full flex-col">
-        <div className={`plate rounded-t-2xl ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
+        <div className={`plate rounded-t-[18px] ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
           {product.thumbnail ? (
             <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-cover" />
           ) : (
