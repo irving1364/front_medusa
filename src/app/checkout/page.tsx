@@ -131,7 +131,7 @@ export default function CheckoutPage() {
             <span className="text-sm text-text-2">Subtotal estimado</span>
             <span className="font-display text-3xl text-ink">{formatPrice(subtotal, currencyCode)}</span>
           </div>
-          <p className="mt-2 text-xs text-text-3">Precios de referencia sin ITBMS. La cotización formal incluye transporte, instalación y descuentos por volumen.</p>
+          <p className="mt-2 text-xs text-text-3">Precios con ITBMS incluido. La cotización formal incluye transporte, instalación y descuentos por volumen.</p>
         </section>
 
         <section className="lg:col-span-5">

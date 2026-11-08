@@ -112,9 +112,16 @@ function toFeatures(value: unknown): string[] {
 }
 
 export function mapMedusaProduct(product: MedusaProduct): Product {
-  const variant = product.variants?.[0]
   const meta = product.metadata || {}
+  const variants = (product.variants || [])
+    .map((v) => ({ id: v.id, title: v.title, sku: v.sku, price: v.calculated_price?.calculated_amount ?? 0 }))
+    .sort((a, b) => a.price - b.price)
+  const variant = product.variants?.find((v) => v.id === variants[0]?.id) || product.variants?.[0]
   return {
+    variants,
+    priceFrom: variants.length > 1 || meta.price_from === true,
+    taxIncluded: meta.tax_included === true,
+    uses: toText(meta.uses),
     id: product.id,
     title: product.title,
     subtitle: product.subtitle,

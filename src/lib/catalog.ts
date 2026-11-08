@@ -13,16 +13,16 @@ export const unsplash = (id: string, w = 1600) =>
 
 /** Product featured on the home and showcase heroes. */
 export const HERO_PRODUCT = {
-  image: unsplash("1519494080410-f9aa76cb4283", 2000),
-  handle: "cama-hospitalaria-electrica-k300",
-  sku: "KC-300",
-  label: "Cama clínica eléctrica KC-300",
-  spec: "Inox 304 · 3 motores · 250 kg",
+  image: "/products/mesa-veterinaria-exploracion-tratamiento.jpg",
+  handle: "mesa-veterinaria-exploracion-tratamiento",
+  sku: "KM-VET-CT-MET",
+  label: "Mesa veterinaria de exploración y tratamiento",
+  spec: "Inox 304 · 120 / 150 cm · desde B/. 925",
   specs: [
-    ["Material", "AISI 304"],
-    ["Motores", "3 · 24 V"],
-    ["Carga", "250 kg"],
-    ["Ruedas", "Ø150 · freno central"],
+    ["Material", "AISI 304 satinado"],
+    ["Medidas", "120 o 150 × 60 × 90 cm"],
+    ["Uso", "Exploración y tratamiento"],
+    ["Precio", "Desde B/. 925 · ITBMS incl."],
   ] as [string, string][],
 }
 

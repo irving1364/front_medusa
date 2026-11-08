@@ -42,7 +42,7 @@ export default function ProductCard({ product, priority = false, size = "default
       className="group h-full rounded-[18px] border border-line bg-paper-2 shadow-card"
     >
       <Link href={`/equipamiento/${product.handle}`} className="flex h-full flex-col">
-        <div className={`plate rounded-t-[18px] ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
+        <div className={`plate plate-color rounded-t-[18px] ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
           {product.thumbnail ? (
             <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-cover" />
           ) : (
@@ -77,7 +77,7 @@ export default function ProductCard({ product, priority = false, size = "default
               {materialShort && <span className="block">{materialShort}</span>}
               {product.dimensions && <span className="block">{product.dimensions}</span>}
             </div>
-            <span className="text-sm font-medium text-ink tnum whitespace-nowrap">{formatPrice(product.price, product.currencyCode)}</span>
+            <span className="text-sm font-medium text-ink tnum whitespace-nowrap">{product.priceFrom && <span className="text-text-3 font-normal">Desde </span>}{formatPrice(product.price, product.currencyCode)}</span>
           </div>
         </div>
       </Link>

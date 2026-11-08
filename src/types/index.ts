@@ -6,10 +6,20 @@ export interface Product {
   handle: string
   thumbnail: string | null
   images: { id: string; url: string }[]
+  /** Lowest variant price ("desde" when there is more than one variant) */
   price: number
   currencyCode: string
+  /** Cheapest variant; used for quick add */
   variantId: string | null
   sku: string | null
+  /** All purchasable variants (e.g. sizes), cheapest first */
+  variants: { id: string; title: string; sku: string | null; price: number }[]
+  /** Price is a starting price (several sizes) */
+  priceFrom: boolean
+  /** Price already includes ITBMS */
+  taxIncluded: boolean
+  /** "Uso recomendado" */
+  uses: string | null
   collection: { title: string; handle: string } | null
   /** Medusa product categories (child categories of the Karven tree, e.g. MED-01) */
   categories: { id: string; name: string; handle: string }[]

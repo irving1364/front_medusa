@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
       // Temporary stock imagery until real product photos are uploaded to Medusa
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
       { protocol: "http", hostname: "localhost", port: "9000", pathname: "/**" },
+      // Product photography committed to this repo and served by Vercel (absolute URLs stored in Medusa)
+      { protocol: "https", hostname: "**.vercel.app", pathname: "/products/**" },
     ],
   },
   async redirects() {

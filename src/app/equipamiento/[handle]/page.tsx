@@ -18,6 +18,7 @@ export default function ProductDetailPage() {
   const { handle } = useParams<{ handle: string }>()
   const [loaded, setLoaded] = useState<{ handle: string; product: Product | null; related: Product[] } | null>(null)
   const [activeImage, setActiveImage] = useState(0)
+  const [variantId, setVariantId] = useState<string | null>(null)
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
   const { addItem, isLoading: cartLoading } = useCart()
@@ -45,10 +46,12 @@ export default function ProductDetailPage() {
   const loading = loaded?.handle !== handle
   const product = loading ? null : loaded?.product ?? null
   const related = loading ? [] : loaded?.related ?? []
+  // Selected size/variant (cheapest by default)
+  const selected = product ? product.variants.find((v) => v.id === variantId) || product.variants[0] || null : null
 
   const handleAdd = async () => {
-    if (!product?.variantId) return
-    await addItem(product.variantId, qty)
+    if (!selected) return
+    await addItem(selected.id, qty)
     setAdded(true)
     setTimeout(() => setAdded(false), 2500)
   }
@@ -120,7 +123,7 @@ export default function ProductDetailPage() {
         <div className="lg:col-span-7 lg:sticky lg:top-24 lg:self-start">
           <Reveal distance={20}>
             <GlareHover width="100%" height="auto" borderRadius="1.5rem" background="transparent" glareOpacity={0.14} glareSize={240} variant="sheen" className="w-full">
-              <div className="plate aspect-[4/3] w-full rounded-3xl border border-line">
+              <div className="plate plate-color aspect-[4/3] w-full rounded-3xl border border-line">
                 {images[activeImage] ? (
                   <Image src={images[activeImage].url} alt={product.title} fill priority sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
                 ) : (
@@ -133,7 +136,7 @@ export default function ProductDetailPage() {
           {images.length > 1 && (
             <div className="mt-4 grid grid-cols-5 gap-3">
               {images.map((img, i) => (
-                <button key={img.id} onClick={() => setActiveImage(i)} className={`plate aspect-square rounded-xl border ${i === activeImage ? "border-ink" : "border-line"}`} aria-label={`Imagen ${i + 1}`}>
+                <button key={img.id} onClick={() => setActiveImage(i)} className={`plate plate-color aspect-square rounded-xl border ${i === activeImage ? "border-ink" : "border-line"}`} aria-label={`Imagen ${i + 1}`}>
                   <Image src={img.url} alt="" fill sizes="120px" className="object-cover" />
                 </button>
               ))}
@@ -149,9 +152,30 @@ export default function ProductDetailPage() {
             {product.subtitle && <p className="mt-3 text-lg text-text-2">{product.subtitle}</p>}
 
             <div className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-display text-4xl text-ink tnum whitespace-nowrap">{formatPrice(product.price, product.currencyCode)}</span>
-              <span className="text-xs text-text-3">precio de referencia · ITBMS no incluido</span>
+              <span className="font-display text-4xl text-ink tnum whitespace-nowrap">
+                {product.priceFrom && selected?.id === product.variants[0]?.id && <span className="text-xl text-text-3 font-normal mr-1">Desde</span>}
+                {formatPrice(selected?.price ?? product.price, product.currencyCode)}
+              </span>
+              <span className="text-xs text-text-3">{product.taxIncluded ? "ITBMS incluido" : "precio de referencia · ITBMS no incluido"}</span>
             </div>
+
+            {product.variants.length > 1 && (
+              <div className="mt-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-3">Medida</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.variants.map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setVariantId(v.id)}
+                      aria-pressed={selected?.id === v.id}
+                      className={`px-3.5 py-2 rounded-full text-sm border transition-colors tnum ${selected?.id === v.id ? "bg-ink text-paper border-ink" : "border-line-2 text-text-2 hover:border-ink hover:text-ink"}`}
+                    >
+                      {v.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <div className="inline-flex items-center justify-between border border-line-2 rounded-full h-12 px-1.5 sm:w-36">
@@ -159,7 +183,7 @@ export default function ProductDetailPage() {
                 <span className="font-medium text-ink w-8 text-center tnum">{qty}</span>
                 <button onClick={() => setQty((q) => Math.min(99, q + 1))} className="w-9 h-9 rounded-full inline-flex items-center justify-center text-text-2 hover:bg-paper-2" aria-label="Sumar"><FiPlus className="w-4 h-4" /></button>
               </div>
-              <button onClick={handleAdd} disabled={cartLoading || !product.variantId} className="btn btn-ink flex-1 h-12 disabled:opacity-50">
+              <button onClick={handleAdd} disabled={cartLoading || !selected} className="btn btn-ink flex-1 h-12 disabled:opacity-50">
                 {added ? <FiCheck className="w-4 h-4" /> : <FiShoppingBag className="w-4 h-4" />}
                 {added ? "Agregado a su cotización" : cartLoading ? "Agregando…" : "Agregar a cotización"}
               </button>
@@ -179,6 +203,13 @@ export default function ProductDetailPage() {
             )}
 
             {product.datasheetUrl && <ProductDatasheet url={product.datasheetUrl} name={product.datasheetName} productTitle={product.title} />}
+
+            {product.uses && (
+              <div className="mt-10">
+                <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-text-3">Uso recomendado</h2>
+                <p className="mt-3 text-sm text-text-2 leading-relaxed">{product.uses}</p>
+              </div>
+            )}
 
             {product.features.length > 0 && (
               <div className="mt-10">

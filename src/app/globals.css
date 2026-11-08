@@ -331,6 +331,9 @@ body {
   }
   .group:hover .plate img, .plate:hover img { filter: grayscale(0) contrast(1) brightness(1); transform: scale(1.03); }
   .group:hover .plate::after, .plate:hover::after { opacity: 0; }
+  /* Real product photography: no grayscale treatment at all. */
+  .plate-color img, .group:hover .plate-color img { filter: none; }
+  .plate-color::after { display: none; }
   /* Hero plate: the product is the subject, so keep it brighter than catalogue thumbnails. */
   .plate-hero img { filter: grayscale(0.85) contrast(1.04) brightness(0.96); }
   .plate-hero::after { background: linear-gradient(180deg, rgba(47, 177, 194, 0.05), rgba(10, 12, 16, 0.18)); }

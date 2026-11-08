@@ -28,12 +28,16 @@ const IMG = {
   lab: img("1583912086096-8c60d75a53f9"), shelving: img("1579684385127-1ef15d508118"), reception: img("1519494026892-80bbd2d6fd0d"),
   consult: img("1666214280557-f1b5022eb634"), labBench: img("1581594549595-35f6edc7b762"), room: img("1519494080410-f9aa76cb4283"),
 }
+// Real Karven photography committed to front/public/products (served by Vercel)
+const SITE = (env.NEXT_PUBLIC_SITE_URL || "https://front-medusa-kappa.vercel.app").replace(/\/$/, "")
+IMG.vetTable = `${SITE}/products/mesa-veterinaria-exploracion-tratamiento.jpg`
+IMG.vetWet = `${SITE}/products/mesa-humeda-veterinaria-tratamiento-preparacion.jpg`
 
 /** Parent categories ("categorías madres"). */
 const PARENTS = [
   { handle: "mobiliario-medico", code: "MED", number: "01", name: "Mobiliario médico", image: IMG.room,
     description: "Atención humana, exploración, procedimientos, higiene clínica y apoyo al paciente." },
-  { handle: "mobiliario-veterinario", code: "VET", number: "02", name: "Mobiliario veterinario", image: IMG.consult,
+  { handle: "mobiliario-veterinario", code: "VET", number: "02", name: "Mobiliario veterinario", image: IMG.vetTable,
     description: "Exploración, tratamiento, hospitalización, preparación y apoyo veterinario." },
   { handle: "mobiliario-tecnico", code: "TEC", number: "03", name: "Mobiliario técnico", image: IMG.labBench,
     description: "Muebles fijos, mesones, estaciones de trabajo, almacenamiento y lavado especializado. Trabajos especializados para hospitales, farmacias, laboratorios y morgues." },
@@ -58,7 +62,7 @@ const CHILDREN = [
   { parent: "mobiliario-medico", code: "MED-08", handle: "cunas-neonatales", name: "Cunas neonatales", image: IMG.room,
     items: "Bassinets, cunas hospitalarias neonatales y sus configuraciones" },
 
-  { parent: "mobiliario-veterinario", code: "VET-01", handle: "mesas-veterinarias", name: "Mesas veterinarias", image: IMG.consult,
+  { parent: "mobiliario-veterinario", code: "VET-01", handle: "mesas-veterinarias", name: "Mesas veterinarias", image: IMG.vetWet,
     items: "Exploración, tratamiento, preparación móvil, mesas húmedas y mesas Mayo veterinarias" },
   { parent: "mobiliario-veterinario", code: "VET-02", handle: "jaulas-veterinarias", name: "Jaulas veterinarias", image: IMG.shelving,
     items: "Individuales, modulares, felinas, caninas y estaciones múltiples" },
