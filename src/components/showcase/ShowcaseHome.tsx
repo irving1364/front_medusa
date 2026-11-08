@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { FiArrowRight } from "react-icons/fi"
 import LightRays from "@/components/reactbits/LightRays/LightRays"
 import Noise from "@/components/reactbits/Noise/Noise"
@@ -12,12 +11,12 @@ import Magnet from "@/components/reactbits/Magnet/Magnet"
 import ScrollExpand from "@/components/reactbits/ScrollExpand/ScrollExpand"
 import ChromaGrid from "@/components/reactbits/ChromaGrid/ChromaGrid"
 import ScrollReveal from "@/components/reactbits/ScrollReveal/ScrollReveal"
-import DepthCarousel from "@/components/reactbits/DepthCarousel/DepthCarousel"
+import ScrollRail from "@/components/showcase/ScrollRail"
 import ScrollStack, { ScrollStackItem } from "@/components/reactbits/ScrollStack/ScrollStack"
 import GradientWaves from "@/components/reactbits/GradientWaves/GradientWaves"
 import Reveal from "@/components/ui/Reveal"
 import { FAMILIES, HERO_PRODUCT } from "@/lib/catalog"
-import { getProducts, formatPrice } from "@/lib/medusa"
+import { getProducts } from "@/lib/medusa"
 import { forceTheme } from "@/lib/theme"
 import type { Product } from "@/types"
 
@@ -32,9 +31,7 @@ const PROCESS = [
 
 /** Cinematic alternative home. Dark by design: the route forces the dark theme while mounted. */
 export default function ShowcaseHome() {
-  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
-  const [active, setActive] = useState(0)
 
   // Dark only: force on mount and re-apply if anything else flips the theme while we are mounted.
   useEffect(() => {
@@ -50,13 +47,11 @@ export default function ShowcaseHome() {
   }, [])
 
   useEffect(() => {
-    getProducts({ limit: 10 })
-      .then((res) => setProducts(res.products.filter((p) => p.thumbnail)))
+    getProducts({ limit: 6 })
+      .then((res) => setProducts(res.products.filter((p) => p.thumbnail).slice(0, 3)))
       .catch((error) => console.error("Error loading products:", error))
   }, [])
 
-  const carouselItems = products.map((p) => ({ image: p.thumbnail as string, alt: p.title }))
-  const current = products[active]
   const chromaItems = [
     ...FAMILIES.map((f) => ({ image: f.image, title: f.title, subtitle: `${f.subfamilies.length} subfamilias`, accent: "#2FB1C2", url: `/equipamiento?familia=${f.handle}`, alt: f.title })),
     { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/equipamiento", alt: "Catálogo" },
@@ -195,55 +190,9 @@ export default function ShowcaseHome() {
         </div>
       </section>
 
-      {/* 5 · Circular gallery of references */}
-      <section className="section overflow-hidden">
-        <div className="container-custom">
-          <Reveal>
-            <div className="section-head">
-              <p className="eyebrow text-teal justify-center">Referencias</p>
-              <h2 className="display-md mt-4 text-ink">Piezas de catálogo.</h2>
-              <p className="subtitle">Arrastre, use las flechas o espere: la rueda avanza sola.</p>
-            </div>
-          </Reveal>
-        </div>
-        {carouselItems.length > 0 && (
-          <div className="container-custom mt-6 h-[480px] sm:h-[540px] lg:h-[600px]">
-            <DepthCarousel
-              items={carouselItems}
-              cardWidth={340}
-              cardHeight={420}
-              radius={20}
-              tint="#0A0C10"
-              depth={240}
-              spread={110}
-              tilt={24}
-              tiltDirection="right"
-              perspective={1500}
-              visibleCards={4}
-              falloff={0.22}
-              blur={5}
-              duration={750}
-              ease="power3.out"
-              autoplay
-              autoplayDelay={3600}
-              loop
-              showControls
-              showIndicators={false}
-              onChange={(index) => setActive(index)}
-            />
-          </div>
-        )}
-        {current && (
-          <div className="container-custom mt-2 text-center">
-            <p className="mono text-[11px] uppercase tracking-[0.18em] text-text-3">{current.collection?.title} · {current.sku}</p>
-            <h3 className="mt-2 font-display text-2xl sm:text-3xl text-ink">{current.title}</h3>
-            <p className="mt-1 text-text-2 tnum">{formatPrice(current.price, current.currencyCode)}</p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              <button onClick={() => router.push(`/equipamiento/${current.handle}`)} className="link-arrow">Ver ficha</button>
-              <Link href="/equipamiento" className="link-arrow">Todo el equipamiento</Link>
-            </div>
-          </div>
-        )}
+      {/* 5 · Scroll-driven rail of three references; the page keeps scrolling after the third */}
+      <section className="relative">
+        <ScrollRail products={products} />
       </section>
 
       {/* 6 · Process as a scroll stack */}
