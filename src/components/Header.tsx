@@ -51,7 +51,7 @@ export default function Header() {
         >
           <Link href="/" onClick={close} className="relative z-10 flex items-center gap-3 pl-2" aria-label="Karven, inicio">
             <span className="relative block w-7 h-7">
-              <Image src={`/images/logo-isotipo-${logo}.png`} alt="" fill className="object-contain" sizes="28px" priority />
+              <Image src={`/images/logo-isotipo-${theme === "light" ? "color" : "blanco"}.png`} alt="" fill className="object-contain" sizes="28px" priority />
             </span>
             <span className="relative hidden sm:block h-4 w-[82px]">
               <Image src={`/images/logo-logotipo-${logo}.png`} alt="Karven" fill className="object-contain object-left" sizes="82px" priority />

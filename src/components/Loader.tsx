@@ -25,7 +25,7 @@ export default function Loader() {
     >
       <div className="flex flex-col items-center gap-6">
         <div className="relative w-16 h-16 animate-fade-in">
-          <Image src={`/images/logo-isotipo-${logo}.png`} alt="" fill className="object-contain" sizes="64px" priority />
+          <Image src={`/images/logo-isotipo-${logo === "oscuro" ? "color" : "blanco"}.png`} alt="" fill className="object-contain" sizes="64px" priority />
         </div>
         <div className="w-40 h-px bg-line overflow-hidden">
           <div className="h-full w-full bg-teal-3 origin-left" style={{ animation: "loader-bar 1s cubic-bezier(0.16,1,0.3,1) both" }} />

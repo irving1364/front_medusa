@@ -15,8 +15,8 @@ export default function Footer() {
       <div className="container-custom pt-16 pb-10">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-3">
-            <Link href="/" className="inline-block relative w-40 h-12" aria-label="Karven">
-              <Image src={`/images/logo-imagotipo-${logo}.png`} alt="Karven Medical Furniture" fill className="object-contain object-left" sizes="160px" />
+            <Link href="/" className="inline-block relative w-36 h-[4.4rem]" aria-label="Karven">
+              <Image src={`/images/logo-compacta-${logo === "oscuro" ? "color" : "blanca-web"}.png`} alt="Karven Medical Furniture" fill className="object-contain object-left" sizes="144px" />
             </Link>
             <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-2">
               Fabricamos mobiliario médico, veterinario y técnico en acero inoxidable 304 y 316. Ciudad de Panamá.

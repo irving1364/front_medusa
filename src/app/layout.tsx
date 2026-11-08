@@ -31,10 +31,10 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: "/images/logo-isotipo-blanco.png", sizes: "32x32", type: "image/png" },
-      { url: "/images/logo-isotipo-blanco.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/favicon-192.png", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/images/logo-isotipo-blanco.png", sizes: "180x180" }],
+    apple: [{ url: "/images/favicon-180.png", sizes: "180x180" }],
   },
   openGraph: {
     title: "Mobiliario Médico y Veterinario en Panamá | KARVEN Medical",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_PA",
     siteName: "Karven Medical",
-    images: [{ url: "/images/logo-imagotipo-blanco.png", width: 1200, height: 630 }],
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: "Karven Medical" }],
   },
   robots: { index: true, follow: true },
   metadataBase: new URL(SITE_URL),
