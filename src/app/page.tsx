@@ -1,16 +1,6 @@
-import Hero from "@/components/Hero"
-import FabricationSection from "@/components/FabricationSection"
-import FeaturedProducts from "@/components/FeaturedProducts"
-import CTASection from "@/components/CTASection"
+import ShowcaseHome from "@/components/showcase/ShowcaseHome"
 
-/** Short home: product, how we build, references, quote. Families and rooms have their own pages. */
+/** The only home: cinematic React Bits composition, light and dark aware. */
 export default function Home() {
-  return (
-    <>
-      <Hero />
-      <FabricationSection />
-      <FeaturedProducts />
-      <CTASection />
-    </>
-  )
+  return <ShowcaseHome />
 }

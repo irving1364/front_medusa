@@ -18,7 +18,7 @@ import Reveal from "@/components/ui/Reveal"
 import { HERO_PRODUCT } from "@/lib/catalog"
 import { useCategories } from "@/context/CategoriesContext"
 import { getProducts } from "@/lib/medusa"
-import { forceTheme } from "@/lib/theme"
+import { useTheme } from "@/lib/theme"
 import type { Product } from "@/types"
 
 const PROCESS = [
@@ -30,23 +30,12 @@ const PROCESS = [
   { n: "06", title: "Instalación", text: "Transporte e instalación con equipo propio en Ciudad de Panamá. Nivelación, fijación y entrega con el personal del área." },
 ]
 
-/** Cinematic alternative home. Dark by design: the route forces the dark theme while mounted. */
+/** Cinematic home built on React Bits; every WebGL effect takes theme-aware colours. */
 export default function ShowcaseHome() {
   const [products, setProducts] = useState<Product[]>([])
   const { parents, all } = useCategories()
-
-  // Dark only: force on mount and re-apply if anything else flips the theme while we are mounted.
-  useEffect(() => {
-    const restore = forceTheme("dark")
-    const guard = () => {
-      if (document.documentElement.getAttribute("data-theme") !== "dark") forceTheme("dark")
-    }
-    window.addEventListener("karven-theme-change", guard)
-    return () => {
-      window.removeEventListener("karven-theme-change", guard)
-      restore()
-    }
-  }, [])
+  const theme = useTheme()
+  const light = theme === "light"
 
   useEffect(() => {
     getProducts({ limit: 6 })
@@ -65,17 +54,19 @@ export default function ShowcaseHome() {
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <div className="absolute inset-0" aria-hidden="true">
           <LightRays
+            key={theme}
+            lightMode={light}
             raysOrigin="top-center"
-            raysColor="#8BE0EA"
+            raysColor={light ? "#0E7A88" : "#8BE0EA"}
             raysSpeed={0.9}
             lightSpread={0.65}
             rayLength={2.6}
             rayDensity={1.1}
             raySharpness={0.4}
-            glow={0.7}
+            glow={light ? 0.5 : 0.7}
             haze={0.3}
             atmosphere={1}
-            intensity={0.95}
+            intensity={light ? 0.75 : 0.95}
             pulsating
             followMouse
             mouseInfluence={0.14}
@@ -85,12 +76,12 @@ export default function ShowcaseHome() {
             className="w-full h-full"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/20 to-paper" />
-          <Noise opacity={0.07} size={1} fps={18} blendMode="overlay" />
+          <Noise key={`noise-${theme}`} opacity={light ? 0.05 : 0.07} size={1} fps={18} blendMode={light ? "multiply" : "overlay"} />
         </div>
 
         <div className="relative container-custom pt-32 pb-24 text-center">
           <div className="flex justify-center">
-            <ShinyText text="Karven · Mobiliario médico · Panamá" color="#8BE0EA" shineColor="#FFFFFF" speed={3} className="eyebrow" />
+            <ShinyText key={`shine-${theme}`} text="Karven · Mobiliario médico · Panamá" color={light ? "#0E7A88" : "#8BE0EA"} shineColor={light ? "#8BE0EA" : "#FFFFFF"} speed={3} className="eyebrow" />
           </div>
           <SplitText
             text="Acero. Precisión. Panamá."
@@ -161,14 +152,14 @@ export default function ShowcaseHome() {
               softness={0.65}
               damping={0.4}
               grayscale={1}
-              dim={0.18}
-              glow={0.55}
+              dim={light ? 0.06 : 0.18}
+              glow={light ? 0.35 : 0.55}
               borderGlow={1}
               reveal="spotlight"
               aspectRatio="4 / 3"
               cardRadius={20}
               showInfo
-              theme="dark"
+              theme={theme}
             />
           </div>
         </div>
@@ -209,9 +200,9 @@ export default function ShowcaseHome() {
           </Reveal>
         </div>
         <div className="container-custom max-w-4xl mt-10">
-          <ScrollStack useWindowScroll smoothScroll={false} itemDistance={120} itemStackDistance={22} stackPosition="18%" baseScale={0.86} itemScale={0.035} dimAmount={0.25} blurAmount={1.5} holdDistance={160}>
+          <ScrollStack useWindowScroll smoothScroll={false} itemDistance={120} itemStackDistance={22} stackPosition="18%" baseScale={0.86} itemScale={0.035} dimAmount={light ? 0.1 : 0.25} blurAmount={1.5} holdDistance={160}>
             {PROCESS.map((s) => (
-              <ScrollStackItem key={s.n} itemClassName="!bg-[#10131A] !text-ink border border-line shadow-[0_30px_80px_-40px_rgba(0,0,0,0.9)] !p-8 sm:!p-12 !h-auto min-h-[18rem]">
+              <ScrollStackItem key={s.n} itemClassName="!bg-paper-2 !text-ink border border-line !shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)] !p-8 sm:!p-12 !h-auto min-h-[18rem]">
                 <span className="mono text-sm text-teal">{s.n}</span>
                 <h3 className="mt-4 font-display text-3xl sm:text-4xl text-ink">{s.title}</h3>
                 <p className="mt-4 body-lg text-text-2 max-w-xl">{s.text}</p>
@@ -228,15 +219,17 @@ export default function ShowcaseHome() {
             <div className="relative panel overflow-hidden">
               <div className="absolute inset-0" aria-hidden="true">
                 <GradientWaves
-                  horizonColor="#0E6B78"
+                  key={`waves-${theme}`}
+                  lightMode={light}
+                  horizonColor={light ? "#8BE0EA" : "#0E6B78"}
                   waveColor="#2FB1C2"
-                  crestColor="#C6F0F5"
-                  backgroundColor="#0A0C10"
+                  crestColor={light ? "#FFFFFF" : "#C6F0F5"}
+                  backgroundColor={light ? "#FFFFFF" : "#0A0C10"}
                   speed={0.3}
                   amplitude={2.4}
                   swell={34}
                   turbulence={16}
-                  brightness={1.25}
+                  brightness={light ? 1 : 1.25}
                   grain={0.2}
                   quality="medium"
                   mouseInteraction
