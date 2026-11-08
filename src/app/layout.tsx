@@ -19,14 +19,15 @@ const SITE_URL =
 
 export const metadata: Metadata = {
   title: {
-    default: "Karven | Mobiliario Médico",
-    template: "%s | Karven",
+    default: "Mobiliario Médico y Veterinario en Panamá | KARVEN Medical",
+    template: "%s | Karven Medical",
   },
+  applicationName: "Karven Medical",
   description:
-    "Karven fabrica mobiliario médico y clínico en acero inoxidable en Panamá: camillas, mesas quirúrgicas, carros clínicos, lavamanos quirúrgicos, mobiliario de consultorio y laboratorio.",
+    "Karven Medical fabrica mobiliario médico, veterinario y técnico en acero inoxidable en Panamá: camillas, sillones, mesas, carros hospitalarios, lavamanos, mesas y jaulas veterinarias, mesones y gabinetes a medida.",
   keywords: [
-    "mobiliario médico", "muebles médicos", "camillas", "mesas quirúrgicas",
-    "acero inoxidable", "equipamiento clínico", "Panamá", "Karven",
+    "mobiliario médico", "mobiliario veterinario", "mobiliario técnico", "muebles médicos", "camillas",
+    "acero inoxidable", "equipamiento clínico", "fabricación a medida", "Panamá", "Karven Medical",
   ],
   icons: {
     icon: [
@@ -36,11 +37,11 @@ export const metadata: Metadata = {
     apple: [{ url: "/images/logo-isotipo-blanco.png", sizes: "180x180" }],
   },
   openGraph: {
-    title: "Karven | Mobiliario Médico",
-    description: "Mobiliario clínico en acero inoxidable, fabricado en Panamá. Diseño, fabricación e instalación.",
+    title: "Mobiliario Médico y Veterinario en Panamá | KARVEN Medical",
+    description: "Mobiliario médico, veterinario y técnico en acero inoxidable, fabricado en Panamá. Diseño, fabricación a medida e instalación.",
     type: "website",
     locale: "es_PA",
-    siteName: "Karven Medical Furniture",
+    siteName: "Karven Medical",
     images: [{ url: "/images/logo-imagotipo-blanco.png", width: 1200, height: 630 }],
   },
   robots: { index: true, follow: true },

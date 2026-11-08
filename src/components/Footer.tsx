@@ -47,9 +47,11 @@ export default function Footer() {
           <div className="lg:col-span-3 lg:col-start-10">
             <h3 className="eyebrow text-text-3 mb-5">Empresa</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/equipamiento" className="text-sm text-text-2 hover:text-ink transition-colors">Equipamiento</Link></li>
-              <li><Link href="/fabricacion" className="text-sm text-text-2 hover:text-ink transition-colors">Fabricación</Link></li>
+              <li><Link href="/fabricacion" className="text-sm text-text-2 hover:text-ink transition-colors">Fabricación a medida</Link></li>
+              <li><Link href="/proyectos" className="text-sm text-text-2 hover:text-ink transition-colors">Proyectos</Link></li>
+              <li><Link href="/nosotros" className="text-sm text-text-2 hover:text-ink transition-colors">Nosotros</Link></li>
               <li><Link href="/contacto" className="text-sm text-text-2 hover:text-ink transition-colors">Contacto</Link></li>
+              <li><Link href="/equipamiento" className="text-sm text-text-2 hover:text-ink transition-colors">Equipamiento</Link></li>
               <li><Link href="/checkout" className="text-sm text-text-2 hover:text-ink transition-colors">Mi cotización</Link></li>
             </ul>
           </div>

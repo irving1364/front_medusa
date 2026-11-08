@@ -6,7 +6,7 @@ import Reveal from "@/components/ui/Reveal"
 import { unsplash } from "@/lib/catalog"
 
 export const metadata: Metadata = {
-  title: "Fabricación",
+  title: "Fabricación a medida",
   description: "Cómo fabrica Karven: acero inoxidable AISI 304 y 316, corte láser, soldadura TIG, pulido sanitario y pasivado. Taller en Ciudad de Panamá.",
 }
 
@@ -41,7 +41,7 @@ export default function FabricationPage() {
       <div className="container-custom">
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
-            <p className="eyebrow text-teal">Fabricación</p>
+            <p className="eyebrow text-teal">Fabricación a medida</p>
             <h1 className="display-lg mt-4 text-ink text-balance">Taller propio. Acero inoxidable. Soldadura TIG.</h1>
           </div>
           <p className="lg:col-span-4 text-base leading-relaxed text-text-2">

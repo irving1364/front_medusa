@@ -10,8 +10,9 @@ import { useCategories } from "@/context/CategoriesContext"
 import { useTheme, setTheme } from "@/lib/theme"
 
 const NAV_LINKS = [
-  { href: "/equipamiento", label: "Equipamiento" },
-  { href: "/fabricacion", label: "Fabricación" },
+  { href: "/fabricacion", label: "Fabricación a medida" },
+  { href: "/proyectos", label: "Proyectos" },
+  { href: "/nosotros", label: "Nosotros" },
   { href: "/contacto", label: "Contacto" },
 ]
 
@@ -54,9 +55,6 @@ export default function Header() {
             </span>
             <span className="relative hidden sm:block h-4 w-[82px]">
               <Image src={`/images/logo-logotipo-${logo}.png`} alt="Karven" fill className="object-contain object-left" sizes="82px" priority />
-            </span>
-            <span className="hidden xl:block pl-3 ml-1 border-l border-line-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-3">
-              Mobiliario médico · Panamá
             </span>
           </Link>
 
