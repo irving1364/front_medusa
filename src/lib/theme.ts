@@ -7,12 +7,16 @@ export type Theme = "dark" | "light"
 const STORAGE_KEY = "karven-theme"
 const EVENT = "karven-theme-change"
 
-/** Inline script run before paint so the stored theme applies without a flash. */
+/** Site default; the <html> element in layout.tsx carries it so SSR and first paint agree. */
+export const DEFAULT_THEME: Theme = "light"
+
+/** Inline script run before paint so a stored preference applies without a flash. */
 export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})();`
 
 export function readTheme(): Theme {
-  if (typeof document === "undefined") return "dark"
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark"
+  if (typeof document === "undefined") return DEFAULT_THEME
+  const t = document.documentElement.getAttribute("data-theme")
+  return t === "light" || t === "dark" ? t : DEFAULT_THEME
 }
 
 export function setTheme(theme: Theme) {
@@ -28,5 +32,5 @@ function subscribe(onChange: () => void) {
 
 /** Current theme; "dark" during SSR and hydration, then whatever the document carries. */
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, readTheme, () => "dark")
+  return useSyncExternalStore(subscribe, readTheme, () => DEFAULT_THEME)
 }
