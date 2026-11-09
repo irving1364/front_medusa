@@ -43,7 +43,7 @@ function lineOf(code: string): LineCode {
   return prefix === "VET" || prefix === "TEC" ? prefix : "MED"
 }
 
-function toNode(c: MedusaCategory, parentHandle: string | null): CategoryNode {
+export function toNode(c: MedusaCategory, parentHandle: string | null): CategoryNode {
   const meta = c.metadata || {}
   const code = typeof meta.code === "string" ? meta.code : c.handle.toUpperCase()
   const line = lineOf(code)

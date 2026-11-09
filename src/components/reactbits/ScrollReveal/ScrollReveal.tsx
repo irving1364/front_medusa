@@ -120,7 +120,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   rotationEnd = 'bottom bottom',
   wordAnimationEnd = 'bottom bottom'
 }) => {
-  const containerRef = useRef<HTMLHeadingElement>(null);
+  const containerRef = useRef<HTMLParagraphElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
 
   const text = useMemo(() => {
@@ -333,7 +333,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   ]);
 
   return (
-    <h2 ref={containerRef} className={`my-5 ${containerClassName}`} aria-label={text ?? undefined}>
+    <p ref={containerRef} className={`my-5 ${containerClassName}`} aria-label={text ?? undefined}>
       <span
         ref={textRef}
         className={`block text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}
@@ -341,7 +341,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
       >
         {splitText ?? children}
       </span>
-    </h2>
+    </p>
   );
 };
 

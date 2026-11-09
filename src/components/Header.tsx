@@ -104,7 +104,7 @@ export default function Header() {
                       <li key={p.handle} role="none">
                         <Link
                           role="menuitem"
-                          href={`${CATALOG}?linea=${p.handle}`}
+                          href={`/${p.handle}`}
                           onClick={close}
                           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink hover:bg-tint/[0.05] transition-colors"
                         >
@@ -173,7 +173,7 @@ export default function Header() {
           <ul className="py-3 border-b border-line space-y-1 animate-rise" style={{ animationDelay: "100ms" }}>
             {parents.map((p) => (
               <li key={p.handle}>
-                <Link href={`${CATALOG}?linea=${p.handle}`} onClick={close} className="flex items-center gap-3 py-2 text-base text-text-2 hover:text-ink">
+                <Link href={`/${p.handle}`} onClick={close} className="flex items-center gap-3 py-2 text-base text-text-2 hover:text-ink">
                   <FamilyIcon name={p.line} className="w-5 h-5 text-teal" />
                   <span>{p.name}</span>
                 </Link>

@@ -57,7 +57,7 @@ export default function ProjectsPage() {
                   <h2 className="mt-2 font-display text-2xl text-ink">{p.title}</h2>
                   <p className="mt-2 body-lg text-text-2">{p.text}</p>
                   <div className="mt-auto pt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <Link href={`/mobiliario?linea=${p.line}`} className="link-arrow !text-sm">Ver mobiliario</Link>
+                    <Link href={`/${p.line}`} className="link-arrow !text-sm">Ver mobiliario</Link>
                     <Link href="/contacto" className="inline-flex items-center gap-1.5 text-sm text-text-2 hover:text-ink">Cotizar un proyecto así <FiArrowUpRight className="w-3.5 h-3.5" /></Link>
                   </div>
                 </div>

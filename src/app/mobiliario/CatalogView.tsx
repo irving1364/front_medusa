@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { FiSearch, FiX } from "react-icons/fi"
 import ProductCard from "@/components/ProductCard"
 import Reveal from "@/components/ui/Reveal"
@@ -20,28 +20,42 @@ const SORT_OPTIONS = [
 type Sort = (typeof SORT_OPTIONS)[number]["value"]
 
 /** Catalogue browser: three product lines (parents) and their categories (children) from Medusa. */
-export default function CatalogView() {
+interface CatalogViewProps {
+  /** Products fetched on the server so the first HTML already lists the catalogue */
+  initialProducts?: Product[]
+}
+
+export default function CatalogView({ initialProducts }: CatalogViewProps) {
   const router = useRouter()
-  const params = useSearchParams()
+  // Filters live in the query string but are read after hydration: useSearchParams would make the
+  // whole catalogue client-rendered and hide the product grid from crawlers.
+  const [params, setParams] = useState<URLSearchParams>(() => new URLSearchParams())
+  useEffect(() => {
+    const read = () => setParams(new URLSearchParams(window.location.search))
+    read()
+    window.addEventListener("popstate", read)
+    return () => window.removeEventListener("popstate", read)
+  }, [])
   const { parents, get, parentOf, loading: loadingCategories } = useCategories()
   // `linea` = parent handle, `categoria` = child handle (legacy `familia` / `coleccion` still accepted)
   const lineHandle = params.get("linea") || params.get("familia") || ""
   const categoryHandle = params.get("categoria") || params.get("coleccion") || ""
 
-  const [allProducts, setAllProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [allProducts, setAllProducts] = useState<Product[]>(initialProducts ?? [])
+  const [loading, setLoading] = useState(!(initialProducts && initialProducts.length))
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState<Sort>("newest")
 
   // Load the full catalogue once; filtering by line/category is done client-side.
   useEffect(() => {
+    if (initialProducts && initialProducts.length) return
     let cancelled = false
     getProducts({ limit: 200 })
       .then((res) => { if (!cancelled) setAllProducts(res.products) })
       .catch((error) => console.error("Error loading catalogue:", error))
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [])
+  }, [initialProducts])
 
   const category = get(categoryHandle)
   const line = get(lineHandle) || parentOf(category) || null
@@ -73,7 +87,10 @@ export default function CatalogView() {
     return list
   }, [allProducts, activeLine, category, search, sort])
 
-  const go = (query: string) => router.replace(`/mobiliario${query}`, { scroll: false })
+  const go = (query: string) => {
+    window.history.replaceState(null, "", `/mobiliario${query}`)
+    setParams(new URLSearchParams(query.replace(/^\?/, "")))
+  }
 
   const heading = category ? category.name : activeLine ? activeLine.name : "Mobiliario"
   const intro = category ? category.items || category.description : activeLine ? activeLine.description
@@ -97,7 +114,7 @@ export default function CatalogView() {
         <nav className="mt-10 flex gap-1.5 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 pb-1 [scrollbar-width:none]" aria-label="Líneas de mobiliario">
           <Chip active={!activeLine} onClick={() => go("")}>Todo</Chip>
           {parents.map((p) => (
-            <Chip key={p.handle} active={activeLine?.handle === p.handle} onClick={() => go(`?linea=${p.handle}`)}>
+            <Chip key={p.handle} active={activeLine?.handle === p.handle} onClick={() => router.push(`/${p.handle}`)}>
               <span className="mono mr-1.5 opacity-60">{p.number}</span>{p.name.replace("Mobiliario ", "")}
             </Chip>
           ))}
@@ -135,10 +152,10 @@ export default function CatalogView() {
                   {loadingCategories && parents.length === 0 && <li className="py-2.5 text-sm text-text-3">Cargando…</li>}
                   {parents.map((p) => (
                     <li key={p.handle}>
-                      <button onClick={() => go(`?linea=${p.handle}`)} className="w-full flex items-center gap-3 py-2.5 text-sm text-left text-text-2 hover:text-ink border-b border-line">
+                      <Link href={`/${p.handle}`} className="w-full flex items-center gap-3 py-2.5 text-sm text-left text-text-2 hover:text-ink border-b border-line">
                         <span className="mono text-text-3 w-5">{p.number}</span><span className="flex-1">{p.name}</span>
                         <span className="tnum text-text-3">{countForLine(p.children.map((c) => c.handle))}</span>
-                      </button>
+                      </Link>
                     </li>
                   ))}
                 </ol>

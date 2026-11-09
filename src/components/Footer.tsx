@@ -33,12 +33,12 @@ export default function Footer() {
           {parents.map((p) => (
             <div key={p.handle} className="lg:col-span-2">
               <h3 className="eyebrow text-text-3 mb-5">
-                <Link href={`/mobiliario?linea=${p.handle}`} className="hover:text-ink">{p.name}</Link>
+                <Link href={`/${p.handle}`} className="hover:text-ink">{p.name}</Link>
               </h3>
               <ol className="space-y-2.5">
                 {p.children.map((c) => (
                   <li key={c.handle} className="text-sm">
-                    <Link href={`/mobiliario?categoria=${c.handle}`} className="text-text-2 hover:text-ink transition-colors">{c.name}</Link>
+                    <Link href={`/${p.handle}?categoria=${c.handle}`} className="text-text-2 hover:text-ink transition-colors">{c.name}</Link>
                   </li>
                 ))}
               </ol>

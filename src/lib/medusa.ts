@@ -73,7 +73,7 @@ export interface MedusaLineItem {
 }
 
 // Fields requested for every product query. `*` adds a relation, `+` adds a field.
-const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,*categories,+metadata"
+export const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,*categories,+metadata"
 
 // ─── Region ─────────────────────────────────────────────────────────
 

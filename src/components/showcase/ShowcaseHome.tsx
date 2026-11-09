@@ -15,11 +15,27 @@ import ScrollRail from "@/components/showcase/ScrollRail"
 import ScrollStack, { ScrollStackItem } from "@/components/reactbits/ScrollStack/ScrollStack"
 import GradientWaves from "@/components/reactbits/GradientWaves/GradientWaves"
 import Reveal from "@/components/ui/Reveal"
+import Image from "next/image"
 import { HERO_PRODUCT } from "@/lib/catalog"
 import { useCategories } from "@/context/CategoriesContext"
 import { getProducts } from "@/lib/medusa"
 import { useTheme } from "@/lib/theme"
+import type { CategoryNode } from "@/lib/categories"
 import type { Product } from "@/types"
+
+interface ShowcaseHomeProps {
+  /** Product lines fetched on the server (so the HTML carries real links); falls back to the client context */
+  lines?: CategoryNode[]
+  /** Featured products fetched on the server */
+  products?: Product[]
+}
+
+/** Short "productos incluidos" summary per line for the SEO links block (falls back to the category description). */
+const LINE_SUMMARY: Record<string, string> = {
+  "mobiliario-medico": "Camillas, sillas clínicas, mesas de instrumental, carros hospitalarios, lavamanos y auxiliares.",
+  "mobiliario-veterinario": "Mesas de exploración y tratamiento, jaulas de hospitalización y mobiliario auxiliar.",
+  "mobiliario-tecnico": "Mesones, estaciones de trabajo, muebles, fregadores y almacenamiento para entornos sanitarios y técnicos especializados.",
+}
 
 const PROCESS = [
   { n: "01", title: "Levantamiento", text: "Visitamos el área o revisamos los planos. Medimos, fotografiamos y anotamos flujos de trabajo, puntos de agua y eléctricos." },
@@ -31,20 +47,22 @@ const PROCESS = [
 ]
 
 /** Cinematic home built on React Bits; every WebGL effect takes theme-aware colours. */
-export default function ShowcaseHome() {
-  const [products, setProducts] = useState<Product[]>([])
-  const { parents, all } = useCategories()
+export default function ShowcaseHome({ lines, products: initialProducts }: ShowcaseHomeProps) {
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? [])
+  const ctx = useCategories()
+  const parents = lines && lines.length ? lines : ctx.parents
   const theme = useTheme()
   const light = theme === "light"
 
   useEffect(() => {
+    if (initialProducts && initialProducts.length) return
     getProducts({ limit: 6 })
       .then((res) => setProducts(res.products.filter((p) => p.thumbnail).slice(0, 3)))
       .catch((error) => console.error("Error loading products:", error))
-  }, [])
+  }, [initialProducts])
 
   const chromaItems = [
-    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/mobiliario?linea=${p.handle}`, alt: p.name })),
+    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/${p.handle}`, alt: p.name })),
     { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
   ]
 
@@ -138,8 +156,8 @@ export default function ShowcaseHome() {
           <Reveal>
             <div className="section-head">
               <p className="eyebrow text-teal justify-center">Mobiliario</p>
-              <h2 className="display-md mt-4 text-ink">{parents.length} líneas. {all.length - parents.length} categorías.</h2>
-              <p className="subtitle">Pase el cursor: cada pieza recupera su color.</p>
+              <h2 className="display-md mt-4 text-ink">Mobiliario para entornos de atención</h2>
+              <p className="subtitle">Tres líneas de producto, diseñadas y fabricadas en Panamá. Pase el cursor: cada pieza recupera su color.</p>
             </div>
           </Reveal>
           <div className="mt-14">
@@ -162,6 +180,24 @@ export default function ShowcaseHome() {
               theme={theme}
             />
           </div>
+
+          {/* The three most important links of the home: real anchors, server-rendered */}
+          <ul className="mt-12 grid md:grid-cols-3 gap-5">
+            {parents.map((p) => (
+              <li key={p.handle}>
+                <Link href={`/${p.handle}`} className="group card shadow-card h-full flex items-start gap-4 p-4 hover:border-teal/40 transition-colors">
+                  <span className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-paper-3">
+                    <Image src={p.image} alt={`${p.name} KARVEN en acero inoxidable`} fill sizes="80px" className="object-cover" />
+                  </span>
+                  <span className="min-w-0">
+                    <h3 className="font-display text-lg text-ink group-hover:text-teal transition-colors">{p.name}</h3>
+                    <p className="mt-1 text-sm text-text-2 leading-snug">{LINE_SUMMARY[p.handle] || p.description}</p>
+                    <span className="link-arrow !text-sm mt-2">Ver línea</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -169,14 +205,16 @@ export default function ShowcaseHome() {
       <section className="section bg-paper-2">
         <div className="container-custom max-w-5xl">
           <p className="eyebrow text-teal">Fabricación</p>
+          <h2 className="display-md mt-4 text-ink">Fabricación de mobiliario a medida</h2>
+          <p className="subtitle mt-3">Desarrollo, adaptación y fabricación según requisitos definidos.</p>
           <ScrollReveal
             baseOpacity={0.1}
             baseRotation={1.2}
             blurStrength={5}
             stagger={0.035}
             splitBy="words"
-            containerClassName="mt-6"
-            textClassName="font-display display-lg text-ink text-balance"
+            containerClassName="mt-8"
+            textClassName="font-display display-md text-ink text-balance"
           >
             Trabajamos el acero inoxidable como se trabaja un instrumento: sin aristas, sin juntas donde se acumule nada, y con una soldadura que no se nota al tacto.
           </ScrollReveal>
@@ -194,8 +232,8 @@ export default function ShowcaseHome() {
           <Reveal>
             <div className="section-head">
               <p className="eyebrow text-teal justify-center">Proceso</p>
-              <h2 className="display-md mt-4 text-ink">Seis pasos. Un taller.</h2>
-              <p className="subtitle">Del levantamiento a la instalación, sin intermediarios.</p>
+              <h2 className="display-md mt-4 text-ink">Cómo trabajamos</h2>
+              <p className="subtitle">Comprender, definir, diseñar, planificar, fabricar, verificar y respaldar. Del levantamiento a la instalación, sin intermediarios.</p>
             </div>
           </Reveal>
         </div>
@@ -212,8 +250,26 @@ export default function ShowcaseHome() {
         </div>
       </section>
 
-      {/* 7 · CTA on waves */}
+      {/* 7 · Projects */}
       <section className="section">
+        <div className="container-custom">
+          <Reveal>
+            <div className="rule-strong pt-6 grid lg:grid-cols-12 gap-6 items-end">
+              <div className="lg:col-span-8">
+                <p className="eyebrow text-teal">Proyectos</p>
+                <h2 className="display-md mt-4 text-ink">Proyectos realizados</h2>
+                <p className="subtitle mt-3 max-w-2xl">Evidencia fotográfica y técnica de trabajos ejecutados: quirófanos, hospitalización, clínicas veterinarias, laboratorios, farmacias y morgues.</p>
+              </div>
+              <div className="lg:col-span-4 lg:text-right">
+                <Link href="/proyectos" className="link-arrow">Ver proyectos</Link>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 8 · CTA on waves */}
+      <section className="section pt-0">
         <div className="container-custom">
           <Reveal>
             <div className="relative panel overflow-hidden">
@@ -240,9 +296,9 @@ export default function ShowcaseHome() {
                 <div className="absolute inset-0 bg-gradient-to-b from-paper/70 via-transparent to-paper/80 pointer-events-none" />
               </div>
               <div className="relative section-head py-20 sm:py-28 px-6 pointer-events-none">
-                <p className="eyebrow text-teal justify-center">Cotización</p>
-                <h2 className="display-lg mt-4 text-ink text-balance">Envíe la lista. Reciba la cotización.</h2>
-                <p className="subtitle">Una lista de piezas o los planos del área bastan para empezar.</p>
+                <p className="eyebrow text-teal justify-center">Respaldo</p>
+                <h2 className="display-lg mt-4 text-ink text-balance">Fabricación y respaldo en Panamá</h2>
+                <p className="subtitle">KARVEN Medical y la capacidad productiva de FABMETAL. Envíe la lista de piezas o los planos del área y reciba una propuesta.</p>
                 <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
                   <Magnet padding={80} magnetStrength={3} scale={1.03}>
                     <Link href="/contacto" className="btn btn-teal px-7 py-4 text-base">Solicitar cotización <FiArrowRight className="w-4 h-4" /></Link>

@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
       { source: "/minimal", destination: "/", permanent: false },
       { source: "/showcase", destination: "/", permanent: false },
       { source: "/entornos", destination: "/mobiliario", permanent: true },
+      // Line pages have their own URLs; the old query form redirects to them
+      { source: "/mobiliario", has: [{ type: "query", key: "linea", value: "(?<linea>mobiliario-[a-z]+)" }], destination: "/:linea", permanent: true },
       // Catalogue moved from /equipamiento to /mobiliario (2026-11-09)
       { source: "/equipamiento", destination: "/mobiliario", permanent: true },
       { source: "/equipamiento/:handle", destination: "/mobiliario/:handle", permanent: true },
