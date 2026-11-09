@@ -12,12 +12,12 @@ const BACKEND = (process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUS
 const KEY = (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || "").trim()
 const REVALIDATE = 300
 
-async function storeGet<T>(path: string, params: Record<string, string | number | undefined> = {}): Promise<T | null> {
+async function storeGet<T>(path: string, params: Record<string, string | number | undefined> = {}, revalidate = REVALIDATE): Promise<T | null> {
   const qs = Object.entries(params).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&")
   try {
     const res = await fetch(`${BACKEND}/store${path}${qs ? `?${qs}` : ""}`, {
       headers: { "x-publishable-api-key": KEY },
-      next: { revalidate: REVALIDATE },
+      next: { revalidate },
     })
     if (!res.ok) return null
     return (await res.json()) as T
@@ -33,7 +33,7 @@ export async function serverGetRegion(): Promise<MedusaRegion | null> {
   return regions.find((r) => r.currency_code === "pab") || regions[0] || null
 }
 
-export async function serverGetProducts(params: { limit?: number; handle?: string; category_id?: string; collection_id?: string } = {}): Promise<Product[]> {
+export async function serverGetProducts(params: { limit?: number; handle?: string; category_id?: string; collection_id?: string; revalidate?: number } = {}): Promise<Product[]> {
   const region = await serverGetRegion()
   const data = await storeGet<{ products: MedusaProduct[] }>("/products", {
     limit: params.limit ?? 100,
@@ -42,7 +42,7 @@ export async function serverGetProducts(params: { limit?: number; handle?: strin
     collection_id: params.collection_id,
     region_id: region?.id,
     fields: PRODUCT_FIELDS,
-  })
+  }, params.revalidate)
   const products = data?.products || []
   // Optional manual order: product metadata `home_order` (1, 2, 3…) set in the Medusa admin.
   const order = (p: MedusaProduct) => Number((p.metadata as Record<string, unknown> | null)?.home_order ?? Number.POSITIVE_INFINITY)
@@ -58,11 +58,14 @@ export const FEATURED_COLLECTION_HANDLE = "destacados"
  * ordered by metadata `home_order`; falls back to the newest products with a photo.
  */
 export async function serverGetFeaturedProducts(limit = 3): Promise<Product[]> {
-  const col = await storeGet<{ collections: { id: string }[] }>("/collections", { handle: FEATURED_COLLECTION_HANDLE, limit: 1 })
+  // No data cache for the curated list: the page itself is regenerated every 60 s (see app/page.tsx),
+  // so admin changes in Destacados show up within a minute instead of stacking two 5-minute caches.
+  const FRESH = 0
+  const col = await storeGet<{ collections: { id: string }[] }>("/collections", { handle: FEATURED_COLLECTION_HANDLE, limit: 1 }, FRESH)
   const id = col?.collections?.[0]?.id
-  const featured = id ? (await serverGetProducts({ collection_id: id, limit: 12 })).filter((p) => p.thumbnail) : []
+  const featured = id ? (await serverGetProducts({ collection_id: id, limit: 12, revalidate: FRESH })).filter((p) => p.thumbnail) : []
   if (featured.length >= limit) return featured.slice(0, limit)
-  const rest = (await serverGetProducts({ limit: 12 })).filter((p) => p.thumbnail && !featured.some((f) => f.id === p.id))
+  const rest = (await serverGetProducts({ limit: 12, revalidate: FRESH })).filter((p) => p.thumbnail && !featured.some((f) => f.id === p.id))
   return [...featured, ...rest].slice(0, limit)
 }
 
