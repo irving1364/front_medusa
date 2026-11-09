@@ -18,13 +18,15 @@ export default function Footer() {
             <Link href="/" className="inline-block relative w-36 h-[4.4rem]" aria-label="Karven">
               <Image src={`/images/logo-compacta-${logo === "oscuro" ? "color" : "blanca-web"}.png`} alt="Karven Medical Furniture" fill className="object-contain object-left" sizes="144px" />
             </Link>
-            <p className="mt-6 max-w-xs text-sm leading-relaxed text-text-2">
-              Fabricamos mobiliario médico, veterinario y técnico en acero inoxidable 304 y 316. Ciudad de Panamá.
+            <p className="mt-6 max-w-xs font-display text-lg text-ink leading-snug">Existimos para sostener a quienes cuidan.</p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-2">
+              Desarrollamos, fabricamos y respaldamos mobiliario médico, veterinario y técnico para entornos sanitarios.
             </p>
+            <p className="mt-3 max-w-xs text-sm text-text-3">Fabricado en Panamá por FABMETAL.</p>
             <dl className="mt-6 text-sm text-text-2 space-y-1">
-              <div className="flex gap-3"><dt className="w-14 text-text-3">Correo</dt><dd><a href="mailto:karvenmedicalpa@gmail.com" className="hover:text-ink">karvenmedicalpa@gmail.com</a></dd></div>
-              <div className="flex gap-3"><dt className="w-14 text-text-3">Tel.</dt><dd><a href="tel:+50700000000" className="hover:text-ink tnum">+507 000-0000</a></dd></div>
-              <div className="flex gap-3"><dt className="w-14 text-text-3">Horario</dt><dd className="tnum">Lun – Vie · 8:00 a 17:00</dd></div>
+              <div className="flex gap-3"><dt className="w-20 text-text-3">Correo</dt><dd><a href="mailto:contact@karvenmedical.com" className="hover:text-ink">contact@karvenmedical.com</a></dd></div>
+              <div className="flex gap-3"><dt className="w-20 text-text-3">WhatsApp</dt><dd><a href="https://wa.me/50766622199" target="_blank" rel="noreferrer" className="hover:text-ink tnum">+507 6662-2199</a></dd></div>
+              <div className="flex gap-3"><dt className="w-20 text-text-3">Horario</dt><dd className="tnum">Lun – Vie · 8:00 a 17:00</dd></div>
             </dl>
           </div>
 
@@ -35,8 +37,7 @@ export default function Footer() {
               </h3>
               <ol className="space-y-2.5">
                 {p.children.map((c) => (
-                  <li key={c.handle} className="flex gap-3 text-sm">
-                    <span className="mono text-text-3 w-6">{c.number}</span>
+                  <li key={c.handle} className="text-sm">
                     <Link href={`/mobiliario?categoria=${c.handle}`} className="text-text-2 hover:text-ink transition-colors">{c.name}</Link>
                   </li>
                 ))}
@@ -47,19 +48,18 @@ export default function Footer() {
           <div className="lg:col-span-3 lg:col-start-10">
             <h3 className="eyebrow text-text-3 mb-5">Empresa</h3>
             <ul className="space-y-2.5">
+              <li><Link href="/nosotros" className="text-sm text-text-2 hover:text-ink transition-colors">Nosotros</Link></li>
               <li><Link href="/fabricacion" className="text-sm text-text-2 hover:text-ink transition-colors">Fabricación a medida</Link></li>
               <li><Link href="/proyectos" className="text-sm text-text-2 hover:text-ink transition-colors">Proyectos</Link></li>
-              <li><Link href="/nosotros" className="text-sm text-text-2 hover:text-ink transition-colors">Nosotros</Link></li>
               <li><Link href="/contacto" className="text-sm text-text-2 hover:text-ink transition-colors">Contacto</Link></li>
-              <li><Link href="/mobiliario" className="text-sm text-text-2 hover:text-ink transition-colors">Mobiliario</Link></li>
-              <li><Link href="/checkout" className="text-sm text-text-2 hover:text-ink transition-colors">Mi cotización</Link></li>
+              <li><Link href="/checkout" className="text-sm text-text-2 hover:text-ink transition-colors">Solicitar cotización</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="rule mt-14 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-3">
-          <p>© {year} Karven Medical Furniture · Ciudad de Panamá</p>
-          <p className="tnum">Acero inoxidable AISI 304 / 316 · Soldadura TIG</p>
+          <p>© {year} KARVEN Medical. Todos los derechos reservados.</p>
+          <p>Fabricado en Panamá por FABMETAL.</p>
         </div>
       </div>
     </footer>

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 }
 
 const INFO: [string, string, string?][] = [
-  ["Correo", "karvenmedicalpa@gmail.com", "mailto:karvenmedicalpa@gmail.com"],
-  ["Teléfono", "+507 000-0000", "tel:+50700000000"],
+  ["Correo", "contact@karvenmedical.com", "mailto:contact@karvenmedical.com"],
+  ["WhatsApp", "+507 6662-2199", "https://wa.me/50766622199"],
   ["Taller", "Ciudad de Panamá, Panamá"],
   ["Horario", "Lun – Vie · 8:00 a 17:00"],
 ]
