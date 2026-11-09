@@ -20,6 +20,8 @@ export interface SplitTextProps {
   from?: gsap.TweenVars;
   to?: gsap.TweenVars;
   threshold?: number;
+  /** false = animate even when the OS asks for reduced motion */
+  respectReducedMotion?: boolean;
   rootMargin?: string;
   tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
   textAlign?: CSSProperties['textAlign'];
@@ -95,6 +97,7 @@ const SplitText = ({
   from,
   to,
   threshold = 0.1,
+  respectReducedMotion = true,
   rootMargin = '-100px',
   textAlign = 'center',
   tag = 'p',
@@ -148,7 +151,7 @@ const SplitText = ({
         onCompleteRef.current?.();
       };
 
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      if (respectReducedMotion && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
         setReady(true);
         finish();
         return;

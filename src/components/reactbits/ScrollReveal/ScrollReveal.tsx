@@ -25,6 +25,8 @@ type RevealEffect = 'fade' | 'rise' | 'flip' | 'scale';
 type RevealMode = 'scrub' | 'enter';
 
 interface ScrollRevealProps {
+  /** false = animate even when the OS asks for reduced motion */
+  respectReducedMotion?: boolean;
   children: ReactNode;
   scrollContainerRef?: RefObject<HTMLElement | null>;
   enableBlur?: boolean;
@@ -109,6 +111,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   blurStrength = 4,
   baseOffset = 0,
   stagger = 0.05,
+  respectReducedMotion = true,
   smoothing = 0,
   splitBy = 'words',
   effect = 'fade',
@@ -178,7 +181,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
     };
     const mm = gsap.matchMedia();
 
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add(respectReducedMotion ? '(prefers-reduced-motion: no-preference)' : 'all', () => {
       const order = pieces.map((_, index) => index);
       const last = pieces.map(() => -1);
       const state = { p: 0 };

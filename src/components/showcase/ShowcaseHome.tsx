@@ -132,6 +132,7 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
             textAlign="center"
             threshold={0}
             rootMargin="0px"
+            respectReducedMotion={false}
           />
           <p className="subtitle mt-6 max-w-2xl mx-auto animate-rise" style={{ animationDelay: "700ms" }}>
             Desarrollamos, fabricamos y respaldamos mobiliario para entornos médicos, veterinarios y técnicos. Productos propios y soluciones a medida, con fabricación local por FABMETAL.
@@ -171,14 +172,12 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 3 · Families as a chroma grid */}
       <section className="section">
         <div className="container-custom">
-          <Reveal>
-            <div className="section-head">
-              <p className="eyebrow text-teal justify-center">Mobiliario</p>
-              <h2 className="display-md mt-4 text-ink">Mobiliario para entornos de atención</h2>
-              <p className="subtitle">Tres líneas de producto, diseñadas y fabricadas en Panamá. Pase el cursor: cada pieza recupera su color.</p>
-            </div>
+          <Reveal as="header" className="section-head" stagger={0.1}>
+            <p className="eyebrow text-teal justify-center">Mobiliario</p>
+            <h2 className="display-md mt-4 text-ink">Mobiliario para entornos de atención</h2>
+            <p className="subtitle">Tres líneas de producto, diseñadas y fabricadas en Panamá. Pase el cursor: cada pieza recupera su color.</p>
           </Reveal>
-          <div className="mt-14">
+          <Reveal className="mt-14" distance={32} delay={0.1}>
             <ChromaGrid
               items={chromaItems}
               columns={4}
@@ -197,10 +196,10 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
               showInfo
               theme={theme}
             />
-          </div>
+          </Reveal>
 
           {/* The three most important links of the home: real anchors, server-rendered */}
-          <ul className="mt-12 grid md:grid-cols-3 gap-5">
+          <Reveal as="ul" className="mt-12 grid md:grid-cols-3 gap-5" stagger={0.12}>
             {parents.map((p) => (
               <li key={p.handle}>
                 <Link href={`/${p.handle}`} className="group card shadow-card h-full flex items-start gap-4 p-4 hover:border-teal/40 transition-colors">
@@ -215,17 +214,20 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
                 </Link>
               </li>
             ))}
-          </ul>
+          </Reveal>
         </div>
       </section>
 
       {/* 4 · Statement */}
       <section className="section bg-paper-2">
         <div className="container-custom max-w-5xl">
-          <p className="eyebrow text-teal">Fabricación</p>
-          <h2 className="display-md mt-4 text-ink">Fabricación de mobiliario a medida</h2>
-          <p className="subtitle mt-3">Desarrollo, adaptación y fabricación según requisitos definidos.</p>
+          <Reveal stagger={0.1}>
+            <p className="eyebrow text-teal">Fabricación</p>
+            <h2 className="display-md mt-4 text-ink">Fabricación de mobiliario a medida</h2>
+            <p className="subtitle mt-3">Desarrollo, adaptación y fabricación según requisitos definidos.</p>
+          </Reveal>
           <ScrollReveal
+            respectReducedMotion={false}
             baseOpacity={0.1}
             baseRotation={1.2}
             blurStrength={5}
@@ -247,12 +249,10 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 6 · Process as a scroll stack */}
       <section className="section bg-paper-2">
         <div className="container-custom">
-          <Reveal>
-            <div className="section-head">
-              <p className="eyebrow text-teal justify-center">Proceso</p>
-              <h2 className="display-md mt-4 text-ink">Cómo trabajamos</h2>
-              <p className="subtitle">Comprender, definir, diseñar, planificar, fabricar, verificar y respaldar. Del levantamiento a la instalación, sin intermediarios.</p>
-            </div>
+          <Reveal as="header" className="section-head" stagger={0.1}>
+            <p className="eyebrow text-teal justify-center">Proceso</p>
+            <h2 className="display-md mt-4 text-ink">Cómo trabajamos</h2>
+            <p className="subtitle">Comprender, definir, diseñar, planificar, fabricar, verificar y respaldar. Del levantamiento a la instalación, sin intermediarios.</p>
           </Reveal>
         </div>
         <div className="container-custom max-w-4xl mt-10">
@@ -271,16 +271,14 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 7 · Projects */}
       <section className="section">
         <div className="container-custom">
-          <Reveal>
-            <div className="rule-strong pt-6 grid lg:grid-cols-12 gap-6 items-end">
-              <div className="lg:col-span-8">
-                <p className="eyebrow text-teal">Proyectos</p>
-                <h2 className="display-md mt-4 text-ink">Proyectos realizados</h2>
-                <p className="subtitle mt-3 max-w-2xl">Evidencia fotográfica y técnica de trabajos ejecutados: quirófanos, hospitalización, clínicas veterinarias, laboratorios, farmacias y morgues.</p>
-              </div>
-              <div className="lg:col-span-4 lg:text-right">
-                <Link href="/proyectos" className="link-arrow">Ver proyectos</Link>
-              </div>
+          <Reveal className="rule-strong pt-6 grid lg:grid-cols-12 gap-6 items-end" stagger={0.15}>
+            <div className="lg:col-span-8">
+              <p className="eyebrow text-teal">Proyectos</p>
+              <h2 className="display-md mt-4 text-ink">Proyectos realizados</h2>
+              <p className="subtitle mt-3 max-w-2xl">Evidencia fotográfica y técnica de trabajos ejecutados: quirófanos, hospitalización, clínicas veterinarias, laboratorios, farmacias y morgues.</p>
+            </div>
+            <div className="lg:col-span-4 lg:text-right">
+              <Link href="/proyectos" className="link-arrow">Ver proyectos</Link>
             </div>
           </Reveal>
         </div>
