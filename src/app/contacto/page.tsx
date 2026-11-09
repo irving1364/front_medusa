@@ -21,11 +21,12 @@ export default function ContactPage() {
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
             <p className="eyebrow text-teal">Contacto</p>
-            <h1 className="display-lg mt-4 text-ink text-balance">Cuéntenos qué área va a equipar.</h1>
+            <h1 className="display-lg mt-4 text-ink text-balance">Cuéntenos qué mobiliario necesita.</h1>
           </div>
-          <p className="lg:col-span-4 text-base leading-relaxed text-text-2">
-            Con una lista de piezas, un plano o unas fotos del área es suficiente para empezar. Respondemos con una cotización formal.
-          </p>
+          <div className="lg:col-span-4 text-base leading-relaxed text-text-2 space-y-3">
+            <p>Desde un producto de catálogo hasta una fabricación a medida, compártanos su requerimiento.</p>
+            <p>Puede incluir cantidades, dimensiones, planos o fotografías. Revisaremos la información para definir los requisitos y preparar una propuesta.</p>
+          </div>
         </div>
 
         <div className="mt-12 grid lg:grid-cols-12 gap-10 lg:gap-16">
