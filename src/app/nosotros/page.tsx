@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 }
 
 const LINES = [
-  { code: "MED" as const, title: "Mobiliario médico", text: "Atención humana, exploración, procedimientos, higiene clínica y apoyo al paciente.", href: "/equipamiento?linea=mobiliario-medico" },
-  { code: "VET" as const, title: "Mobiliario veterinario", text: "Exploración, tratamiento, hospitalización, preparación y apoyo veterinario.", href: "/equipamiento?linea=mobiliario-veterinario" },
-  { code: "TEC" as const, title: "Mobiliario técnico", text: "Muebles fijos, mesones, estaciones de trabajo, almacenamiento y lavado especializado.", href: "/equipamiento?linea=mobiliario-tecnico" },
+  { code: "MED" as const, title: "Mobiliario médico", text: "Atención humana, exploración, procedimientos, higiene clínica y apoyo al paciente.", href: "/mobiliario?linea=mobiliario-medico" },
+  { code: "VET" as const, title: "Mobiliario veterinario", text: "Exploración, tratamiento, hospitalización, preparación y apoyo veterinario.", href: "/mobiliario?linea=mobiliario-veterinario" },
+  { code: "TEC" as const, title: "Mobiliario técnico", text: "Muebles fijos, mesones, estaciones de trabajo, almacenamiento y lavado especializado.", href: "/mobiliario?linea=mobiliario-tecnico" },
 ]
 
 const PRINCIPLES = [

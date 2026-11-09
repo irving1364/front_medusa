@@ -31,13 +31,13 @@ export default function Footer() {
           {parents.map((p) => (
             <div key={p.handle} className="lg:col-span-2">
               <h3 className="eyebrow text-text-3 mb-5">
-                <Link href={`/equipamiento?linea=${p.handle}`} className="hover:text-ink">{p.name}</Link>
+                <Link href={`/mobiliario?linea=${p.handle}`} className="hover:text-ink">{p.name}</Link>
               </h3>
               <ol className="space-y-2.5">
                 {p.children.map((c) => (
                   <li key={c.handle} className="flex gap-3 text-sm">
                     <span className="mono text-text-3 w-6">{c.number}</span>
-                    <Link href={`/equipamiento?categoria=${c.handle}`} className="text-text-2 hover:text-ink transition-colors">{c.name}</Link>
+                    <Link href={`/mobiliario?categoria=${c.handle}`} className="text-text-2 hover:text-ink transition-colors">{c.name}</Link>
                   </li>
                 ))}
               </ol>
@@ -51,7 +51,7 @@ export default function Footer() {
               <li><Link href="/proyectos" className="text-sm text-text-2 hover:text-ink transition-colors">Proyectos</Link></li>
               <li><Link href="/nosotros" className="text-sm text-text-2 hover:text-ink transition-colors">Nosotros</Link></li>
               <li><Link href="/contacto" className="text-sm text-text-2 hover:text-ink transition-colors">Contacto</Link></li>
-              <li><Link href="/equipamiento" className="text-sm text-text-2 hover:text-ink transition-colors">Equipamiento</Link></li>
+              <li><Link href="/mobiliario" className="text-sm text-text-2 hover:text-ink transition-colors">Mobiliario</Link></li>
               <li><Link href="/checkout" className="text-sm text-text-2 hover:text-ink transition-colors">Mi cotización</Link></li>
             </ul>
           </div>

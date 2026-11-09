@@ -14,13 +14,16 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/propiedades", destination: "/equipamiento", permanent: true },
-      { source: "/propiedades/:handle", destination: "/equipamiento/:handle", permanent: true },
-      { source: "/productos", destination: "/equipamiento", permanent: true },
-      { source: "/productos/:handle", destination: "/equipamiento/:handle", permanent: true },
+      { source: "/propiedades", destination: "/mobiliario", permanent: true },
+      { source: "/propiedades/:handle", destination: "/mobiliario/:handle", permanent: true },
+      { source: "/productos", destination: "/mobiliario", permanent: true },
+      { source: "/productos/:handle", destination: "/mobiliario/:handle", permanent: true },
       { source: "/minimal", destination: "/", permanent: false },
       { source: "/showcase", destination: "/", permanent: false },
-      { source: "/entornos", destination: "/equipamiento", permanent: true },
+      { source: "/entornos", destination: "/mobiliario", permanent: true },
+      // Catalogue moved from /equipamiento to /mobiliario (2026-11-09)
+      { source: "/equipamiento", destination: "/mobiliario", permanent: true },
+      { source: "/equipamiento/:handle", destination: "/mobiliario/:handle", permanent: true },
     ]
   },
 }

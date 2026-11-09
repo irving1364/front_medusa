@@ -73,9 +73,9 @@ export default function CatalogView() {
     return list
   }, [allProducts, activeLine, category, search, sort])
 
-  const go = (query: string) => router.replace(`/equipamiento${query}`, { scroll: false })
+  const go = (query: string) => router.replace(`/mobiliario${query}`, { scroll: false })
 
-  const heading = category ? category.name : activeLine ? activeLine.name : "Equipamiento"
+  const heading = category ? category.name : activeLine ? activeLine.name : "Mobiliario"
   const intro = category ? category.items || category.description : activeLine ? activeLine.description
     : "Mobiliario médico, veterinario y técnico en acero inoxidable 304 y 316, fabricado en Ciudad de Panamá. Agregue piezas a su lista y envíela para recibir una cotización formal."
 
@@ -94,7 +94,7 @@ export default function CatalogView() {
         </div>
 
         {/* Line tabs */}
-        <nav className="mt-10 flex gap-1.5 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 pb-1 [scrollbar-width:none]" aria-label="Líneas de producto">
+        <nav className="mt-10 flex gap-1.5 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 pb-1 [scrollbar-width:none]" aria-label="Líneas de mobiliario">
           <Chip active={!activeLine} onClick={() => go("")}>Todo</Chip>
           {parents.map((p) => (
             <Chip key={p.handle} active={activeLine?.handle === p.handle} onClick={() => go(`?linea=${p.handle}`)}>

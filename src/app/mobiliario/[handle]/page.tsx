@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
         <div className="container-custom">
           <h1 className="display-md text-ink">Referencia no encontrada</h1>
           <p className="mt-4 text-text-2">Es posible que la pieza haya cambiado de código o se fabrique bajo pedido.</p>
-          <Link href="/equipamiento" className="btn btn-ink mt-8">Volver al equipamiento</Link>
+          <Link href="/mobiliario" className="btn btn-ink mt-8">Volver al mobiliario</Link>
         </div>
       </div>
     )
@@ -113,9 +113,9 @@ export default function ProductDetailPage() {
 
       <div className="container-custom">
         <nav className="flex flex-wrap items-center gap-2 text-xs text-text-3 border-b border-line pb-4" aria-label="Ruta">
-          <Link href="/equipamiento" className="inline-flex items-center gap-1.5 hover:text-ink"><FiArrowLeft className="w-3.5 h-3.5" /> Equipamiento</Link>
-          {line && (<><span>/</span><Link href={`/equipamiento?linea=${line.handle}`} className="hover:text-ink">{line.name}</Link></>)}
-          {category && (<><span>/</span><Link href={`/equipamiento?categoria=${category.handle}`} className="hover:text-ink"><span className="mono">{category.code}</span> {category.name}</Link></>)}
+          <Link href="/mobiliario" className="inline-flex items-center gap-1.5 hover:text-ink"><FiArrowLeft className="w-3.5 h-3.5" /> Mobiliario</Link>
+          {line && (<><span>/</span><Link href={`/mobiliario?linea=${line.handle}`} className="hover:text-ink">{line.name}</Link></>)}
+          {category && (<><span>/</span><Link href={`/mobiliario?categoria=${category.handle}`} className="hover:text-ink"><span className="mono">{category.code}</span> {category.name}</Link></>)}
         </nav>
       </div>
 
@@ -236,7 +236,7 @@ export default function ProductDetailPage() {
         <section className="container-custom pb-20">
           <div className="rule-strong pt-5 flex items-end justify-between gap-4">
             <h2 className="display-md text-ink">Misma categoría</h2>
-            {category && <Link href={`/equipamiento?categoria=${category.handle}`} className="text-sm text-text-2 hover:text-ink underline underline-offset-4">Ver {category.name.toLowerCase()}</Link>}
+            {category && <Link href={`/mobiliario?categoria=${category.handle}`} className="text-sm text-text-2 hover:text-ink underline underline-offset-4">Ver {category.name.toLowerCase()}</Link>}
           </div>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {related.map((r) => <ProductCard key={r.id} product={r} />)}

@@ -111,8 +111,8 @@ export default function ScrollRail({ products, perItem = 0.9 }: ScrollRailProps)
             ))}
           </div>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            <Link href={`/equipamiento/${current.handle}`} className="link-arrow">Ver ficha</Link>
-            <Link href="/equipamiento" className="link-arrow">Todo el equipamiento</Link>
+            <Link href={`/mobiliario/${current.handle}`} className="link-arrow">Ver ficha</Link>
+            <Link href="/mobiliario" className="link-arrow">Todo el mobiliario</Link>
           </div>
         </div>
       </div>

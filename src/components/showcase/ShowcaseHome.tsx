@@ -44,8 +44,8 @@ export default function ShowcaseHome() {
   }, [])
 
   const chromaItems = [
-    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/equipamiento?linea=${p.handle}`, alt: p.name })),
-    { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/equipamiento", alt: "Catálogo" },
+    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/mobiliario?linea=${p.handle}`, alt: p.name })),
+    { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
   ]
 
   return (
@@ -102,7 +102,7 @@ export default function ShowcaseHome() {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-rise" style={{ animationDelay: "850ms" }}>
             <Magnet padding={80} magnetStrength={3} scale={1.03}>
-              <Link href="/equipamiento" className="btn btn-teal px-7 py-4 text-base">Ver equipamiento <FiArrowRight className="w-4 h-4" /></Link>
+              <Link href="/mobiliario" className="btn btn-teal px-7 py-4 text-base">Ver mobiliario <FiArrowRight className="w-4 h-4" /></Link>
             </Magnet>
             <Magnet padding={80} magnetStrength={3} scale={1.03}>
               <Link href="/contacto" className="btn btn-outline px-7 py-4 text-base">Solicitar cotización</Link>
@@ -137,7 +137,7 @@ export default function ShowcaseHome() {
         <div className="container-custom">
           <Reveal>
             <div className="section-head">
-              <p className="eyebrow text-teal justify-center">Equipamiento</p>
+              <p className="eyebrow text-teal justify-center">Mobiliario</p>
               <h2 className="display-md mt-4 text-ink">{parents.length} líneas. {all.length - parents.length} categorías.</h2>
               <p className="subtitle">Pase el cursor: cada pieza recupera su color.</p>
             </div>
@@ -247,7 +247,7 @@ export default function ShowcaseHome() {
                   <Magnet padding={80} magnetStrength={3} scale={1.03}>
                     <Link href="/contacto" className="btn btn-teal px-7 py-4 text-base">Solicitar cotización <FiArrowRight className="w-4 h-4" /></Link>
                   </Magnet>
-                  <Link href="/equipamiento" className="link-arrow">Armar lista desde el catálogo</Link>
+                  <Link href="/mobiliario" className="link-arrow">Armar lista desde el catálogo</Link>
                 </div>
               </div>
             </div>

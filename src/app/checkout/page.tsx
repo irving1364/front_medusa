@@ -62,7 +62,7 @@ export default function CheckoutPage() {
             Registramos su solicitud de cotización{orderNumber ? <> con el número <span className="font-semibold text-ink">#{orderNumber}</span></> : null}.
             Recibirá una confirmación por correo y un asesor le responderá en menos de 48 horas hábiles.
           </p>
-          <Link href="/equipamiento" className="btn btn-ink mt-10">Seguir explorando</Link>
+          <Link href="/mobiliario" className="btn btn-ink mt-10">Seguir explorando</Link>
         </div>
       </div>
     )
@@ -78,7 +78,7 @@ export default function CheckoutPage() {
           </span>
           <h1 className="display-md mt-8 text-ink">Su lista está vacía</h1>
           <p className="mt-4 text-text-2">Agregue mobiliario desde el catálogo para solicitar una cotización.</p>
-          <Link href="/equipamiento" className="btn btn-ink mt-10">Ver catálogo</Link>
+          <Link href="/mobiliario" className="btn btn-ink mt-10">Ver catálogo</Link>
         </div>
       </div>
     )
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
     <div className="bg-paper">
       <div className="pt-28 lg:pt-32">
         <div className="container-custom rule-strong pt-5">
-          <Link href="/equipamiento" className="inline-flex items-center gap-2 text-xs text-text-3 hover:text-ink transition-colors">
+          <Link href="/mobiliario" className="inline-flex items-center gap-2 text-xs text-text-3 hover:text-ink transition-colors">
             <FiArrowLeft className="w-3.5 h-3.5" /> Seguir en el catálogo
           </Link>
           <h1 className="display-lg mt-6 text-ink">Solicitar cotización</h1>
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link href={`/equipamiento/${item.product_handle}`} className="font-display text-xl text-ink hover:text-teal transition-colors">{item.title}</Link>
+                  <Link href={`/mobiliario/${item.product_handle}`} className="font-display text-xl text-ink hover:text-teal transition-colors">{item.title}</Link>
                   <p className="text-sm text-text-3 mt-1">{formatPrice(item.unit_price, currencyCode)} c/u</p>
                   <div className="mt-3 flex items-center gap-4">
                     <div className="inline-flex items-center border border-line rounded-full">
