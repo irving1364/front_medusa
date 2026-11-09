@@ -40,10 +40,6 @@ export function useInView<T extends Element>(ref: RefObject<T | null>, rootMargi
 }
 
 /**
- * Low-power heuristic: reduced-motion preference, data saver, few cores or little memory.
- * Such devices get static CSS backgrounds instead of shaders.
- */
-/**
  * True when WebGL is missing or rasterised in software (SwiftShader, llvmpipe, Mesa offscreen…).
  * Full-screen fragment shaders on a software renderer cost 100+ ms per frame on the main thread,
  * so those machines (headless browsers, VMs, very old laptops) get the static CSS fallback.
@@ -62,18 +58,23 @@ function readSoftwareGpu(): boolean {
   }
 }
 
+/**
+ * Low-power heuristic: data saver, slow network, few cores/little memory on small screens, or a software GPU.
+ * prefers-reduced-motion is deliberately NOT part of it: the owner wants the hero effects to show, and the
+ * individual components already freeze their own motion when the visitor asks for reduced motion.
+ * Such devices get static CSS backgrounds instead of shaders.
+ */
 let lowPowerCache: boolean | null = null
 
 function readLowPower(): boolean {
   if (lowPowerCache !== null) return lowPowerCache
   const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string }; deviceMemory?: number }
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   const saveData = !!nav.connection?.saveData
   const slowNet = /(^|-)2g$/.test(nav.connection?.effectiveType || "")
   const fewCores = (navigator.hardwareConcurrency || 8) <= 4
   const lowMem = (nav.deviceMemory || 8) <= 4
   const smallScreen = window.innerWidth < 768
-  lowPowerCache = reduced || saveData || slowNet || (smallScreen && (fewCores || lowMem)) || readSoftwareGpu()
+  lowPowerCache = saveData || slowNet || (smallScreen && (fewCores || lowMem)) || readSoftwareGpu()
   return lowPowerCache
 }
 const noopSubscribe = () => () => {}

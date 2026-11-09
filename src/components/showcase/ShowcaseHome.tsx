@@ -71,7 +71,7 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
   }, [initialProducts])
 
   // ChromaGrid renders plain <img>, so route its images through the Next image optimizer (cards are ~400 px wide).
-  const opt = (src: string, w = 640) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=70`
+  const opt = (src: string, w = 640) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`
   const chromaItems = [
     ...parents.map((p) => ({ image: opt(p.image), title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/${p.handle}`, alt: p.name })),
     { image: opt(HERO_PRODUCT.image), title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
@@ -151,7 +151,7 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 2 · Scroll-expanding product frame */}
       <section className="relative">
         <ScrollExpand
-          src={`/_next/image?url=${encodeURIComponent(HERO_PRODUCT.image)}&w=1920&q=70`}
+          src={`/_next/image?url=${encodeURIComponent(HERO_PRODUCT.image)}&w=1920&q=75`}
           alt={HERO_PRODUCT.label}
           title={HERO_PRODUCT.label}
           scrollHint={HERO_PRODUCT.spec}
