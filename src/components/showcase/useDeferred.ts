@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type RefObject } from "react"
+import { useEffect, useState, useSyncExternalStore, type RefObject } from "react"
 
 /**
  * Performance helpers for the heavy WebGL/canvas effects on the home.
@@ -25,11 +25,11 @@ export function useIdle(delay = 1200): boolean {
 
 /** True once the element is within `rootMargin` of the viewport (stays true). */
 export function useInView<T extends Element>(ref: RefObject<T | null>, rootMargin = "400px"): boolean {
-  const [inView, setInView] = useState(false)
+  // Browsers without IntersectionObserver (none in practice) mount immediately.
+  const [inView, setInView] = useState(() => typeof window !== "undefined" && !("IntersectionObserver" in window))
   useEffect(() => {
     const el = ref.current
     if (!el || inView) return
-    if (!("IntersectionObserver" in window)) { setInView(true); return }
     const io = new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting)) { setInView(true); io.disconnect() }
     }, { rootMargin })
@@ -43,17 +43,19 @@ export function useInView<T extends Element>(ref: RefObject<T | null>, rootMargi
  * Low-power heuristic: reduced-motion preference, data saver, few cores or little memory.
  * Such devices get static CSS backgrounds instead of shaders.
  */
+function readLowPower(): boolean {
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string }; deviceMemory?: number }
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  const saveData = !!nav.connection?.saveData
+  const slowNet = /(^|-)2g$/.test(nav.connection?.effectiveType || "")
+  const fewCores = (navigator.hardwareConcurrency || 8) <= 4
+  const lowMem = (nav.deviceMemory || 8) <= 4
+  const smallScreen = window.innerWidth < 768
+  return reduced || saveData || slowNet || (smallScreen && (fewCores || lowMem))
+}
+const noopSubscribe = () => () => {}
+
 export function useLowPower(): boolean {
-  const [low, setLow] = useState(false)
-  useEffect(() => {
-    const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string }; deviceMemory?: number }
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    const saveData = !!nav.connection?.saveData
-    const slowNet = /(^|-)2g$/.test(nav.connection?.effectiveType || "")
-    const fewCores = (navigator.hardwareConcurrency || 8) <= 4
-    const lowMem = (nav.deviceMemory || 8) <= 4
-    const smallScreen = window.innerWidth < 768
-    setLow(reduced || saveData || slowNet || (smallScreen && (fewCores || lowMem)))
-  }, [])
-  return low
+  // Evaluated once on the client; the server snapshot is "capable" so SSR markup matches the common case.
+  return useSyncExternalStore(noopSubscribe, readLowPower, () => false)
 }
