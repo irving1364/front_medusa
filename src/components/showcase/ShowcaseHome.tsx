@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { FiArrowRight } from "react-icons/fi"
-import LightRays from "@/components/reactbits/LightRays/LightRays"
-import Noise from "@/components/reactbits/Noise/Noise"
 import SplitText from "@/components/reactbits/SplitText/SplitText"
 import ShinyText from "@/components/reactbits/ShinyText/ShinyText"
 import Magnet from "@/components/reactbits/Magnet/Magnet"
@@ -13,7 +12,12 @@ import ChromaGrid from "@/components/reactbits/ChromaGrid/ChromaGrid"
 import ScrollReveal from "@/components/reactbits/ScrollReveal/ScrollReveal"
 import ScrollRail from "@/components/showcase/ScrollRail"
 import ScrollStack, { ScrollStackItem } from "@/components/reactbits/ScrollStack/ScrollStack"
-import GradientWaves from "@/components/reactbits/GradientWaves/GradientWaves"
+import { useIdle, useInView, useLowPower } from "@/components/showcase/useDeferred"
+
+// WebGL/canvas effects: loaded in their own chunks, mounted after idle / near the viewport, never on low-power devices.
+const LightRays = dynamic(() => import("@/components/reactbits/LightRays/LightRays"), { ssr: false })
+const GradientWaves = dynamic(() => import("@/components/reactbits/GradientWaves/GradientWaves"), { ssr: false })
+const Noise = dynamic(() => import("@/components/reactbits/Noise/Noise"), { ssr: false })
 import Reveal from "@/components/ui/Reveal"
 import Image from "next/image"
 import { HERO_PRODUCT } from "@/lib/catalog"
@@ -53,6 +57,11 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
   const parents = lines && lines.length ? lines : ctx.parents
   const theme = useTheme()
   const light = theme === "light"
+  const idle = useIdle(1200)
+  const lowPower = useLowPower()
+  const ctaRef = useRef<HTMLDivElement>(null)
+  const ctaInView = useInView(ctaRef, "600px")
+  const effects = idle && !lowPower
 
   useEffect(() => {
     if (initialProducts && initialProducts.length) return
@@ -71,30 +80,37 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 1 · Hero: light rays + split headline */}
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <div className="absolute inset-0" aria-hidden="true">
-          <LightRays
-            key={theme}
-            lightMode={light}
-            raysOrigin="top-center"
-            raysColor={light ? "#0E7A88" : "#8BE0EA"}
-            raysSpeed={0.9}
-            lightSpread={0.65}
-            rayLength={2.6}
-            rayDensity={1.1}
-            raySharpness={0.4}
-            glow={light ? 0.5 : 0.7}
-            haze={0.3}
-            atmosphere={1}
-            intensity={light ? 0.75 : 0.95}
-            pulsating
-            followMouse
-            mouseInfluence={0.14}
-            cursorShadow={false}
-            clickPulse={false}
-            noiseAmount={0.04}
-            className="w-full h-full"
-          />
+          {/* Static stand-in painted immediately; the shader fades in on top once the page is idle */}
+          <div className={`absolute inset-0 transition-opacity duration-1000 ${effects ? "opacity-40" : "opacity-100"}`} style={{ background: light ? "radial-gradient(60% 55% at 50% -5%, rgba(14,122,136,0.22), transparent 70%)" : "radial-gradient(60% 55% at 50% -5%, rgba(139,224,234,0.28), transparent 70%)" }} />
+          {effects && (
+            <div className="absolute inset-0 animate-fade-in" style={{ animationDuration: "1.2s" }}>
+              <LightRays
+                key={theme}
+                lightMode={light}
+                raysOrigin="top-center"
+                raysColor={light ? "#0E7A88" : "#8BE0EA"}
+                raysSpeed={0.9}
+                lightSpread={0.65}
+                rayLength={2.6}
+                rayDensity={1.1}
+                raySharpness={0.4}
+                glow={light ? 0.5 : 0.7}
+                haze={0.3}
+                atmosphere={1}
+                intensity={light ? 0.75 : 0.95}
+                pulsating
+                followMouse
+                mouseInfluence={0.14}
+                cursorShadow={false}
+                clickPulse={false}
+                noiseAmount={0.04}
+                maxDevicePixelRatio={1.25}
+                className="w-full h-full"
+              />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/20 to-paper" />
-          <Noise key={`noise-${theme}`} opacity={light ? 0.05 : 0.07} size={1} fps={18} blendMode={light ? "multiply" : "overlay"} />
+          {effects && <Noise key={`noise-${theme}`} opacity={light ? 0.05 : 0.07} size={1} fps={12} blendMode={light ? "multiply" : "overlay"} />}
         </div>
 
         <div className="relative container-custom pt-32 pb-24 text-center">
@@ -133,7 +149,7 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       {/* 2 · Scroll-expanding product frame */}
       <section className="relative">
         <ScrollExpand
-          src={HERO_PRODUCT.image}
+          src={`/_next/image?url=${encodeURIComponent(HERO_PRODUCT.image)}&w=1920&q=70`}
           alt={HERO_PRODUCT.label}
           title={HERO_PRODUCT.label}
           scrollHint={HERO_PRODUCT.spec}
@@ -272,27 +288,34 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       <section className="section pt-0">
         <div className="container-custom">
           <Reveal>
-            <div className="relative panel overflow-hidden">
+            <div ref={ctaRef} className="relative panel overflow-hidden">
               <div className="absolute inset-0" aria-hidden="true">
-                <GradientWaves
-                  key={`waves-${theme}`}
-                  lightMode={light}
-                  horizonColor={light ? "#8BE0EA" : "#0E6B78"}
-                  waveColor="#2FB1C2"
-                  crestColor={light ? "#FFFFFF" : "#C6F0F5"}
-                  backgroundColor={light ? "#FFFFFF" : "#0A0C10"}
-                  speed={0.3}
-                  amplitude={2.4}
-                  swell={34}
-                  turbulence={16}
-                  brightness={light ? 1 : 1.25}
-                  grain={0.2}
-                  quality="medium"
-                  mouseInteraction
-                  parallaxStrength={0.4}
-                  mouseStrength={0.5}
-                  swellOnClick
-                />
+                {/* Static gradient first; the wave shader mounts only when this panel scrolls near the viewport */}
+                <div className="absolute inset-0" style={{ background: light ? "linear-gradient(180deg, #FFFFFF 0%, rgba(139,224,234,0.35) 60%, rgba(47,177,194,0.45) 100%)" : "linear-gradient(180deg, #0A0C10 0%, rgba(14,107,120,0.55) 60%, rgba(47,177,194,0.5) 100%)" }} />
+                {effects && ctaInView && (
+                  <div className="absolute inset-0 animate-fade-in" style={{ animationDuration: "1.2s" }}>
+                    <GradientWaves
+                      key={`waves-${theme}`}
+                      lightMode={light}
+                      horizonColor={light ? "#8BE0EA" : "#0E6B78"}
+                      waveColor="#2FB1C2"
+                      crestColor={light ? "#FFFFFF" : "#C6F0F5"}
+                      backgroundColor={light ? "#FFFFFF" : "#0A0C10"}
+                      speed={0.3}
+                      amplitude={2.4}
+                      swell={34}
+                      turbulence={16}
+                      brightness={light ? 1 : 1.25}
+                      grain={0.2}
+                      quality="low"
+                      dpr={1.25}
+                      mouseInteraction
+                      parallaxStrength={0.4}
+                      mouseStrength={0.5}
+                      swellOnClick
+                    />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-b from-paper/70 via-transparent to-paper/80 pointer-events-none" />
               </div>
               <div className="relative section-head py-20 sm:py-28 px-6 pointer-events-none">
