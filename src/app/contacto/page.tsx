@@ -53,7 +53,7 @@ export default function ContactPage() {
           <div className="lg:col-span-8">
             <Reveal delay={0.08}>
               <div className="card p-6 sm:p-10">
-                <h2 className="font-display text-3xl text-ink">Escríbanos</h2>
+                <h2 className="font-display text-3xl text-ink">Envíenos su solicitud</h2>
                 <div className="mt-8"><ContactForm /></div>
               </div>
             </Reveal>

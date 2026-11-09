@@ -90,14 +90,14 @@ export default function ContactForm() {
           <input id="name" required value={form.name} onChange={(e) => update("name", e.target.value)} className="input" placeholder="Su nombre" autoComplete="name" />
         </Field>
         <Field label="Correo electrónico *" id="email">
-          <input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} className="input" placeholder="correo@clinica.com" autoComplete="email" />
+          <input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} className="input" placeholder="correo@institucion.com" autoComplete="email" />
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-5">
         <Field label="Teléfono / WhatsApp" id="phone">
           <input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} className="input" placeholder="+507 0000-0000" autoComplete="tel" />
         </Field>
-        <Field label="Clínica, hospital o empresa" id="organization">
+        <Field label="Institución o empresa" id="organization">
           <input id="organization" value={form.organization} onChange={(e) => update("organization", e.target.value)} className="input" placeholder="Nombre de la institución" autoComplete="organization" />
         </Field>
       </div>
@@ -115,15 +115,15 @@ export default function ContactForm() {
           </select>
         </Field>
       </div>
-      <Field label="Mensaje *" id="message">
-        <textarea id="message" required rows={5} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Cantidades, dimensiones, plazos y cualquier detalle del requerimiento." />
+      <Field label="Describa su requerimiento *" id="message">
+        <textarea id="message" required rows={5} value={form.message} onChange={(e) => update("message", e.target.value)} className="input resize-none" placeholder="Indique qué mobiliario necesita, cantidad, medidas o características relevantes." />
       </Field>
 
-      <Field label="Adjuntos (opcional)" id="files">
+      <div>
         <input ref={fileInput} id="files" type="file" accept={ACCEPT} multiple className="sr-only" onChange={(e) => addFiles(e.target.files)} />
-        <label htmlFor="files" className="flex items-center gap-3 cursor-pointer rounded-xl border border-dashed border-line-2 bg-paper px-4 py-3.5 text-sm text-text-2 hover:border-teal hover:text-ink transition-colors">
-          <FiPaperclip className="w-4 h-4 text-teal shrink-0" />
-          <span className="flex-1">Adjuntar planos, fotografías o fichas: PDF, JPG o PNG. Hasta {MAX_FILES} archivos, 4 MB en total.</span>
+        <label htmlFor="files" className="block cursor-pointer rounded-xl border border-line-2 bg-paper px-4 py-4 hover:border-teal transition-colors">
+          <span className="flex items-center gap-2.5 text-sm font-medium text-ink"><FiPaperclip className="w-4 h-4 shrink-0" /> Adjuntar planos o fotografías (opcional)</span>
+          <span className="block mt-1.5 text-sm text-text-2">Archivos PDF, JPG o PNG. Hasta {MAX_FILES} archivos, 4 MB en total.</span>
         </label>
         {files.length > 0 && (
           <ul className="mt-2 space-y-1.5">
@@ -136,13 +136,16 @@ export default function ContactForm() {
             <li className="text-[11px] text-text-3 mono text-right">{fmtSize(totalBytes)} de 4 MB</li>
           </ul>
         )}
-      </Field>
+      </div>
 
       {error && <p role="alert" className="text-sm text-error bg-error/10 border border-error/30 rounded-lg px-4 py-3">{error}</p>}
 
-      <button type="submit" disabled={status === "sending"} className="btn btn-ink w-full sm:w-auto disabled:opacity-60">
-        {status === "sending" ? "Enviando…" : <>Enviar solicitud <FiSend className="w-4 h-4" /></>}
-      </button>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <button type="submit" disabled={status === "sending"} className="btn btn-ink w-full sm:w-auto disabled:opacity-60">
+          {status === "sending" ? "Enviando…" : <>Enviar solicitud <FiSend className="w-4 h-4" /></>}
+        </button>
+        <p className="text-xs text-text-3">* Campos obligatorios</p>
+      </div>
     </form>
   )
 }
@@ -150,7 +153,7 @@ export default function ContactForm() {
 function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs font-medium uppercase tracking-[0.12em] text-text-2 mb-2">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-ink mb-2">{label}</label>
       {children}
     </div>
   )
