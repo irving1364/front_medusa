@@ -6,6 +6,7 @@ import CartDrawer from "@/components/CartDrawer"
 import Loader from "@/components/Loader"
 import { CartProvider } from "@/context/CartContext"
 import { CategoriesProvider } from "@/context/CategoriesContext"
+import WhatsAppButton from "@/components/WhatsAppButton"
 import { THEME_BOOT_SCRIPT, DEFAULT_THEME } from "@/lib/theme"
 import { SITE_URL } from "@/lib/medusa-server"
 import "./globals.css"
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <main className="flex-1">{children}</main>
           <Footer />
           <CartDrawer />
+          <WhatsAppButton />
         </CategoriesProvider>
         </CartProvider>
       </body>
