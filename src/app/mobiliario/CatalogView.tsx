@@ -103,7 +103,7 @@ export default function CatalogView({ initialProducts }: CatalogViewProps) {
         <div className="rule-strong pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
             <p className="eyebrow text-teal">
-              {category ? <><span className="mono">{category.code}</span> · {activeLine?.name}</> : activeLine ? <><span className="mono">{activeLine.code}</span> · Línea</> : "Catálogo"}
+              {category ? activeLine?.name : activeLine ? "Línea de mobiliario" : "Catálogo"}
             </p>
             <h1 className="display-lg mt-4 text-ink text-balance">{heading}</h1>
           </div>
@@ -115,7 +115,7 @@ export default function CatalogView({ initialProducts }: CatalogViewProps) {
           <Chip active={!activeLine} onClick={() => go("")}>Todo</Chip>
           {parents.map((p) => (
             <Chip key={p.handle} active={activeLine?.handle === p.handle} onClick={() => router.push(`/${p.handle}`)}>
-              <span className="mono mr-1.5 opacity-60">{p.number}</span>{p.name.replace("Mobiliario ", "")}
+              {p.name.replace("Mobiliario ", "")}
             </Chip>
           ))}
         </nav>
@@ -139,7 +139,7 @@ export default function CatalogView({ initialProducts }: CatalogViewProps) {
                   {activeLine.children.map((c) => (
                     <li key={c.handle}>
                       <button onClick={() => go(`?categoria=${c.handle}`)} className={`w-full flex justify-between gap-3 py-2.5 text-sm text-left border-b border-line ${category?.handle === c.handle ? "text-ink font-medium" : "text-text-2 hover:text-ink"}`}>
-                        <span><span className="mono text-text-3 mr-2">{c.number}</span>{c.name}</span><span className="tnum text-text-3">{countFor(c.handle)}</span>
+                        <span>{c.name}</span><span className="tnum text-text-3">{countFor(c.handle)}</span>
                       </button>
                     </li>
                   ))}
@@ -153,7 +153,7 @@ export default function CatalogView({ initialProducts }: CatalogViewProps) {
                   {parents.map((p) => (
                     <li key={p.handle}>
                       <Link href={`/${p.handle}`} className="w-full flex items-center gap-3 py-2.5 text-sm text-left text-text-2 hover:text-ink border-b border-line">
-                        <span className="mono text-text-3 w-5">{p.number}</span><span className="flex-1">{p.name}</span>
+                        <span className="flex-1">{p.name}</span>
                         <span className="tnum text-text-3">{countForLine(p.children.map((c) => c.handle))}</span>
                       </Link>
                     </li>

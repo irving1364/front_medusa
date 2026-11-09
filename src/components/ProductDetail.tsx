@@ -61,7 +61,7 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
         <nav className="flex flex-wrap items-center gap-2 text-xs text-text-3 border-b border-line pb-4" aria-label="Ruta">
           <Link href="/mobiliario" className="inline-flex items-center gap-1.5 hover:text-ink"><FiArrowLeft className="w-3.5 h-3.5" /> Mobiliario</Link>
           {line && (<><span>/</span><Link href={`/${line.handle}`} className="hover:text-ink">{line.name}</Link></>)}
-          {categoryName && (<><span>/</span><Link href={categoryHref} className="hover:text-ink">{category && <span className="mono">{category.code} </span>}{categoryName}</Link></>)}
+          {categoryName && (<><span>/</span><Link href={categoryHref} className="hover:text-ink">{categoryName}</Link></>)}
         </nav>
       </div>
 
@@ -93,7 +93,7 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
 
         <div className="lg:col-span-5">
           <Reveal distance={20} delay={0.08}>
-            {categoryName && <p className="eyebrow text-teal">{category ? `${category.code} · ${category.name}` : categoryName}</p>}
+            {categoryName && <p className="eyebrow text-teal">{categoryName}</p>}
             <h1 className="display-md mt-4 text-ink text-balance">{product.title}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-text-2">{product.subtitle}</p>}
 

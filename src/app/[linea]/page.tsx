@@ -83,7 +83,7 @@ export default async function LinePage({ params }: { params: Params }) {
         </nav>
         <div className="rule-strong mt-4 pt-5 grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-8">
-            <p className="eyebrow text-teal"><span className="mono">{line.code}</span> · Línea de mobiliario</p>
+            <p className="eyebrow text-teal">Línea de mobiliario</p>
             <h1 className="display-lg mt-4 text-ink text-balance flex items-center gap-4">
               <span className="hidden sm:inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-soft text-teal shrink-0"><FamilyIcon name={line.line} className="w-7 h-7" /></span>
               {line.name}
@@ -97,7 +97,7 @@ export default async function LinePage({ params }: { params: Params }) {
           <Link href="/mobiliario" className="shrink-0 px-3.5 py-2 rounded-full text-[13px] font-medium border border-line text-text-2 hover:border-ink hover:text-ink transition-colors">Todo</Link>
           {tree.map((l) => (
             <Link key={l.handle} href={`/${l.handle}`} aria-current={l.handle === line.handle ? "page" : undefined} className={`shrink-0 px-3.5 py-2 rounded-full text-[13px] font-medium border transition-colors ${l.handle === line.handle ? "bg-ink text-paper border-ink" : "border-line text-text-2 hover:border-ink hover:text-ink"}`}>
-              <span className="mono mr-1.5 opacity-60">{l.number}</span>{l.name.replace("Mobiliario ", "")}
+              {l.name.replace("Mobiliario ", "")}
             </Link>
           ))}
         </nav>

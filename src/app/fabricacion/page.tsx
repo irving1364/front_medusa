@@ -83,8 +83,7 @@ export default function FabricationPage() {
             {PROCESS.map((s, i) => (
               <Reveal key={s.n} delay={i * 0.07} className="bg-paper-2">
                 <li className="p-7 h-full hover:bg-paper-3 transition-colors duration-500">
-                  <span className="font-display text-3xl text-teal-3 tnum">{s.n}</span>
-                  <h3 className="mt-5 font-display text-2xl">{s.title}</h3>
+                  <h3 className="font-display text-2xl">{s.title}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-text-2">{s.text}</p>
                 </li>
               </Reveal>

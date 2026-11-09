@@ -50,7 +50,6 @@ export default function ProjectsPage() {
               <li className="group card shadow-card overflow-hidden h-full flex flex-col">
                 <div className="plate aspect-[16/10]">
                   <Image src={p.image} alt={p.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                  <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">{String(i + 1).padStart(2, "0")}</span>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
                   <p className="mono text-[10px] uppercase tracking-[0.14em] text-teal">{p.sector}</p>
