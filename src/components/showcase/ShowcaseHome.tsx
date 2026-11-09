@@ -70,9 +70,11 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
       .catch((error) => console.error("Error loading products:", error))
   }, [initialProducts])
 
+  // ChromaGrid renders plain <img>, so route its images through the Next image optimizer (cards are ~400 px wide).
+  const opt = (src: string, w = 640) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=70`
   const chromaItems = [
-    ...parents.map((p) => ({ image: p.image, title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/${p.handle}`, alt: p.name })),
-    { image: HERO_PRODUCT.image, title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
+    ...parents.map((p) => ({ image: opt(p.image), title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/${p.handle}`, alt: p.name })),
+    { image: opt(HERO_PRODUCT.image), title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
   ]
 
   return (
