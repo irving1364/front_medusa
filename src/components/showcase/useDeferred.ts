@@ -43,7 +43,29 @@ export function useInView<T extends Element>(ref: RefObject<T | null>, rootMargi
  * Low-power heuristic: reduced-motion preference, data saver, few cores or little memory.
  * Such devices get static CSS backgrounds instead of shaders.
  */
+/**
+ * True when WebGL is missing or rasterised in software (SwiftShader, llvmpipe, Mesa offscreen…).
+ * Full-screen fragment shaders on a software renderer cost 100+ ms per frame on the main thread,
+ * so those machines (headless browsers, VMs, very old laptops) get the static CSS fallback.
+ */
+function readSoftwareGpu(): boolean {
+  try {
+    const canvas = document.createElement("canvas")
+    const gl = (canvas.getContext("webgl2") || canvas.getContext("webgl")) as WebGLRenderingContext | null
+    if (!gl) return true
+    const info = gl.getExtension("WEBGL_debug_renderer_info")
+    const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER))
+    gl.getExtension("WEBGL_lose_context")?.loseContext()
+    return /swiftshader|llvmpipe|softpipe|software|mesa offscreen|microsoft basic render/i.test(renderer)
+  } catch {
+    return true
+  }
+}
+
+let lowPowerCache: boolean | null = null
+
 function readLowPower(): boolean {
+  if (lowPowerCache !== null) return lowPowerCache
   const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string }; deviceMemory?: number }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   const saveData = !!nav.connection?.saveData
@@ -51,7 +73,8 @@ function readLowPower(): boolean {
   const fewCores = (navigator.hardwareConcurrency || 8) <= 4
   const lowMem = (nav.deviceMemory || 8) <= 4
   const smallScreen = window.innerWidth < 768
-  return reduced || saveData || slowNet || (smallScreen && (fewCores || lowMem))
+  lowPowerCache = reduced || saveData || slowNet || (smallScreen && (fewCores || lowMem)) || readSoftwareGpu()
+  return lowPowerCache
 }
 const noopSubscribe = () => () => {}
 
