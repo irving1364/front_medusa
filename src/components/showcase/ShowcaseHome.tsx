@@ -81,16 +81,16 @@ export default function ShowcaseHome() {
 
         <div className="relative container-custom pt-32 pb-24 text-center">
           <div className="flex justify-center">
-            <ShinyText key={`shine-${theme}`} text="Karven · Mobiliario médico · Panamá" color={light ? "#0E7A88" : "#8BE0EA"} shineColor={light ? "#8BE0EA" : "#FFFFFF"} speed={3} className="eyebrow" />
+            <ShinyText key={`shine-${theme}`} text="KARVEN MEDICAL · PANAMÁ" color={light ? "#0E7A88" : "#8BE0EA"} shineColor={light ? "#8BE0EA" : "#FFFFFF"} speed={3} className="eyebrow" />
           </div>
           <SplitText
-            text="Acero. Precisión. Panamá."
+            text="Mobiliario médico y veterinario diseñado y fabricado en Panamá."
             tag="h1"
-            className="display-xl mt-6 text-ink"
-            splitType="chars"
+            className="display-lg mt-6 text-ink text-balance max-w-5xl mx-auto"
+            splitType="words"
             effect="rise"
             trigger="load"
-            delay={22}
+            delay={45}
             duration={1.1}
             ease="power4.out"
             textAlign="center"
@@ -98,17 +98,17 @@ export default function ShowcaseHome() {
             rootMargin="0px"
           />
           <p className="subtitle mt-6 max-w-2xl mx-auto animate-rise" style={{ animationDelay: "700ms" }}>
-            Mobiliario clínico en acero inoxidable 304 y 316. Soldado, pulido e instalado por nosotros.
+            Desarrollamos, fabricamos y respaldamos mobiliario para entornos médicos, veterinarios y técnicos. Productos propios y soluciones a medida, con fabricación local por FABMETAL.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-rise" style={{ animationDelay: "850ms" }}>
             <Magnet padding={80} magnetStrength={3} scale={1.03}>
-              <Link href="/mobiliario" className="btn btn-teal px-7 py-4 text-base">Ver mobiliario <FiArrowRight className="w-4 h-4" /></Link>
+              <Link href="/mobiliario" className="btn btn-teal px-7 py-4 text-base">Explorar mobiliario <FiArrowRight className="w-4 h-4" /></Link>
             </Magnet>
             <Magnet padding={80} magnetStrength={3} scale={1.03}>
               <Link href="/contacto" className="btn btn-outline px-7 py-4 text-base">Solicitar cotización</Link>
             </Magnet>
           </div>
-          <p className="mt-16 mono text-[11px] uppercase tracking-[0.2em] text-text-3 animate-fade-in" style={{ animationDelay: "1400ms" }}>Desplácese</p>
+          <p className="mt-16 font-display text-xl sm:text-2xl text-text-2 animate-fade-in" style={{ animationDelay: "1200ms" }}>Existimos para sostener a quienes cuidan.</p>
         </div>
       </section>
 
