@@ -33,16 +33,37 @@ export async function serverGetRegion(): Promise<MedusaRegion | null> {
   return regions.find((r) => r.currency_code === "pab") || regions[0] || null
 }
 
-export async function serverGetProducts(params: { limit?: number; handle?: string; category_id?: string } = {}): Promise<Product[]> {
+export async function serverGetProducts(params: { limit?: number; handle?: string; category_id?: string; collection_id?: string } = {}): Promise<Product[]> {
   const region = await serverGetRegion()
   const data = await storeGet<{ products: MedusaProduct[] }>("/products", {
     limit: params.limit ?? 100,
     handle: params.handle,
     category_id: params.category_id,
+    collection_id: params.collection_id,
     region_id: region?.id,
     fields: PRODUCT_FIELDS,
   })
-  return (data?.products || []).map(mapMedusaProduct)
+  const products = data?.products || []
+  // Optional manual order: product metadata `home_order` (1, 2, 3…) set in the Medusa admin.
+  const order = (p: MedusaProduct) => Number((p.metadata as Record<string, unknown> | null)?.home_order ?? Number.POSITIVE_INFINITY)
+  products.sort((a, b) => order(a) - order(b))
+  return products.map(mapMedusaProduct)
+}
+
+/** Handle of the Medusa collection whose products appear in the home rail ("Piezas de catálogo"). */
+export const FEATURED_COLLECTION_HANDLE = "destacados"
+
+/**
+ * Products for the home rail: the "Destacados" collection curated in the Medusa admin,
+ * ordered by metadata `home_order`; falls back to the newest products with a photo.
+ */
+export async function serverGetFeaturedProducts(limit = 3): Promise<Product[]> {
+  const col = await storeGet<{ collections: { id: string }[] }>("/collections", { handle: FEATURED_COLLECTION_HANDLE, limit: 1 })
+  const id = col?.collections?.[0]?.id
+  const featured = id ? (await serverGetProducts({ collection_id: id, limit: 12 })).filter((p) => p.thumbnail) : []
+  if (featured.length >= limit) return featured.slice(0, limit)
+  const rest = (await serverGetProducts({ limit: 12 })).filter((p) => p.thumbnail && !featured.some((f) => f.id === p.id))
+  return [...featured, ...rest].slice(0, limit)
 }
 
 export async function serverGetProductByHandle(handle: string): Promise<Product | null> {
