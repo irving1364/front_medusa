@@ -93,7 +93,7 @@ export default function Header() {
                 </button>
               </div>
               <div
-                className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 w-[34rem] transition-all duration-200 ${isDropOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}`}
+                className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 w-64 transition-all duration-200 ${isDropOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}`}
                 role="menu"
                 onFocus={openDrop}
                 onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) scheduleClose() }}
@@ -106,20 +106,17 @@ export default function Header() {
                           role="menuitem"
                           href={`${CATALOG}?linea=${p.handle}`}
                           onClick={close}
-                          className="flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-tint/[0.05] transition-colors"
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink hover:bg-tint/[0.05] transition-colors"
                         >
-                          <span className="mt-0.5 inline-flex items-center justify-center w-9 h-9 rounded-lg bg-teal-soft text-teal shrink-0"><FamilyIcon name={p.line} className="w-5 h-5" /></span>
-                          <span className="min-w-0">
-                            <span className="flex items-baseline gap-2"><span className="text-sm font-medium text-ink">{p.name}</span><span className="mono text-[10px] text-text-3">{p.code} · {p.children.length} categorías</span></span>
-                            <span className="block text-xs text-text-2 leading-snug mt-0.5 line-clamp-2">{p.description}</span>
-                          </span>
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-teal-soft text-teal shrink-0"><FamilyIcon name={p.line} className="w-[18px] h-[18px]" /></span>
+                          <span>{p.name}</span>
                         </Link>
                       </li>
                     ))}
                     {parents.length === 0 && <li className="px-3 py-2.5 text-sm text-text-3">Cargando líneas…</li>}
                   </ul>
-                  <Link href={CATALOG} onClick={close} role="menuitem" className="mt-1 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-teal hover:bg-tint/[0.05]">
-                    Ver todo el mobiliario <FiArrowUpRight className="w-4 h-4" />
+                  <Link href={CATALOG} onClick={close} role="menuitem" className="mt-1 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-teal border-t border-line hover:bg-tint/[0.05]">
+                    Ver todo <FiArrowUpRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
@@ -179,7 +176,6 @@ export default function Header() {
                 <Link href={`${CATALOG}?linea=${p.handle}`} onClick={close} className="flex items-center gap-3 py-2 text-base text-text-2 hover:text-ink">
                   <FamilyIcon name={p.line} className="w-5 h-5 text-teal" />
                   <span>{p.name}</span>
-                  <span className="mono text-[10px] text-text-3">{p.children.length} categorías</span>
                 </Link>
               </li>
             ))}
