@@ -259,7 +259,8 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
           <ScrollStack useWindowScroll smoothScroll={false} itemDistance={120} itemStackDistance={22} stackPosition="18%" baseScale={0.86} itemScale={0.035} dimAmount={light ? 0.1 : 0.25} blurAmount={1.5} holdDistance={160}>
             {PROCESS.map((s) => (
               <ScrollStackItem key={s.n} itemClassName="!bg-paper-2 !text-ink border border-line !shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)] !p-8 sm:!p-12 !h-auto min-h-[18rem]">
-                <h3 className="font-display text-3xl sm:text-4xl text-ink">{s.title}</h3>
+                <span className="mono text-sm text-teal">{s.n}</span>
+                <h3 className="mt-4 font-display text-3xl sm:text-4xl text-ink">{s.title}</h3>
                 <p className="mt-4 body-lg text-text-2 max-w-xl">{s.text}</p>
               </ScrollStackItem>
             ))}

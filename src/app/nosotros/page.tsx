@@ -75,7 +75,8 @@ export default function AboutPage() {
             <ol className="border-t border-line-2">
               {PRINCIPLES.map((p, i) => (
                 <Reveal key={p.title} delay={i * 0.05} distance={14}>
-                  <li className="py-6 border-b border-line">
+                  <li className="grid sm:grid-cols-[4rem_1fr] gap-2 sm:gap-6 py-6 border-b border-line">
+                    <span className="mono text-sm text-teal">{String(i + 1).padStart(2, "0")}</span>
                     <div><h3 className="font-display text-xl text-ink">{p.title}</h3><p className="mt-2 body-lg text-text-2">{p.text}</p></div>
                   </li>
                 </Reveal>
