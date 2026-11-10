@@ -4,7 +4,9 @@ const BACKEND_URL = (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://local
 const PUBLISHABLE_KEY = (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || "").trim()
 const RESEND_KEY = (process.env.RESEND_API_KEY || "").trim()
 const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend.dev>").trim()
-const STORE_EMAIL = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").trim()
+// One or several recipients, comma-separated (e.g. "contact@karvenmedical.com, karvenmedicalpa@gmail.com")
+const STORE_EMAILS = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").split(",").map((s) => s.trim()).filter(Boolean)
+const STORE_EMAIL = STORE_EMAILS[0]
 const STORE_NAME = "Karven Medical Furniture"
 const STORE_PHONE = "+507 000-0000"
 const COUNTRY_CODE = "pa"
@@ -80,7 +82,7 @@ async function placeOrder(body: CheckoutBody): Promise<PlacedOrder> {
 }
 
 // ─── Send Email via Resend ──────────────────────────────────────────
-async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+async function sendEmail(to: string | string[], subject: string, html: string): Promise<boolean> {
   if (!RESEND_KEY) {
     console.log(`[Email skipped - no RESEND_API_KEY] To: ${to}, Subject: ${subject}`)
     return false
@@ -89,7 +91,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: RESEND_FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: RESEND_FROM, to: Array.isArray(to) ? to : [to], subject, html }),
     })
     if (!res.ok) console.error("Resend error:", res.status, await res.text())
     return res.ok
@@ -175,7 +177,7 @@ export async function POST(request: NextRequest) {
     const order = await placeOrder(body)
 
     const [emailStore, emailCustomer] = await Promise.all([
-      sendEmail(STORE_EMAIL, `🆕 Cotización #${order.display_id} de ${body.name} — ${body.items?.length || 0} artículos`, storeEmailHtml(body, order)),
+      sendEmail(STORE_EMAILS, `🆕 Cotización #${order.display_id} de ${body.name} — ${body.items?.length || 0} artículos`, storeEmailHtml(body, order)),
       sendEmail(body.email, `Su solicitud de cotización #${order.display_id} — Karven`, customerEmailHtml(body, order)),
     ])
 
