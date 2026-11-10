@@ -34,9 +34,10 @@ export default function AboutPage() {
             <p className="eyebrow text-teal">Nosotros</p>
             <h1 className="display-lg mt-4 text-ink text-balance">Desarrollamos y fabricamos mobiliario para quienes cuidan.</h1>
           </div>
-          <p className="lg:col-span-4 text-base leading-relaxed text-text-2">
-            KARVEN Medical es una marca panameña especializada en el desarrollo, fabricación, adaptación y respaldo de mobiliario médico, veterinario y técnico para entornos sanitarios.
-          </p>
+          <div className="lg:col-span-4 text-base leading-relaxed text-text-2 space-y-4">
+            <p>KARVEN Medical es una marca panameña especializada en el desarrollo, fabricación, adaptación y respaldo de mobiliario médico, veterinario y técnico para entornos sanitarios.</p>
+            <p>Comprendemos las necesidades de uso, definimos las especificaciones y respaldamos nuestros productos. La fabricación se realiza en nuestro taller en Ciudad de Panamá, a través de FABMETAL.</p>
+          </div>
         </div>
 
         <Reveal className="mt-12">
