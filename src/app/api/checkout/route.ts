@@ -8,7 +8,7 @@ const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend
 const STORE_EMAILS = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").split(",").map((s) => s.trim()).filter(Boolean)
 const STORE_EMAIL = STORE_EMAILS[0]
 const STORE_NAME = "KARVEN Medical"
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://karvenmedical.com").replace(//$/, "")
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://karvenmedical.com").replace(/\/$/, "")
 const STORE_PHONE = "+507 6662-2199"
 const COUNTRY_CODE = "pa"
 const PAYMENT_PROVIDER = "pp_system_default"
