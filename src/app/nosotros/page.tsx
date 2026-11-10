@@ -99,7 +99,7 @@ export default function AboutPage() {
         <div className="container-custom">
           <Reveal>
             <div className="section-head">
-              <p className="eyebrow text-teal justify-center">Dónde estamos</p>
+              <p className="eyebrow text-teal justify-center">Fabricación y respaldo local</p>
               <h2 className="display-md mt-4 text-ink">Hospitales, clínicas, veterinarias, farmacias, laboratorios y morgues.</h2>
               <p className="subtitle">Fabricamos en Ciudad de Panamá e instalamos con equipo propio.</p>
             </div>
