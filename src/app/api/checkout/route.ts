@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
     const order = await placeOrder(body)
 
     const [emailStore, emailCustomer] = await Promise.all([
-      sendEmail(STORE_EMAILS, `Cotización #${order.display_id} de ${body.name} (${body.items?.length || 0} piezas)`, storeEmailHtml(body, order)),
+      sendEmail(STORE_EMAILS, `Cotización #${order.display_id} de ${body.name} (${body.items?.length || 0} ${body.items?.length === 1 ? "pieza" : "piezas"})`, storeEmailHtml(body, order)),
       sendEmail(body.email, `Recibimos su solicitud de cotización #${order.display_id}`, customerEmailHtml(body, order)),
     ])
 
