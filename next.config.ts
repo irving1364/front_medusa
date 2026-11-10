@@ -1,5 +1,19 @@
 import type { NextConfig } from "next"
 
+const PRIMARY_HOST = (() => {
+  try { return new URL(process.env.NEXT_PUBLIC_SITE_URL || "").hostname } catch { return "" }
+})()
+
+/** Redirects every other host (vercel.app previews, www) to the primary domain; no-op until it is configured. */
+function hostRedirects() {
+  if (!PRIMARY_HOST || PRIMARY_HOST === "localhost" || PRIMARY_HOST.endsWith(".vercel.app")) return []
+  const assets = "/:path((?!products/|images/|_next/|api/|favicon).*)"
+  return [
+    { source: assets, has: [{ type: "host" as const, value: "(?<h>.*\.vercel\.app)" }], destination: `https://${PRIMARY_HOST}/:path`, permanent: true },
+    { source: assets, has: [{ type: "host" as const, value: `www.${PRIMARY_HOST}` }], destination: `https://${PRIMARY_HOST}/:path`, permanent: true },
+  ]
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -10,10 +24,16 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost", port: "9000", pathname: "/**" },
       // Product photography committed to this repo and served by Vercel (absolute URLs stored in Medusa)
       { protocol: "https", hostname: "**.vercel.app", pathname: "/products/**" },
+      { protocol: "https", hostname: "karvenmedical.com", pathname: "/products/**" },
+      { protocol: "https", hostname: "www.karvenmedical.com", pathname: "/products/**" },
     ],
   },
   async redirects() {
     return [
+      // Once the custom domain is live (NEXT_PUBLIC_SITE_URL set in Vercel), the *.vercel.app URL and www
+      // redirect permanently to it. Static assets stay reachable on every host because Medusa stores
+      // absolute image URLs that still point at vercel.app.
+      ...hostRedirects(),
       { source: "/propiedades", destination: "/mobiliario", permanent: true },
       { source: "/propiedades/:handle", destination: "/mobiliario/:handle", permanent: true },
       { source: "/productos", destination: "/mobiliario", permanent: true },
