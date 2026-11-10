@@ -20,9 +20,9 @@ export const metadata: Metadata = {
 }
 
 const LINES = [
-  { code: "MED" as const, title: "Mobiliario médico", text: "Atención humana, exploración, procedimientos, higiene clínica y apoyo al paciente.", href: "/mobiliario-medico" },
-  { code: "VET" as const, title: "Mobiliario veterinario", text: "Exploración, tratamiento, hospitalización, preparación y apoyo veterinario.", href: "/mobiliario-veterinario" },
-  { code: "TEC" as const, title: "Mobiliario técnico", text: "Muebles fijos, mesones, estaciones de trabajo, almacenamiento y lavado especializado.", href: "/mobiliario-tecnico" },
+  { code: "MED" as const, title: "Mobiliario médico", text: "Camillas, sillas clínicas, mesas de instrumental, carros hospitalarios, lavamanos y mobiliario auxiliar para la atención humana.", cta: "Ver mobiliario médico", href: "/mobiliario-medico" },
+  { code: "VET" as const, title: "Mobiliario veterinario", text: "Mesas de exploración y tratamiento, jaulas de hospitalización y mobiliario auxiliar para clínicas y hospitales veterinarios.", cta: "Ver mobiliario veterinario", href: "/mobiliario-veterinario" },
+  { code: "TEC" as const, title: "Mobiliario técnico", text: "Muebles, estaciones de trabajo, fregadores y soluciones de almacenamiento para instalaciones sanitarias y aplicaciones técnicas especializadas.", cta: "Ver mobiliario técnico", href: "/mobiliario-tecnico" },
 ]
 
 const PRINCIPLES = [
@@ -58,7 +58,7 @@ export default function AboutPage() {
       <section className="section">
         <div className="container-custom grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
-            <Reveal><p className="eyebrow text-teal">Qué hacemos</p><h2 className="display-md mt-4 text-ink">Tres líneas, un mismo acero.</h2></Reveal>
+            <Reveal><p className="eyebrow text-teal">Qué hacemos</p><h2 className="display-md mt-4 text-ink">Tres líneas de mobiliario. Un mismo compromiso.</h2></Reveal>
           </div>
           <div className="lg:col-span-8 grid sm:grid-cols-3 gap-5">
             {LINES.map((l, i) => (
@@ -67,7 +67,7 @@ export default function AboutPage() {
                   <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-teal-soft text-teal"><FamilyIcon name={l.code} className="w-5 h-5" /></span>
                   <h3 className="mt-5 font-display text-xl text-ink">{l.title}</h3>
                   <p className="mt-2 text-sm text-text-2 leading-relaxed">{l.text}</p>
-                  <span className="mt-auto pt-5 link-arrow !text-sm">Ver línea</span>
+                  <span className="mt-auto pt-5 link-arrow !text-sm">{l.cta}</span>
                 </Link>
               </Reveal>
             ))}
