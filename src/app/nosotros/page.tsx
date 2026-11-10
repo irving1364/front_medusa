@@ -49,8 +49,8 @@ export default function AboutPage() {
         </div>
 
         <Reveal className="mt-12">
-          <div className="plate aspect-[21/9] rounded-[18px] border border-line">
-            <Image src={unsplash("1504439468489-c8920d796a29", 2000)} alt="Taller y equipamiento clínico" fill sizes="100vw" className="object-cover" priority />
+          <div className="plate plate-color aspect-[16/9] rounded-[18px] border border-line">
+            <Image src="/images/nosotros.webp" alt="Soldador de KARVEN Medical trabajando acero inoxidable en el taller de FABMETAL, Ciudad de Panamá" fill sizes="(max-width: 1320px) 100vw, 1280px" className="object-cover" priority />
           </div>
         </Reveal>
       </div>
