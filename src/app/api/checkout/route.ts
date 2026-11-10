@@ -66,6 +66,13 @@ async function placeOrder(body: CheckoutBody): Promise<PlacedOrder> {
     metadata: { inquiry_name: name, inquiry_phone: phone || null, inquiry_message: message || null, source: "web-checkout" },
   })
 
+  // Medusa refuses to complete a cart with shippable items unless a shipping method is chosen.
+  // Quotes carry a single zero-cost option ("Entrega e instalación (se cotiza)", see scripts/ensure-shipping-option.mjs).
+  const { shipping_options } = await store<{ shipping_options: { id: string; name: string }[] }>(`/store/shipping-options?cart_id=${cartId}`)
+  const option = shipping_options.find((o) => /cotiza/i.test(o.name)) || shipping_options[0]
+  if (!option) throw new CheckoutError("No hay una opción de envío configurada en Medusa para esta región", "shipping")
+  await store(`/store/carts/${cartId}/shipping-methods`, { option_id: option.id })
+
   const { payment_collection } = await store<{ payment_collection: { id: string } }>(
     "/store/payment-collections",
     { cart_id: cartId }
