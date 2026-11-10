@@ -4,7 +4,6 @@ const RESEND_KEY = (process.env.RESEND_API_KEY || "").trim()
 const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend.dev>").trim()
 // One or several recipients, comma-separated (e.g. "contact@karvenmedical.com, karvenmedicalpa@gmail.com")
 const STORE_EMAILS = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").split(",").map((s) => s.trim()).filter(Boolean)
-const STORE_EMAIL = STORE_EMAILS[0]
 
 const MAX_FILES = 5
 const MAX_TOTAL_BYTES = 4 * 1024 * 1024
