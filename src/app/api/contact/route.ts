@@ -73,6 +73,7 @@ export async function POST(request: Request) {
   )
 
   const html = `
+    <meta charset="utf-8">
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#f4f6f8;color:#1f2329;border-radius:12px">
       <h1 style="font-size:20px;margin:0 0 4px">Karven Medical — Nueva solicitud desde la web</h1>
       <p style="color:#7a828c;font-size:13px;margin:0 0 20px">${new Date().toLocaleString("es-PA")}</p>

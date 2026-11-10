@@ -130,6 +130,7 @@ function getDateStr(): string {
  */
 function wrap(subtitle: string, content: string): string {
   return `
+    <meta charset="utf-8">
     <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:8px 4px;color:#1f2329;font-size:15px;line-height:1.6">
       <p style="margin:0 0 18px;color:#6b7280;font-size:13px">${STORE_NAME} · ${subtitle}</p>
       ${content}
