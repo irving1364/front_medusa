@@ -6,9 +6,17 @@ import Reveal from "@/components/ui/Reveal"
 import FamilyIcon from "@/components/ui/FamilyIcon"
 import { SECTORS, unsplash } from "@/lib/catalog"
 
+// SEO values supplied by the client (2026-11-10). `absolute` bypasses the "%s | KARVEN Medical" template.
 export const metadata: Metadata = {
-  title: "Nosotros",
-  description: "Karven Medical: fabricantes de mobiliario médico, veterinario y técnico en acero inoxidable, con taller propio en Ciudad de Panamá.",
+  title: { absolute: "Nosotros | Fabricante de Mobiliario Médico en Panamá | KARVEN" },
+  description: "Conozca KARVEN Medical, fabricante panameño de mobiliario médico, veterinario y técnico. Desarrollo, fabricación y respaldo local por FABMETAL.",
+  alternates: { canonical: "/nosotros" },
+  openGraph: {
+    title: "Nosotros | Fabricante de Mobiliario Médico en Panamá | KARVEN",
+    description: "Conozca KARVEN Medical, fabricante panameño de mobiliario médico, veterinario y técnico. Desarrollo, fabricación y respaldo local por FABMETAL.",
+    url: "/nosotros",
+    type: "website",
+  },
 }
 
 const LINES = [
