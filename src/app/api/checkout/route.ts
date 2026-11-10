@@ -7,8 +7,9 @@ const RESEND_FROM = (process.env.RESEND_FROM_EMAIL || "Karven <onboarding@resend
 // One or several recipients, comma-separated (e.g. "contact@karvenmedical.com, karvenmedicalpa@gmail.com")
 const STORE_EMAILS = (process.env.STORE_NOTIFICATION_EMAIL || "karvenmedicalpa@gmail.com").split(",").map((s) => s.trim()).filter(Boolean)
 const STORE_EMAIL = STORE_EMAILS[0]
-const STORE_NAME = "Karven Medical Furniture"
-const STORE_PHONE = "+507 000-0000"
+const STORE_NAME = "KARVEN Medical"
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://karvenmedical.com").replace(//$/, "")
+const STORE_PHONE = "+507 6662-2199"
 const COUNTRY_CODE = "pa"
 const PAYMENT_PROVIDER = "pp_system_default"
 
@@ -116,47 +117,46 @@ function getDateStr(): string {
   })
 }
 
+/**
+ * Plain, letter-like layout: white background, system font, no banners or colour blocks.
+ * Gmail files visually "designed" mail under Promotions; sober transactional mail lands in Primary.
+ */
 function wrap(subtitle: string, content: string): string {
   return `
-    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#0a0a0a;color:#f5f0e8;border-radius:12px">
-      <div style="text-align:center;padding:20px 0;border-bottom:1px solid #2a2a2a">
-        <h1 style="color:#f5f0e8;font-size:24px;margin:0">${STORE_NAME}</h1>
-        <p style="color:#808078;font-size:14px">${subtitle}</p>
-      </div>
-      <div style="padding:20px 0">${content}</div>
-      <div style="text-align:center;padding:20px 0;border-top:1px solid #2a2a2a;color:#808078;font-size:12px">
-        <p>© ${new Date().getFullYear()} Karven. Todos los derechos reservados.</p>
-        <p style="margin-top:4px">Ciudad de Panamá, Panamá</p>
-      </div>
+    <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:8px 4px;color:#1f2329;font-size:15px;line-height:1.6">
+      <p style="margin:0 0 18px;color:#6b7280;font-size:13px">${STORE_NAME} · ${subtitle}</p>
+      ${content}
+      <p style="margin:28px 0 0">Atentamente,<br><strong>Equipo ${STORE_NAME}</strong><br>
+        <span style="color:#6b7280">WhatsApp ${STORE_PHONE} · <a href="mailto:${STORE_EMAIL}" style="color:#1f2329">${STORE_EMAIL}</a> · <a href="${SITE_URL}" style="color:#1f2329">${SITE_URL.replace(/^https?:\/\//, "")}</a></span></p>
+      <p style="margin:24px 0 0;color:#9ca3af;font-size:12px">Fabricado en Panamá por FABMETAL · Calle Hato Azul, casa N.º 43, La Cabima, Alcalde Díaz, Ciudad de Panamá</p>
     </div>`
 }
 
 function storeEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
   const row = (label: string, value: string) =>
-    `<tr><td style="color:#808078;padding:8px 0">${label}</td><td style="color:#f5f0e8;padding:8px 0">${value}</td></tr>`
+    `<tr><td style="color:#6b7280;padding:4px 12px 4px 0;vertical-align:top;white-space:nowrap">${label}</td><td style="padding:4px 0">${value}</td></tr>`
   const email = escapeHtml(body.email)
   return wrap("Nueva solicitud de cotización", `
-    <h2 style="color:#f5f0e8;font-size:18px">Datos del Cliente</h2>
-    <table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:14px">
-      ${row("Nombre:", escapeHtml(body.name))}
-      ${row("Email:", `<a href="mailto:${email}" style="color:#f5f0e8">${email}</a>`)}
-      ${row("Teléfono:", escapeHtml(body.phone || "No especificado"))}
-      ${row("Fecha:", getDateStr())}
-      ${row("Orden en Medusa:", `#${order.display_id} (${order.id})`)}
+    <p style="margin:0 0 12px"><strong>Cotización #${order.display_id}</strong> · ${getDateStr()}</p>
+    <table style="border-collapse:collapse;font-size:14px;margin:0 0 16px">
+      ${row("Cliente", escapeHtml(body.name))}
+      ${row("Correo", `<a href="mailto:${email}" style="color:#1f2329">${email}</a>`)}
+      ${row("Teléfono", escapeHtml(body.phone || "No especificado"))}
+      ${row("Orden en Medusa", `#${order.display_id} (${order.id})`)}
     </table>
-    <h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Artículos solicitados</h2>
-    <ul style="color:#c0c0b8;font-size:14px;line-height:1.8">${buildItemsList(body.items)}</ul>
-    ${body.message ? `<h2 style="color:#f5f0e8;font-size:18px;margin-top:20px">Mensaje</h2><p style="color:#c0c0b8;font-size:14px;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${escapeHtml(body.message)}</p>` : ""}
+    <p style="margin:0 0 6px"><strong>Piezas solicitadas</strong></p>
+    <ul style="margin:0 0 16px;padding-left:20px;font-size:14px">${buildItemsList(body.items)}</ul>
+    ${body.message ? `<p style="margin:0 0 6px"><strong>Mensaje del cliente</strong></p><p style="margin:0;font-size:14px;white-space:pre-line">${escapeHtml(body.message)}</p>` : ""}
   `)
 }
 
 function customerEmailHtml(body: CheckoutBody, order: PlacedOrder): string {
-  return wrap("Hemos recibido su solicitud", `
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Estimado/a <strong style="color:#f5f0e8">${escapeHtml(body.name)}</strong>,</p>
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Gracias por contactarnos. Registramos su solicitud de cotización con el número <strong style="color:#f5f0e8">#${order.display_id}</strong> para los siguientes artículos:</p>
-    <ul style="color:#c0c0b8;font-size:14px;line-height:1.8;padding:12px;background:#111;border-radius:8px;border:1px solid #2a2a2a">${buildItemsList(body.items)}</ul>
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6;margin-top:20px">Uno de nuestros asesores se pondrá en contacto con usted a la brevedad con la cotización formal, incluyendo entrega e instalación.</p>
-    <p style="color:#c0c0b8;font-size:15px;line-height:1.6">Si tiene alguna pregunta adicional, escríbanos a <a href="mailto:${STORE_EMAIL}" style="color:#f5f0e8">${STORE_EMAIL}</a> o llámenos al <strong style="color:#f5f0e8">${STORE_PHONE}</strong>.</p>
+  return wrap("Solicitud de cotización", `
+    <p style="margin:0 0 14px">Estimado/a ${escapeHtml(body.name)}:</p>
+    <p style="margin:0 0 14px">Gracias por escribirnos. Registramos su solicitud de cotización con el número <strong>#${order.display_id}</strong> para las siguientes piezas:</p>
+    <ul style="margin:0 0 14px;padding-left:20px">${buildItemsList(body.items)}</ul>
+    <p style="margin:0 0 14px">En las próximas horas hábiles un asesor revisará las medidas y cantidades y le enviará la cotización formal, con plazo de fabricación, entrega e instalación en Panamá.</p>
+    <p style="margin:0">Si desea adelantar planos, fotografías o alguna especificación, puede responder directamente a este correo.</p>
   `)
 }
 
@@ -177,8 +177,8 @@ export async function POST(request: NextRequest) {
     const order = await placeOrder(body)
 
     const [emailStore, emailCustomer] = await Promise.all([
-      sendEmail(STORE_EMAILS, `🆕 Cotización #${order.display_id} de ${body.name} — ${body.items?.length || 0} artículos`, storeEmailHtml(body, order)),
-      sendEmail(body.email, `Su solicitud de cotización #${order.display_id} — Karven`, customerEmailHtml(body, order)),
+      sendEmail(STORE_EMAILS, `Cotización #${order.display_id} de ${body.name} (${body.items?.length || 0} piezas)`, storeEmailHtml(body, order)),
+      sendEmail(body.email, `Recibimos su solicitud de cotización #${order.display_id}`, customerEmailHtml(body, order)),
     ])
 
     return NextResponse.json({
