@@ -26,10 +26,10 @@ const LINES = [
 ]
 
 const PRINCIPLES = [
-  { title: "Acero que aguanta la desinfección diaria.", text: "AISI 304 en uso clínico general y 316 donde hay fluidos o cloruros. Sin pintura que se descascare ni juntas que acumulen." },
-  { title: "Fabricamos a medida, no adaptamos catálogo.", text: "Cada pieza parte del plano del área y del flujo de trabajo del personal que la va a usar." },
-  { title: "Un solo equipo de principio a fin.", text: "Levantamiento, diseño, fabricación, instalación y servicio con la misma gente. Sin intermediarios." },
-  { title: "Repuestos y servicio en Panamá.", text: "Lo que fabricamos aquí lo reparamos aquí, sin esperar importaciones." },
+  { title: "Comprendemos antes de fabricar.", text: "Cada solución parte de una necesidad concreta. Definimos su uso, dimensiones, materiales y condiciones de trabajo antes de iniciar la fabricación." },
+  { title: "La seguridad, la higiene y la función no se negocian.", text: "Seleccionamos materiales y soluciones constructivas según el uso previsto, considerando estabilidad, resistencia, facilidad de limpieza y mantenimiento." },
+  { title: "Verificamos antes de entregar.", text: "Comprobamos las dimensiones, uniones, acabados y funcionamiento de cada producto, aplicando los controles correspondientes a su diseño y configuración." },
+  { title: "Decimos la verdad y respondemos.", text: "Comunicamos con claridad los alcances, materiales, tiempos y condiciones de garantía. Brindamos respaldo local a los productos que fabricamos." },
 ]
 
 /** PROVISIONAL copy: replace with Karven's own history, team and workshop photos when available. */
@@ -78,7 +78,7 @@ export default function AboutPage() {
       <section className="section bg-paper-2">
         <div className="container-custom grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
-            <Reveal><p className="eyebrow text-teal">Cómo trabajamos</p><h2 className="display-md mt-4 text-ink">Cuatro reglas que no negociamos.</h2></Reveal>
+            <Reveal><p className="eyebrow text-teal">Cómo trabajamos</p><h2 className="display-md mt-4 text-ink">Cuatro compromisos que guían nuestro trabajo.</h2></Reveal>
           </div>
           <div className="lg:col-span-8">
             <ol className="border-t border-line-2">
