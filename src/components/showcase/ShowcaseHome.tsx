@@ -19,6 +19,9 @@ const LightRays = dynamic(() => import("@/components/reactbits/LightRays/LightRa
 const GradientWaves = dynamic(() => import("@/components/reactbits/GradientWaves/GradientWaves"), { ssr: false })
 const Noise = dynamic(() => import("@/components/reactbits/Noise/Noise"), { ssr: false })
 import Reveal from "@/components/ui/Reveal"
+import InstagramFeed from "@/components/InstagramFeed"
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/instagram-meta"
+import type { InstagramPost } from "@/lib/instagram"
 import Image from "next/image"
 import { HERO_PRODUCT } from "@/lib/catalog"
 import { useCategories } from "@/context/CategoriesContext"
@@ -32,6 +35,8 @@ interface ShowcaseHomeProps {
   lines?: CategoryNode[]
   /** Featured products fetched on the server */
   products?: Product[]
+  /** Latest Instagram posts fetched on the server (empty -> section hidden) */
+  instagram?: InstagramPost[]
 }
 
 /** Short "productos incluidos" summary per line for the SEO links block (falls back to the category description). */
@@ -51,7 +56,7 @@ const PROCESS = [
 ]
 
 /** Cinematic home built on React Bits; every WebGL effect takes theme-aware colours. */
-export default function ShowcaseHome({ lines, products: initialProducts }: ShowcaseHomeProps) {
+export default function ShowcaseHome({ lines, products: initialProducts, instagram = [] }: ShowcaseHomeProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts ?? [])
   const ctx = useCategories()
   const parents = lines && lines.length ? lines : ctx.parents
@@ -284,7 +289,10 @@ export default function ShowcaseHome({ lines, products: initialProducts }: Showc
         </div>
       </section>
 
-      {/* 8 · CTA on waves */}
+      {/* 8 · Instagram */}
+      <InstagramFeed posts={instagram} handle={INSTAGRAM_HANDLE} url={INSTAGRAM_URL} />
+
+      {/* 9 · CTA on waves */}
       <section className="section pt-0">
         <div className="container-custom">
           <Reveal>

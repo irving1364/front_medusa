@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useCategories } from "@/context/CategoriesContext"
 import { useTheme } from "@/lib/theme"
+import { FaInstagram } from "react-icons/fa"
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -27,6 +28,7 @@ export default function Footer() {
               <div className="flex gap-3"><dt className="w-20 text-text-3">Correo</dt><dd><a href="mailto:contact@karvenmedical.com" className="hover:text-ink">contact@karvenmedical.com</a></dd></div>
               <div className="flex gap-3"><dt className="w-20 text-text-3">WhatsApp</dt><dd><a href="https://wa.me/50766622199" target="_blank" rel="noreferrer" className="hover:text-ink tnum">+507 6662-2199</a></dd></div>
               <div className="flex gap-3"><dt className="w-20 text-text-3">Horario</dt><dd className="tnum">Lun – Vie · 8:00 a 17:00</dd></div>
+              <div className="flex gap-3"><dt className="w-20 text-text-3">Instagram</dt><dd><a href="https://www.instagram.com/karvenmedical/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 hover:text-ink"><FaInstagram className="w-3.5 h-3.5" aria-hidden="true" />@karvenmedical</a></dd></div>
             </dl>
           </div>
 

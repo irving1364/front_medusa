@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.vercel.app", pathname: "/products/**" },
       { protocol: "https", hostname: "karvenmedical.com", pathname: "/products/**" },
       { protocol: "https", hostname: "www.karvenmedical.com", pathname: "/products/**" },
+      // Instagram feed on the home: Behold resized images, or the Instagram CDN when read through the Graph API
+      { protocol: "https", hostname: "behold.pictures", pathname: "/**" },
+      { protocol: "https", hostname: "**.behold.pictures", pathname: "/**" },
+      { protocol: "https", hostname: "**.cdninstagram.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.fbcdn.net", pathname: "/**" },
     ],
   },
   async redirects() {
