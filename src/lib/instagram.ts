@@ -10,6 +10,8 @@ export interface InstagramPost {
   alt: string
   type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM"
   timestamp: string
+  /** Instagram picked a black frame as the reel cover: render a branded tile instead of a black square. */
+  blankCover?: boolean
 }
 
 /** Feed is cached for an hour: Behold's free plan refreshes once a day, so anything shorter is wasted. */
@@ -34,6 +36,13 @@ interface BeholdPost {
   altText?: string
   timestamp: string
   sizes?: { small?: BeholdSize; medium?: BeholdSize; large?: BeholdSize; full?: BeholdSize }
+  colorPalette?: { dominant?: string }
+}
+
+/** "8,4,4" → true: the cover is (almost) solid black. */
+const isBlack = (rgb?: string) => {
+  const c = (rgb || "").split(",").map((n) => Number(n.trim()))
+  return c.length === 3 && c.every((n) => Number.isFinite(n) && n < 28)
 }
 
 /** Behold (behold.so) proxies the Instagram API, keeps the token alive and serves resized images. */
@@ -55,6 +64,7 @@ async function fromBehold(url: string, limit: number): Promise<InstagramPost[]> 
         alt: p.altText || clean(p.prunedCaption || p.caption) || `Publicación de @${INSTAGRAM_HANDLE}`,
         type: p.mediaType,
         timestamp: p.timestamp,
+        blankCover: p.mediaType === "VIDEO" && isBlack(p.colorPalette?.dominant),
       }
     })
     .filter((p): p is InstagramPost => !!p)

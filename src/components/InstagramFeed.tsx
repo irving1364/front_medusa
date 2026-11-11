@@ -41,15 +41,24 @@ export default function InstagramFeed({ posts, handle, url }: InstagramFeedProps
                 aria-label={`Ver publicación en Instagram: ${p.alt}`}
                 className="group block plate aspect-square rounded-2xl ring-1 ring-line-2 hover:ring-line-3 transition-shadow duration-500"
               >
-                <Image
-                  src={p.image}
-                  alt={p.alt}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 220px"
-                  className="object-cover"
-                  loading={i < 3 ? "eager" : "lazy"}
-                />
-                {p.type !== "IMAGE" && (
+                {p.blankCover ? (
+                  <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-paper-3 via-paper-2 to-paper text-ink" aria-hidden="true">
+                    <span className="flex items-center justify-center w-12 h-12 rounded-full bg-teal text-paper shadow-[0_12px_32px_-14px_rgba(47,177,194,0.9)] transition-transform duration-500 group-hover:scale-105">
+                      <FiPlay className="w-5 h-5 translate-x-px" />
+                    </span>
+                    <span className="eyebrow text-text-3">Reel</span>
+                  </span>
+                ) : (
+                  <Image
+                    src={p.image}
+                    alt={p.alt}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 220px"
+                    className="object-cover"
+                    loading={i < 3 ? "eager" : "lazy"}
+                  />
+                )}
+                {p.type !== "IMAGE" && !p.blankCover && (
                   <span className="absolute top-2.5 right-2.5 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-ink/70 text-paper backdrop-blur-sm" aria-hidden="true">
                     {p.type === "VIDEO" ? <FiPlay className="w-3.5 h-3.5 translate-x-px" /> : <FiCopy className="w-3.5 h-3.5" />}
                   </span>
