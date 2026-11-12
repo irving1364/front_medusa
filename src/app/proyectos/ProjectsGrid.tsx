@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { FiArrowUpRight } from "react-icons/fi"
 import Reveal from "@/components/ui/Reveal"
 
 type Line = "medico" | "veterinario" | "tecnico"
@@ -70,7 +69,7 @@ export default function ProjectsGrid({ projects }: { projects: ProjectCardData[]
                   <p className="mono text-[10px] uppercase tracking-[0.14em] text-teal">{[p.specialty, p.year].filter(Boolean).join(" · ") || "Proyecto"}</p>
                   <h2 className="mt-2 font-display text-2xl text-ink">{p.title}</h2>
                   {p.summary && <p className="mt-2 body-lg text-text-2">{p.summary}</p>}
-                  <span className="mt-auto pt-6 link-arrow !text-sm">Ver proyecto <FiArrowUpRight className="w-3.5 h-3.5" /></span>
+                  <span className="mt-auto pt-6 link-arrow !text-sm">Ver proyecto</span>
                 </div>
               </Link>
             </li>

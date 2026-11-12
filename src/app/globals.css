@@ -339,6 +339,7 @@ body {
   .plate-hero::after { background: linear-gradient(180deg, rgba(47, 177, 194, 0.05), rgba(10, 12, 16, 0.18)); }
   :root[data-theme="light"] .plate img { filter: grayscale(1) contrast(1.02) brightness(1.02); }
   :root[data-theme="light"] .plate::after { background: linear-gradient(180deg, rgba(14, 122, 136, 0.06), rgba(15, 19, 24, 0.08)); }
+  :root[data-theme="light"] .plate-color img, :root[data-theme="light"] .group:hover .plate-color img { filter: none; }
   :root[data-theme="light"] .plate-hero img { filter: grayscale(0.85) contrast(1) brightness(1.02); }
 
   .tnum { font-variant-numeric: tabular-nums; }
