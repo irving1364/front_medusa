@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { FiArrowRight } from "react-icons/fi"
 import Reveal from "@/components/ui/Reveal"
-import { LINE_SHORT, serverGetProjects } from "@/lib/projects"
+import { projectCard, serverGetProjects } from "@/lib/projects"
 import ProjectsGrid from "./ProjectsGrid"
 
 export const revalidate = 60
@@ -17,17 +17,7 @@ export const metadata: Metadata = {
 /** Portfolio: published projects from the Medusa admin ("Proyectos"). */
 export default async function ProjectsPage() {
   const projects = await serverGetProjects()
-  const cards = projects.map((p) => ({
-    slug: p.slug,
-    title: p.title,
-    line: p.line,
-    lineLabel: LINE_SHORT[p.line],
-    specialty: p.specialty,
-    summary: p.summary,
-    cover: p.cover_url || p.gallery.find((g) => g.type === "image")?.url || null,
-    coverAlt: p.cover_alt || p.title,
-    year: p.year,
-  }))
+  const cards = projects.map(projectCard)
 
   return (
     <div className="bg-paper pt-28 lg:pt-32 pb-20">

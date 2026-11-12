@@ -1,22 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import Reveal from "@/components/ui/Reveal"
-
-type Line = "medico" | "veterinario" | "tecnico"
-export interface ProjectCardData {
-  slug: string
-  title: string
-  line: Line
-  lineLabel: string
-  specialty: string | null
-  summary: string | null
-  cover: string | null
-  coverAlt: string
-  year: number | null
-}
+import ProjectCard, { type ProjectCardData, type ProjectLine as Line } from "@/components/ProjectCard"
 
 const TABS: { key: "all" | Line; label: string }[] = [
   { key: "all", label: "Todos" },
@@ -55,24 +41,7 @@ export default function ProjectsGrid({ projects }: { projects: ProjectCardData[]
       <ul key={tab} className="mt-8 grid md:grid-cols-2 gap-5">
         {shown.map((p, i) => (
           <Reveal key={p.slug} delay={(i % 2) * 0.08} distance={20}>
-            <li className="h-full">
-              <Link href={`/proyectos/${p.slug}`} className="group card shadow-card overflow-hidden h-full flex flex-col">
-                <div className="plate plate-color aspect-[16/10]">
-                  {p.cover ? (
-                    <Image src={p.cover} alt={p.coverAlt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-[1.2s] [transition-timing-function:var(--ease-out-expo)] group-hover:scale-[1.03]" />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-paper-3 to-paper-2" />
-                  )}
-                  <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">{p.lineLabel}</span>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <p className="mono text-[10px] uppercase tracking-[0.14em] text-teal">{[p.specialty, p.year].filter(Boolean).join(" · ") || "Proyecto"}</p>
-                  <h2 className="mt-2 font-display text-2xl text-ink">{p.title}</h2>
-                  {p.summary && <p className="mt-2 body-lg text-text-2">{p.summary}</p>}
-                  <span className="mt-auto pt-6 link-arrow !text-sm">Ver proyecto</span>
-                </div>
-              </Link>
-            </li>
+            <li className="h-full"><ProjectCard p={p} /></li>
           </Reveal>
         ))}
       </ul>

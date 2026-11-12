@@ -22,6 +22,7 @@ import Reveal from "@/components/ui/Reveal"
 import InstagramFeed from "@/components/InstagramFeed"
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/instagram-meta"
 import type { InstagramPost } from "@/lib/instagram"
+import ProjectCard, { type ProjectCardData } from "@/components/ProjectCard"
 import Image from "next/image"
 import { HERO_PRODUCT } from "@/lib/catalog"
 import { useCategories } from "@/context/CategoriesContext"
@@ -37,6 +38,8 @@ interface ShowcaseHomeProps {
   products?: Product[]
   /** Latest Instagram posts fetched on the server (empty -> section hidden) */
   instagram?: InstagramPost[]
+  /** Latest published projects from the Medusa admin (up to three) */
+  projects?: ProjectCardData[]
 }
 
 /** Short "productos incluidos" summary per line for the SEO links block (falls back to the category description). */
@@ -56,7 +59,7 @@ const PROCESS = [
 ]
 
 /** Cinematic home built on React Bits; every WebGL effect takes theme-aware colours. */
-export default function ShowcaseHome({ lines, products: initialProducts, instagram = [] }: ShowcaseHomeProps) {
+export default function ShowcaseHome({ lines, products: initialProducts, instagram = [], projects = [] }: ShowcaseHomeProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts ?? [])
   const ctx = useCategories()
   const parents = lines && lines.length ? lines : ctx.parents
@@ -273,19 +276,25 @@ export default function ShowcaseHome({ lines, products: initialProducts, instagr
         </div>
       </section>
 
-      {/* 7 · Projects */}
+      {/* 7 · Projects (only what is published from the Medusa admin) */}
       <section className="section">
         <div className="container-custom">
           <Reveal className="rule-strong pt-6 grid lg:grid-cols-12 gap-6 items-end" stagger={0.15}>
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-7">
               <p className="eyebrow text-teal">Proyectos</p>
-              <h2 className="display-md mt-4 text-ink">Proyectos realizados</h2>
-              <p className="subtitle mt-3 max-w-2xl">Evidencia fotográfica y técnica de trabajos ejecutados: quirófanos, hospitalización, clínicas veterinarias, laboratorios, farmacias y morgues.</p>
+              <h2 className="display-md mt-4 text-ink text-balance">Nuestro trabajo, documentado.</h2>
             </div>
-            <div className="lg:col-span-4 lg:text-right">
-              <Link href="/proyectos" className="link-arrow">Ver proyectos</Link>
+            <div className="lg:col-span-5 space-y-3 text-base leading-relaxed text-text-2">
+              <p>Conozca proyectos de mobiliario médico, veterinario y técnico desarrollados y fabricados en Panamá.</p>
+              <p>Fotografías, procesos y soluciones para distintas necesidades de atención, trabajo e infraestructura sanitaria.</p>
+              <p className="pt-1"><Link href="/proyectos" className="link-arrow">Ver todos los proyectos</Link></p>
             </div>
           </Reveal>
+          {projects.length > 0 && (
+            <Reveal as="ul" className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.1}>
+              {projects.map((p) => <li key={p.slug} className="h-full"><ProjectCard p={p} heading="h3" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" /></li>)}
+            </Reveal>
+          )}
         </div>
       </section>
 

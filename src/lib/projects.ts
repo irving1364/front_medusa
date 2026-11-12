@@ -1,4 +1,5 @@
 import "server-only"
+import type { ProjectCardData } from "@/components/ProjectCard"
 import { mapMedusaProduct, PRODUCT_FIELDS, type MedusaProduct } from "@/lib/medusa"
 import { serverGetRegion } from "@/lib/medusa-server"
 import type { Product } from "@/types"
@@ -90,3 +91,16 @@ export function embedUrl(url: string): string | null {
   if (ig) return `https://www.instagram.com/p/${ig[1]}/embed/`
   return null
 }
+
+/** Flat card data for ProjectCard / ProjectsGrid (cover falls back to the first gallery image). */
+export const projectCard = (p: Project): ProjectCardData => ({
+  slug: p.slug,
+  title: p.title,
+  line: p.line,
+  lineLabel: LINE_SHORT[p.line],
+  specialty: p.specialty,
+  summary: p.summary,
+  cover: p.cover_url || p.gallery.find((g) => g.type === "image")?.url || null,
+  coverAlt: p.cover_alt || p.title,
+  year: p.year,
+})
