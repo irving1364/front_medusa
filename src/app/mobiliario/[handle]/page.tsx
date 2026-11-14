@@ -4,8 +4,11 @@ import { notFound } from "next/navigation"
 import ProductDetail from "@/components/ProductDetail"
 import { serverGetProductByHandle, serverGetProducts, serverGetCategoryTree, SITE_URL } from "@/lib/medusa-server"
 import { flatten } from "@/lib/categories"
+import { ogImage } from "@/lib/og-image"
 
-export const revalidate = 300
+// One minute: a product published in the admin (or a 404 cached before it was published) refreshes quickly,
+// which matters when a link is shared on WhatsApp right after publishing.
+export const revalidate = 60
 
 type Params = Promise<{ handle: string }>
 
@@ -15,7 +18,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!product) return { title: "Referencia no encontrada", robots: { index: false } }
   const title = product.title
   const description = (product.description || product.subtitle || `${product.title}, mobiliario en acero inoxidable fabricado en Panamá por KARVEN Medical.`).slice(0, 155)
-  const image = product.thumbnail || product.images[0]?.url
+  const imageUrl = product.thumbnail || product.images[0]?.url
+  const image = imageUrl ? await ogImage(imageUrl, `${product.title} KARVEN en acero inoxidable`) : null
   return {
     title,
     description,
@@ -25,9 +29,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description,
       type: "website",
       url: `/mobiliario/${product.handle}`,
-      ...(image ? { images: [{ url: image, alt: `${product.title} KARVEN en acero inoxidable` }] } : {}),
+      ...(image ? { images: [image] } : {}),
     },
-    twitter: { card: "summary_large_image", title: `${title} | KARVEN Medical`, description, ...(image ? { images: [image] } : {}) },
+    twitter: { card: "summary_large_image", title: `${title} | KARVEN Medical`, description, ...(image ? { images: [image.url] } : {}) },
   }
 }
 

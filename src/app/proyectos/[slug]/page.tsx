@@ -6,6 +6,7 @@ import Reveal from "@/components/ui/Reveal"
 import ProductCard from "@/components/ProductCard"
 import ProjectGallery, { type GalleryMedia } from "@/components/ProjectGallery"
 import { SITE_URL } from "@/lib/medusa-server"
+import { ogImage } from "@/lib/og-image"
 import { LINE_HANDLE, LINE_LABEL, STATUS_LABEL, embedUrl, paragraphs, serverGetProject, serverGetProjectProducts, type Project } from "@/lib/projects"
 
 export const revalidate = 60
@@ -24,13 +25,15 @@ export async function generateMetadata({ params, searchParams }: { params: Param
   const { project: p, preview } = data
   const title = p.seo_title?.trim() || `${p.title} | Proyectos | KARVEN Medical`
   const description = p.seo_description?.trim() || p.summary?.trim() || `${p.title}: proyecto de ${LINE_LABEL[p.line].toLowerCase()} desarrollado y fabricado en Panamá por KARVEN Medical.`
-  const cover = p.cover_url || p.gallery.find((g) => g.type === "image")?.url
+  const coverUrl = p.cover_url || p.gallery.find((g) => g.type === "image")?.url
+  const cover = coverUrl ? await ogImage(coverUrl, p.cover_alt || p.title) : null
   return {
     title: { absolute: title },
     description,
     alternates: { canonical: `/proyectos/${p.slug}` },
     robots: preview ? { index: false, follow: false } : undefined,
-    openGraph: { title, description, url: `/proyectos/${p.slug}`, type: "article", ...(cover ? { images: [{ url: cover, alt: p.cover_alt || p.title }] } : {}) },
+    openGraph: { title, description, url: `/proyectos/${p.slug}`, type: "article", ...(cover ? { images: [cover] } : {}) },
+    twitter: { card: "summary_large_image", title, description, ...(cover ? { images: [cover.url] } : {}) },
   }
 }
 
