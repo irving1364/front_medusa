@@ -127,7 +127,8 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     subtitle: product.subtitle,
     description: product.description,
     handle: product.handle,
-    thumbnail: product.thumbnail,
+    // Fall back to the first gallery image: the admin only sets a thumbnail when one is marked explicitly.
+    thumbnail: product.thumbnail || product.images?.[0]?.url || null,
     images: product.images || [],
     price: variant?.calculated_price?.calculated_amount ?? 0,
     currencyCode: (variant?.calculated_price?.currency_code || PREFERRED_CURRENCY).toUpperCase(),
