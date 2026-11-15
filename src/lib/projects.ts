@@ -56,7 +56,8 @@ async function get<T>(path: string, revalidate: number): Promise<T | null> {
 
 /** Published projects, admin order first then newest. Cached one minute. */
 export async function serverGetProjects(line?: ProjectLine): Promise<Project[]> {
-  const data = await get<{ projects: Project[] }>(`/projects?limit=100${line ? `&line=${line}` : ""}`, 60)
+  // This storefront belongs to KARVEN; FABMETAL projects live on its own site
+  const data = await get<{ projects: Project[] }>(`/projects?limit=100&company=karven${line ? `&line=${line}` : ""}`, 60)
   return data?.projects || []
 }
 
