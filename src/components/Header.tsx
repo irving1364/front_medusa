@@ -13,7 +13,7 @@ import { useTheme, setTheme } from "@/lib/theme"
 const CATALOG = "/mobiliario"
 
 const NAV_LINKS = [
-  { href: "/fabricacion", label: "Fabricación a medida" },
+  { href: "/fabricacion-a-medida", label: "Fabricación a medida" },
   { href: "/proyectos", label: "Proyectos" },
   { href: "/nosotros", label: "Nosotros" },
   { href: "/contacto", label: "Contacto" },

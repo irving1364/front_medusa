@@ -51,6 +51,8 @@ const nextConfig: NextConfig = {
       // Catalogue moved from /equipamiento to /mobiliario (2026-11-09)
       { source: "/equipamiento", destination: "/mobiliario", permanent: true },
       { source: "/equipamiento/:handle", destination: "/mobiliario/:handle", permanent: true },
+      // Fabrication page renamed for SEO (2026-11-15)
+      { source: "/fabricacion", destination: "/fabricacion-a-medida", permanent: true },
     ]
   },
 }

@@ -5,8 +5,10 @@ import { FiArrowRight } from "react-icons/fi"
 import Reveal from "@/components/ui/Reveal"
 
 export const metadata: Metadata = {
-  title: "Fabricación a medida",
+  title: { absolute: "Mobiliario Médico y Veterinario a Medida en Panamá | KARVEN Medical" },
   description: "Desarrollamos, adaptamos y fabricamos mobiliario médico, veterinario y técnico según los requisitos de cada proyecto. Acero inoxidable AISI 304 y 316, acero al carbono pintado y materiales complementarios. Fabricado en Panamá por FABMETAL.",
+  alternates: { canonical: "/fabricacion-a-medida" },
+  openGraph: { title: "Mobiliario Médico y Veterinario a Medida en Panamá | KARVEN Medical", url: "/fabricacion-a-medida", type: "website" },
 }
 
 const MATERIALS = [

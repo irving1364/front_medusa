@@ -57,7 +57,7 @@ export default async function ProjectsPage() {
             </div>
             <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end">
               <Link href="/contacto" className="btn btn-teal">Solicitar propuesta <FiArrowRight className="w-4 h-4" /></Link>
-              <Link href="/fabricacion" className="link-arrow">Cómo fabricamos</Link>
+              <Link href="/fabricacion-a-medida" className="link-arrow">Cómo fabricamos</Link>
             </div>
           </div>
         </Reveal>
