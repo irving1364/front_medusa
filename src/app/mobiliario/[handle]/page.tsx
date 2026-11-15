@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import ProductDetail from "@/components/ProductDetail"
-import { serverGetProductByHandle, serverGetProducts, serverGetCategoryTree, SITE_URL } from "@/lib/medusa-server"
+import { serverGetProductByHandle, serverGetProductRedirect, serverGetProducts, serverGetCategoryTree, SITE_URL } from "@/lib/medusa-server"
 import { flatten } from "@/lib/categories"
 import { ogImage } from "@/lib/og-image"
 
@@ -17,28 +17,34 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const product = await serverGetProductByHandle(handle)
   if (!product) return { title: "Referencia no encontrada", robots: { index: false } }
   const title = product.title
-  const description = (product.description || product.subtitle || `${product.title}, mobiliario en acero inoxidable fabricado en Panamá por KARVEN Medical.`).slice(0, 155)
+  const seoTitle = product.seoTitle?.trim() || `${title} | KARVEN Medical`
+  const description = (product.seoDescription?.trim() || product.description || product.subtitle || `${product.title}, mobiliario en acero inoxidable fabricado en Panamá por KARVEN Medical.`).slice(0, 160)
   const imageUrl = product.thumbnail || product.images[0]?.url
   const image = imageUrl ? await ogImage(imageUrl, `${product.title} KARVEN en acero inoxidable`) : null
   return {
-    title,
+    title: { absolute: seoTitle },
     description,
     alternates: { canonical: `/mobiliario/${product.handle}` },
     openGraph: {
-      title: `${title} | KARVEN Medical`,
+      title: seoTitle,
       description,
       type: "website",
       url: `/mobiliario/${product.handle}`,
       ...(image ? { images: [image] } : {}),
     },
-    twitter: { card: "summary_large_image", title: `${title} | KARVEN Medical`, description, ...(image ? { images: [image.url] } : {}) },
+    twitter: { card: "summary_large_image", title: seoTitle, description, ...(image ? { images: [image.url] } : {}) },
   }
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
   const { handle } = await params
   const [product, tree] = await Promise.all([serverGetProductByHandle(handle), serverGetCategoryTree()])
-  if (!product) notFound()
+  if (!product) {
+    // The admin may have renamed the URL of a published product: follow the stored redirect
+    const target = await serverGetProductRedirect(handle)
+    if (target && target !== handle) permanentRedirect(`/mobiliario/${target}`)
+    notFound()
+  }
 
   const categoryHandle = product.categories[0]?.handle
   const all = flatten(tree)
@@ -65,7 +71,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         ...(product.material ? { material: product.material } : {}),
         ...(category ? { category: category.name } : {}),
         url,
-        offers: product.variants.length > 1
+        ...(product.showPrice && product.price > 0 && product.availability !== "unavailable" ? { offers: product.variants.length > 1
           ? {
               "@type": "AggregateOffer",
               priceCurrency: product.currencyCode,
@@ -81,7 +87,7 @@ export default async function ProductPage({ params }: { params: Params }) {
               priceCurrency: product.currencyCode,
               availability: "https://schema.org/MadeToOrder",
               url,
-            },
+            } } : {}),
       },
       {
         "@type": "BreadcrumbList",

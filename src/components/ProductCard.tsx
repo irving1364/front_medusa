@@ -8,7 +8,7 @@ import SpotlightCard from "@/components/reactbits/SpotlightCard/SpotlightCard"
 import { useCart } from "@/context/CartContext"
 import { formatPrice } from "@/lib/medusa"
 import { useTheme } from "@/lib/theme"
-import type { Product } from "@/types"
+import { AVAILABILITY_LABEL, type Product } from "@/types"
 
 interface ProductCardProps {
   product: Product
@@ -31,6 +31,9 @@ export default function ProductCard({ product, priority = false, size = "default
   }
 
   const materialShort = product.material?.replace("Acero inoxidable ", "Inox ") || null
+  const unavailable = product.availability === "unavailable"
+  const showPrice = product.showPrice && product.price > 0 && !unavailable
+  const thumbAlt = product.images.find((i) => i.url === product.thumbnail)?.alt || product.title
 
   return (
     <SpotlightCard
@@ -44,7 +47,7 @@ export default function ProductCard({ product, priority = false, size = "default
       <Link href={`/mobiliario/${product.handle}`} className="flex h-full flex-col">
         <div className={`plate plate-color rounded-t-[18px] ${size === "wide" ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
           {product.thumbnail ? (
-            <Image src={product.thumbnail} alt={product.title} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-contain p-3 bg-white" />
+            <Image src={product.thumbnail} alt={thumbAlt} fill priority={priority} sizes={size === "wide" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"} className="object-contain p-3 bg-white" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center font-display text-5xl text-text-3">{product.title.charAt(0)}</div>
           )}
@@ -52,7 +55,7 @@ export default function ProductCard({ product, priority = false, size = "default
           {product.badge && (
             <span className="absolute top-3 right-3 px-2 py-1 rounded-md bg-teal text-paper text-[10px] font-semibold uppercase tracking-[0.12em]">{product.badge}</span>
           )}
-          <button
+          {!unavailable && <button
             onClick={quickAdd}
             disabled={isLoading || !product.variantId}
             className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 pl-3 pr-3.5 py-2 rounded-lg bg-ink text-paper text-xs font-semibold opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 transition-all duration-400 disabled:opacity-40"
@@ -60,7 +63,7 @@ export default function ProductCard({ product, priority = false, size = "default
           >
             {added ? <FiCheck className="w-3.5 h-3.5" /> : <FiPlus className="w-3.5 h-3.5" />}
             {added ? "Agregado" : "Cotizar"}
-          </button>
+          </button>}
         </div>
 
         <div className="flex flex-1 flex-col p-5">
@@ -77,7 +80,11 @@ export default function ProductCard({ product, priority = false, size = "default
               {materialShort && <span className="block">{materialShort}</span>}
               {product.dimensions && <span className="block">{product.dimensions}</span>}
             </div>
-            <span className="text-sm font-medium text-ink tnum whitespace-nowrap">{product.priceFrom && <span className="text-text-3 font-normal">Desde </span>}{formatPrice(product.price, product.currencyCode)}</span>
+            {showPrice ? (
+              <span className="text-sm font-medium text-ink tnum whitespace-nowrap">{product.priceFrom && <span className="text-text-3 font-normal">Desde </span>}{formatPrice(product.price, product.currencyCode)}</span>
+            ) : (
+              <span className={`text-xs font-medium whitespace-nowrap ${unavailable ? "text-text-3" : "text-teal"}`}>{unavailable ? AVAILABILITY_LABEL.unavailable : "Solicitar cotización"}</span>
+            )}
           </div>
         </div>
       </Link>

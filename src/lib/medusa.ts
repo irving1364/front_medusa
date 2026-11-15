@@ -33,11 +33,18 @@ export interface MedusaProduct {
   handle: string
   status: string
   thumbnail: string | null
+  material?: string | null
+  length?: number | null
+  width?: number | null
+  height?: number | null
   images: { id: string; url: string }[]
   variants: {
     id: string
     title: string
     sku: string | null
+    length?: number | null
+    width?: number | null
+    height?: number | null
     // Only present when the request includes region_id (Store API never returns raw `prices`)
     calculated_price?: { calculated_amount: number; currency_code: string } | null
   }[]
@@ -73,7 +80,7 @@ export interface MedusaLineItem {
 }
 
 // Fields requested for every product query. `*` adds a relation, `+` adds a field.
-export const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,*categories,+metadata"
+export const PRODUCT_FIELDS = "*variants,*variants.calculated_price,*images,*collection,*categories,+metadata,+material,+length,+width,+height"
 
 // ─── Region ─────────────────────────────────────────────────────────
 
@@ -111,15 +118,25 @@ function toFeatures(value: unknown): string[] {
   return []
 }
 
+const fmtDim = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/.0$/, ""))
+const dimsOf = (l?: number | null, w?: number | null, h?: number | null) => (l || w || h ? `${[l, w, h].map((n) => (n ? fmtDim(n) : "—")).join(" × ")} cm` : null)
+
+const AVAILABILITIES = ["available", "on_order", "custom", "unavailable"]
+
 export function mapMedusaProduct(product: MedusaProduct): Product {
   const meta = product.metadata || {}
+  const alts = (meta.image_alts && typeof meta.image_alts === "object" ? (meta.image_alts as Record<string, string>) : {}) || {}
   const variants = (product.variants || [])
-    .map((v) => ({ id: v.id, title: v.title, sku: v.sku, price: v.calculated_price?.calculated_amount ?? 0 }))
+    .map((v) => ({ id: v.id, title: v.title, sku: v.sku, price: v.calculated_price?.calculated_amount ?? 0, dimensions: dimsOf(v.length, v.width, v.height) }))
     .sort((a, b) => a.price - b.price)
   const variant = product.variants?.find((v) => v.id === variants[0]?.id) || product.variants?.[0]
+  const price = variant?.calculated_price?.calculated_amount ?? 0
   return {
     variants,
     priceFrom: variants.length > 1 || meta.price_from === true,
+    availability: (AVAILABILITIES.includes(String(meta.availability)) ? meta.availability : "on_order") as Product["availability"],
+    // Products saved before the "Productos web" form have no flag: keep showing their price if they have one
+    showPrice: meta.show_price === true || (meta.show_price === undefined && price > 0),
     taxIncluded: meta.tax_included === true,
     uses: toText(meta.uses),
     id: product.id,
@@ -129,17 +146,18 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     handle: product.handle,
     // Fall back to the first gallery image: the admin only sets a thumbnail when one is marked explicitly.
     thumbnail: product.thumbnail || product.images?.[0]?.url || null,
-    images: product.images || [],
-    price: variant?.calculated_price?.calculated_amount ?? 0,
+    images: (product.images || []).map((i) => ({ id: i.id, url: i.url, alt: alts[i.url] || "" })),
+    price,
     currencyCode: (variant?.calculated_price?.currency_code || PREFERRED_CURRENCY).toUpperCase(),
     variantId: variant?.id || null,
     sku: variant?.sku || null,
     collection: product.collection ? { title: product.collection.title, handle: product.collection.handle } : null,
     categories: (product.categories || []).map((c) => ({ id: c.id, name: c.name, handle: c.handle })),
-    material: toText(meta.material),
+    material: toText(product.material || meta.material),
     gauge: toText(meta.gauge),
     finish: toText(meta.finish),
-    dimensions: toText(meta.dimensions),
+    dimensions: toText(meta.dimensions) || dimsOf(product.length, product.width, product.height),
+    dimensionsNote: toText(meta.dim_note),
     capacity: toText(meta.capacity),
     wheels: toText(meta.wheels),
     options: toText(meta.options),
@@ -149,6 +167,8 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     badge: toText(meta.badge),
     datasheetUrl: toText(meta.datasheet_url),
     datasheetName: toText(meta.datasheet_name),
+    seoTitle: toText(meta.seo_title),
+    seoDescription: toText(meta.seo_description),
     createdAt: product.created_at,
   }
 }

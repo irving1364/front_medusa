@@ -11,7 +11,7 @@ import ProductDatasheet from "@/components/ProductDatasheet"
 import { formatPrice } from "@/lib/medusa"
 import { useCategories } from "@/context/CategoriesContext"
 import { useCart } from "@/context/CartContext"
-import type { Product } from "@/types"
+import { AVAILABILITY_LABEL, type Product } from "@/types"
 
 interface ProductDetailProps {
   product: Product
@@ -30,13 +30,17 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
   const selected = product.variants.find((v) => v.id === variantId) || product.variants[0] || null
   const category = get(product.categories[0]?.handle)
   const line = parentOf(category)
-  const images = product.images.length ? product.images : product.thumbnail ? [{ id: "thumb", url: product.thumbnail }] : []
+  const images = product.images.length ? product.images : product.thumbnail ? [{ id: "thumb", url: product.thumbnail, alt: "" }] : []
+  const unavailable = product.availability === "unavailable"
+  const showPrice = product.showPrice && (selected?.price ?? product.price) > 0 && !unavailable
+  const dimensions = selected?.dimensions && product.variants.length > 1 ? selected.dimensions : product.dimensions
   const specs = [
     ["Referencia", product.sku],
+    ["Disponibilidad", AVAILABILITY_LABEL[product.availability]],
     ["Material", product.material],
     ["Calibre / tubo", product.gauge],
     ["Acabado", product.finish],
-    ["Dimensiones", product.dimensions],
+    ["Dimensiones", [dimensions, product.dimensionsNote].filter(Boolean).join(" · ") || null],
     ["Carga", product.capacity],
     ["Ruedas", product.wheels],
     ["Color", product.color],
@@ -53,7 +57,7 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
 
   const categoryName = category?.name || product.categories[0]?.name || product.collection?.title
   const categoryHref = category ? `/${line?.handle || "mobiliario"}?categoria=${category.handle}` : "/mobiliario"
-  const altText = `${product.title} KARVEN en acero inoxidable`
+  const altText = images[activeImage]?.alt || `${product.title} KARVEN${product.material ? ` en ${product.material.toLowerCase()}` : ""}`
 
   return (
     <div className="bg-paper pt-24 lg:pt-28">
@@ -75,7 +79,7 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center font-display text-7xl text-text-3">{product.title.charAt(0)}</div>
                 )}
-                <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">{product.sku}</span>
+                {product.sku && <span className="absolute top-4 left-4 px-2.5 py-1 rounded-md glass mono text-[11px] text-ink">{product.sku}</span>}
               </div>
             </GlareHover>
           </Reveal>
@@ -83,12 +87,12 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
             <div className="mt-4 grid grid-cols-5 gap-3">
               {images.map((img, i) => (
                 <button key={img.id} onClick={() => setActiveImage(i)} className={`plate plate-color aspect-square rounded-xl border ${i === activeImage ? "border-ink" : "border-line"}`} aria-label={`Imagen ${i + 1}`}>
-                  <Image src={img.url} alt="" fill sizes="120px" className="object-cover" />
+                  <Image src={img.url} alt={img.alt || ""} fill sizes="120px" className="object-cover" />
                 </button>
               ))}
             </div>
           )}
-          <p className="mt-4 text-[11px] text-text-3">Imagen de referencia. Las piezas se fabrican bajo pedido según la especificación acordada.</p>
+          {product.availability !== "available" && <p className="mt-4 text-[11px] text-text-3">Imagen de referencia. {product.availability === "custom" ? "Se fabrica a medida según los requisitos acordados." : "Las piezas se fabrican bajo pedido según la especificación acordada."}</p>}
         </div>
 
         <div className="lg:col-span-5">
@@ -97,13 +101,20 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
             <h1 className="display-md mt-4 text-ink text-balance">{product.title}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-text-2">{product.subtitle}</p>}
 
-            <div className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-display text-4xl text-ink tnum whitespace-nowrap">
-                {product.priceFrom && selected?.id === product.variants[0]?.id && <span className="text-xl text-text-3 font-normal mr-1">Desde</span>}
-                {formatPrice(selected?.price ?? product.price, product.currencyCode)}
-              </span>
-              <span className="text-xs text-text-3">{product.taxIncluded ? "ITBMS incluido" : "precio de referencia · ITBMS no incluido"}</span>
-            </div>
+            {showPrice ? (
+              <div className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-display text-4xl text-ink tnum whitespace-nowrap">
+                  {product.priceFrom && selected?.id === product.variants[0]?.id && <span className="text-xl text-text-3 font-normal mr-1">Desde</span>}
+                  {formatPrice(selected?.price ?? product.price, product.currencyCode)}
+                </span>
+                <span className="text-xs text-text-3">{product.taxIncluded ? "ITBMS incluido" : "precio de referencia · ITBMS no incluido"}</span>
+              </div>
+            ) : (
+              <div className="mt-8 flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${unavailable ? "glass text-text-2" : "bg-teal/10 text-teal"}`}><span className={`w-1.5 h-1.5 rounded-full ${unavailable ? "bg-text-3" : "bg-teal"}`} />{AVAILABILITY_LABEL[product.availability]}</span>
+                {!unavailable && <span className="text-xs text-text-3">Precio bajo cotización</span>}
+              </div>
+            )}
 
             {product.variants.length > 1 && (
               <div className="mt-6">
@@ -123,6 +134,9 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
               </div>
             )}
 
+            {unavailable ? (
+              <div className="mt-7 rounded-xl glass px-4 py-3 text-sm text-text-2">Este producto no está disponible actualmente. <Link href="/contacto" className="text-ink underline underline-offset-4">Consúltenos</Link> por alternativas o fabricación a medida.</div>
+            ) : (
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <div className="inline-flex items-center justify-between border border-line-2 rounded-full h-12 px-1.5 sm:w-36">
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-9 h-9 rounded-full inline-flex items-center justify-center text-text-2 hover:bg-paper-2" aria-label="Restar"><FiMinus className="w-4 h-4" /></button>
@@ -134,6 +148,7 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
                 {added ? "Agregado a su cotización" : cartLoading ? "Agregando…" : "Agregar a cotización"}
               </button>
             </div>
+            )}
 
             {product.description && <p className="mt-8 text-text-2 leading-relaxed whitespace-pre-line">{product.description}</p>}
 
