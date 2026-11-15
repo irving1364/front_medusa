@@ -78,13 +78,13 @@ export async function serverGetProductByHandle(handle: string): Promise<Product 
 export async function serverGetProductPreview(handle: string, token: string | undefined): Promise<Product | null> {
   const secret = process.env.PROJECT_PREVIEW_SECRET
   if (!token || !secret || token !== secret) return null
-  const data = await storeGet<{ product: MedusaProduct }>(`/store/product-preview/${encodeURIComponent(handle)}`, { preview: token }, 0)
+  const data = await storeGet<{ product: MedusaProduct }>(`/product-preview/${encodeURIComponent(handle)}`, { preview: token }, 0)
   return data?.product ? mapMedusaProduct(data.product) : null
 }
 
 /** Where an old product URL now lives (set when the handle of a published product is changed in the admin). */
 export async function serverGetProductRedirect(handle: string): Promise<string | null> {
-  const data = await storeGet<{ to_handle: string }>(`/store/product-redirects/${encodeURIComponent(handle)}`, {}, 300)
+  const data = await storeGet<{ to_handle: string }>(`/product-redirects/${encodeURIComponent(handle)}`, {}, 300)
   return data?.to_handle || null
 }
 
