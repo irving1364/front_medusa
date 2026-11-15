@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound, permanentRedirect } from "next/navigation"
 import ProductDetail from "@/components/ProductDetail"
-import { serverGetProductByHandle, serverGetProductRedirect, serverGetProducts, serverGetCategoryTree, SITE_URL } from "@/lib/medusa-server"
+import { serverGetProductByHandle, serverGetProductPreview, serverGetProductRedirect, serverGetProducts, serverGetCategoryTree, SITE_URL } from "@/lib/medusa-server"
+import { AVAILABILITY_LABEL } from "@/types"
 import { flatten } from "@/lib/categories"
 import { ogImage } from "@/lib/og-image"
 
@@ -11,11 +12,21 @@ import { ogImage } from "@/lib/og-image"
 export const revalidate = 60
 
 type Params = Promise<{ handle: string }>
+type Search = Promise<{ preview?: string }>
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { handle } = await params
+/** Published product, or (with the shared secret) a draft for the admin preview. */
+const load = async (params: Params, searchParams: Search) => {
+  const [{ handle }, { preview }] = await Promise.all([params, searchParams])
   const product = await serverGetProductByHandle(handle)
+  if (product) return { product, preview: false }
+  const draft = preview ? await serverGetProductPreview(handle, preview) : null
+  return { product: draft, preview: !!draft }
+}
+
+export async function generateMetadata({ params, searchParams }: { params: Params; searchParams: Search }): Promise<Metadata> {
+  const { product, preview } = await load(params, searchParams)
   if (!product) return { title: "Referencia no encontrada", robots: { index: false } }
+  if (preview) return { title: { absolute: `Vista previa · ${product.title}` }, robots: { index: false, follow: false } }
   const title = product.title
   const seoTitle = product.seoTitle?.trim() || `${title} | KARVEN Medical`
   const description = (product.seoDescription?.trim() || product.description || product.subtitle || `${product.title}, mobiliario en acero inoxidable fabricado en Panamá por KARVEN Medical.`).slice(0, 160)
@@ -36,9 +47,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 }
 
-export default async function ProductPage({ params }: { params: Params }) {
+export default async function ProductPage({ params, searchParams }: { params: Params; searchParams: Search }) {
   const { handle } = await params
-  const [product, tree] = await Promise.all([serverGetProductByHandle(handle), serverGetCategoryTree()])
+  const [{ product, preview }, tree] = await Promise.all([load(params, searchParams), serverGetCategoryTree()])
   if (!product) {
     // The admin may have renamed the URL of a published product: follow the stored redirect
     const target = await serverGetProductRedirect(handle)
@@ -102,7 +113,15 @@ export default async function ProductPage({ params }: { params: Params }) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {!preview && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
+      {preview && (
+        <div className="container-custom pt-24 lg:pt-28 -mb-20 lg:-mb-24 relative z-10">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl glass px-4 py-3 text-sm text-ink">
+            <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-teal animate-pulse" /> Vista previa</span>
+            <span className="text-text-3">Borrador · {AVAILABILITY_LABEL[product.availability]}. Esta página no es pública ni se indexa.</span>
+          </div>
+        </div>
+      )}
       <ProductDetail product={product} related={related} />
       {/* Crawlable fallback link in case the client bundle fails */}
       <noscript><p className="container-custom py-6 text-sm"><Link href="/mobiliario">Volver al mobiliario</Link></p></noscript>
