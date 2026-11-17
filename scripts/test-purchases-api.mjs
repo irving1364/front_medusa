@@ -71,7 +71,7 @@ if (!keep) {
   step("cleanup")
   await admin(`/purchase-orders/${copy.id}`, { method: "DELETE" })
   const cancelled = await fetch(`${BACKEND}/admin/purchase-orders/${order.id}`, { method: "DELETE", headers: H })
-  console.log(` borrar recibida rechazado: ${cancelled.status} (queda como historial)`)
+  console.log(` orden de prueba eliminada: ${cancelled.status}`)
   for (const it of items) await admin(`/purchase-items/${it.id}`, { method: "DELETE" })
   await admin(`/suppliers/${supplier.id}`, { method: "DELETE" })
   console.log(" proveedor y materiales de prueba eliminados")
