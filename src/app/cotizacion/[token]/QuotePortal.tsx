@@ -98,7 +98,7 @@ export default function QuotePortal({ token, initial }: { token: string; initial
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-ink font-medium">{l.ref ? <span className="mono text-xs text-text-3 mr-2">[{l.ref}]</span> : null}{l.title}</p>
-                    <p className="mt-1 text-sm text-text-3">{l.quantity} {l.unit.toLowerCase()} × {money(l.unit_price)}{l.discount_pct ? ` · descuento ${l.discount_pct}%` : ""}{l.tax_rate ? ` · ITBMS ${l.tax_rate}%` : ""}</p>
+                    <p className="mt-1 text-sm text-text-3">{l.quantity} {l.quantity === 1 ? l.unit.toLowerCase().replace(/(es|s)$/, "").replace(/^unidad$/, "unidad") : l.unit.toLowerCase()} × {money(l.unit_price)}{l.discount_pct ? ` · descuento ${l.discount_pct}%` : ""}{l.tax_rate ? ` · ITBMS ${l.tax_rate}%` : ""}</p>
                   </div>
                   <p className="text-ink font-medium tnum">{money(l.amount)}</p>
                 </div>
