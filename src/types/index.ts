@@ -35,6 +35,8 @@ export interface Product {
   dimensions: string | null
   /** Extra note shown next to the dimensions (e.g. "Bandeja removible 50 × 35 cm") */
   dimensionsNote: string | null
+  /** "Tiempo estimado de fabricación" from the admin, e.g. "10–15 días hábiles" */
+  leadTime: string | null
   capacity: string | null
   wheels: string | null
   options: string | null

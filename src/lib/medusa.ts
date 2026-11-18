@@ -158,6 +158,7 @@ export function mapMedusaProduct(product: MedusaProduct): Product {
     finish: toText(meta.finish),
     dimensions: toText(meta.dimensions) || dimsOf(product.length, product.width, product.height),
     dimensionsNote: toText(meta.dim_note),
+    leadTime: toText(meta.lead_time),
     capacity: toText(meta.capacity),
     wheels: toText(meta.wheels),
     options: toText(meta.options),

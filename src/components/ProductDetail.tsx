@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { FiArrowLeft, FiCheck, FiMinus, FiPlus, FiShoppingBag, FiArrowUpRight } from "react-icons/fi"
+import { FiArrowLeft, FiClock, FiCheck, FiMinus, FiPlus, FiShoppingBag, FiArrowUpRight } from "react-icons/fi"
 import GlareHover from "@/components/reactbits/GlareHover/GlareHover"
 import Reveal from "@/components/ui/Reveal"
 import ProductCard from "@/components/ProductCard"
@@ -130,6 +130,16 @@ export default function ProductDetail({ product, related }: ProductDetailProps) 
                       {v.title}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {product.leadTime && (
+              <div className={`mt-6 flex items-start gap-3 ${product.variants.length > 1 ? "border-t border-line pt-5" : ""}`}>
+                <FiClock className="mt-1 w-5 h-5 shrink-0 text-text-2" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-3">Tiempo estimado de fabricación</p>
+                  <p className="mt-1 text-lg text-ink">{product.leadTime}</p>
                 </div>
               </div>
             )}
