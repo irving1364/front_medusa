@@ -9,6 +9,8 @@ export interface PortalQuote {
   customer_ruc: string | null
   issue_date: string
   valid_until: string | null
+  lead_time: string | null
+  lead_time_label: string
   intro_text: string | null
   lines: { ref: string | null; title: string; description: string | null; quantity: number; unit: string; unit_price: number; discount_pct: number; tax_rate: number; amount: number }[]
   totals: { subtotal: number; discount_total: number; tax_total: number; total: number }

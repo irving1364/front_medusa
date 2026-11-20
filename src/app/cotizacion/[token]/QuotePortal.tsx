@@ -83,8 +83,8 @@ export default function QuotePortal({ token, initial }: { token: string; initial
           </div>
         )}
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[["Fecha", dateLong(quote.issue_date)], ["Válida hasta", dateLong(quote.valid_until)], ["Total (ITBMS incl.)", money(quote.totals.total)]].map(([k, v]) => (
+        <div className={`mt-8 grid gap-4 sm:grid-cols-2 ${quote.lead_time ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+          {[["Fecha", dateLong(quote.issue_date)], ["Válida hasta", dateLong(quote.valid_until)], ...(quote.lead_time ? [[quote.lead_time_label, quote.lead_time]] : []), ["Total (ITBMS incl.)", money(quote.totals.total)]].map(([k, v]) => (
             <div key={k} className="card p-5"><p className="mono text-[10px] uppercase tracking-[0.14em] text-text-3">{k}</p><p className="mt-1.5 text-lg text-ink font-medium">{v}</p></div>
           ))}
         </div>
