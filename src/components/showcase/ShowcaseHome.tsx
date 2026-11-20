@@ -44,6 +44,48 @@ const PROCESS = [
 const kicker = "font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal"
 const arrowLink = "inline-flex items-center gap-1.5 text-sm font-semibold text-teal hover:gap-2.5 transition-[gap] duration-300"
 
+/** Stand-in for the fabrication photo: a blueprint-style line drawing (a table with dimension lines and a compass arc) on the dark teal panel of the mockup. */
+function FabricationSketch() {
+  const stroke = "#9CCFD8"
+  return (
+    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[linear-gradient(150deg,#15485A_0%,#0F3442_50%,#0A1E28_100%)] shadow-[0_30px_70px_-40px_rgba(10,30,40,0.8)]" aria-hidden="true">
+      <svg viewBox="0 0 640 400" className="absolute inset-0 h-full w-full" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <defs>
+          <pattern id="fab-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#FFFFFF" strokeOpacity="0.05" strokeWidth="1" /></pattern>
+        </defs>
+        <rect width="640" height="400" fill="url(#fab-grid)" />
+        {/* Floor line */}
+        <path d="M70 318H570" stroke={stroke} strokeOpacity="0.55" strokeWidth="2" />
+        {/* Table: top, legs, lower shelf, wheels */}
+        <g stroke={stroke} strokeWidth="5">
+          <path d="M150 150H430L452 166H128Z" />
+          <path d="M150 166V292M430 166V292" />
+          <path d="M150 248H430" />
+        </g>
+        <g stroke={stroke} strokeWidth="4"><circle cx="150" cy="303" r="10" /><circle cx="430" cy="303" r="10" /></g>
+        {/* Dimension lines */}
+        <g stroke={stroke} strokeOpacity="0.6" strokeWidth="1.5">
+          <path d="M128 122H452M128 114V130M452 114V130" />
+          <path d="M488 150V318M480 150H496M480 318H496" />
+        </g>
+        <g fill={stroke} fillOpacity="0.75" fontFamily="ui-monospace, monospace" fontSize="13" letterSpacing="2">
+          <text x="290" y="108" textAnchor="middle">1500 MM</text>
+          <text x="476" y="238" textAnchor="end">900</text>
+        </g>
+        {/* Compass: hinge, legs and arc */}
+        <g stroke={stroke} strokeWidth="3.5">
+          <path d="M548 70L512 196M548 70L590 190" />
+          <circle cx="548" cy="64" r="7" />
+        </g>
+        <path d="M498 214A64 64 0 0 0 604 208" stroke={stroke} strokeOpacity="0.55" strokeWidth="2" strokeDasharray="5 7" />
+        {/* Measuring circle on the worktop */}
+        <circle cx="290" cy="208" r="34" stroke={stroke} strokeOpacity="0.45" strokeWidth="2" />
+        <path d="M290 166V250M248 208H332" stroke={stroke} strokeOpacity="0.3" strokeWidth="1.2" />
+      </svg>
+    </div>
+  )
+}
+
 /** Numbered section opener: kicker, title, subtitle and an optional link aligned right. */
 function SectionHead({ n, kickerText, title, subtitle, link }: { n: string; kickerText: string; title: string; subtitle: string; link?: { href: string; label: string; external?: boolean } }) {
   return (
@@ -142,9 +184,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
       <section className="section pt-0">
         <div className="container-custom">
           <Reveal className="grid items-center gap-8 md:grid-cols-2 lg:gap-14" stagger={0.12}>
-            <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-paper-3">
-              <Image src="/images/fabricacion.webp" alt="Fabricación de mobiliario en acero inoxidable en el taller de FABMETAL, Panamá" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-            </div>
+            <FabricationSketch />
             <div>
               <p className={kicker}>03 · Soluciones a medida</p>
               <h2 className="display-md mt-3 text-ink">Fabricación a medida</h2>
