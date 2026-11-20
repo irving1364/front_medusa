@@ -87,11 +87,11 @@ function FabricationSketch() {
 }
 
 /** Numbered section opener: kicker, title, subtitle and an optional link aligned right. */
-function SectionHead({ n, kickerText, title, subtitle, link }: { n: string; kickerText: string; title: string; subtitle: string; link?: { href: string; label: string; external?: boolean } }) {
+function SectionHead({ kickerText, title, subtitle, link }: { kickerText: string; title: string; subtitle: string; link?: { href: string; label: string; external?: boolean } }) {
   return (
     <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between" stagger={0.1}>
       <div>
-        <p className={kicker}>{n} · {kickerText}</p>
+        <p className={kicker}>{kickerText}</p>
         <h2 className="display-md mt-3 text-ink text-balance">{title}</h2>
         <p className="mt-3 text-base sm:text-lg text-text-2">{subtitle}</p>
       </div>
@@ -134,7 +134,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
       {/* 01 · Lines */}
       <section className="section">
         <div className="container-custom">
-          <SectionHead n="01" kickerText="Líneas de mobiliario" title="Mobiliario para entornos de atención" subtitle="Tres líneas especializadas. Acceso directo a las categorías y sus modelos." />
+          <SectionHead kickerText="Líneas de mobiliario" title="Mobiliario para entornos de atención" subtitle="Tres líneas especializadas. Acceso directo a las categorías y sus modelos." />
           <Reveal as="ul" className="mt-10 grid gap-6 md:grid-cols-3" stagger={0.1}>
             {parents.map((p) => (
               <li key={p.handle}>
@@ -159,7 +159,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
       {products.length > 0 && (
         <section className="section pt-0">
           <div className="container-custom">
-            <SectionHead n="02" kickerText="Catálogo" title="Modelos KARVEN" subtitle="Modelos propios con dimensiones y características definidas." />
+            <SectionHead kickerText="Catálogo" title="Modelos KARVEN" subtitle="Modelos propios con dimensiones y características definidas." />
             <Reveal as="ul" className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" stagger={0.1}>
               {products.map((p) => (
                 <li key={p.id}>
@@ -186,7 +186,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
           <Reveal className="grid items-center gap-8 md:grid-cols-2 lg:gap-14" stagger={0.12}>
             <FabricationSketch />
             <div>
-              <p className={kicker}>03 · Soluciones a medida</p>
+              <p className={kicker}>Soluciones a medida</p>
               <h2 className="display-md mt-3 text-ink">Fabricación a medida</h2>
               <p className="mt-4 max-w-md text-lg leading-relaxed text-text-2">
                 Comprendemos el uso antes de fabricar. Definimos medidas, materiales y acabados según los requisitos del proyecto.
@@ -200,7 +200,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
       {/* 04 · Process */}
       <section className="section bg-paper-2">
         <div className="container-custom">
-          <SectionHead n="04" kickerText="Nuestra forma de trabajar" title="Cómo trabajamos" subtitle="Del uso previsto al respaldo. Un proceso comprensible y verificable." />
+          <SectionHead kickerText="Nuestra forma de trabajar" title="Cómo trabajamos" subtitle="Del uso previsto al respaldo. Un proceso comprensible y verificable." />
           <Reveal as="ol" className="mt-12 grid grid-cols-2 gap-x-5 gap-y-8 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-4" stagger={0.06}>
             {PROCESS.map((s, i) => (
               <li key={s.title} className="border-t border-line pt-5">
@@ -217,7 +217,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
       {projects.length > 0 && (
         <section className="section">
           <div className="container-custom">
-            <SectionHead n="05" kickerText="Proyectos" title="Nuestro trabajo, documentado." subtitle="Aplicaciones reales, adaptaciones y resultados de fabricación." link={{ href: "/proyectos", label: "Ver proyectos" }} />
+            <SectionHead kickerText="Proyectos" title="Nuestro trabajo, documentado." subtitle="Aplicaciones reales, adaptaciones y resultados de fabricación." link={{ href: "/proyectos", label: "Ver proyectos" }} />
             <Reveal as="ul" className="mt-10 grid gap-8 md:grid-cols-2" stagger={0.1}>
               {projects.map((p) => (
                 <li key={p.slug}>
@@ -246,7 +246,7 @@ export default function ShowcaseHome({ lines, products = [], instagram = [], pro
         <div className="container-custom">
           <Reveal>
             <div className="rounded-[28px] px-6 py-14 sm:py-16 text-center text-white bg-[linear-gradient(160deg,#126E7B_0%,#0E5260_55%,#0B2F3A_100%)] shadow-[0_30px_80px_-40px_rgba(11,47,58,0.6)]">
-              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-white/75">07 · Contacto</p>
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-white/75">Contacto</p>
               <h2 className="display-md mt-3 text-white text-balance">Fabricación y respaldo en Panamá.</h2>
               <p className="mt-4 mx-auto max-w-2xl text-lg text-white/85">Cuéntenos qué necesita. Evaluamos el modelo adecuado o una solución a medida.</p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">

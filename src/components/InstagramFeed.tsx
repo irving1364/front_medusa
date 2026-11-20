@@ -20,7 +20,7 @@ export default function InstagramFeed({ posts, handle, url }: InstagramFeedProps
       <div className="container-custom">
         <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between" stagger={0.1}>
           <div>
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">06 · Fabricación y entregas</p>
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">Fabricación y entregas</p>
             <h2 id="instagram-title" className="display-md mt-3 text-ink">Lo que fabricamos, día a día.</h2>
             <p className="mt-3 text-base sm:text-lg text-text-2">Seguimiento visual de productos, procesos y entregas.</p>
           </div>
