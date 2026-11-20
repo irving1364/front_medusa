@@ -1,350 +1,217 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import dynamic from "next/dynamic"
 import Link from "next/link"
+import Image from "next/image"
 import { FiArrowRight } from "react-icons/fi"
-import SplitText from "@/components/reactbits/SplitText/SplitText"
-import ShinyText from "@/components/reactbits/ShinyText/ShinyText"
-import Magnet from "@/components/reactbits/Magnet/Magnet"
-import ScrollExpand from "@/components/reactbits/ScrollExpand/ScrollExpand"
-import ChromaGrid from "@/components/reactbits/ChromaGrid/ChromaGrid"
-import ScrollReveal from "@/components/reactbits/ScrollReveal/ScrollReveal"
-import ScrollRail from "@/components/showcase/ScrollRail"
-import ScrollStack, { ScrollStackItem } from "@/components/reactbits/ScrollStack/ScrollStack"
-import { useIdle, useInView, useLowPower } from "@/components/showcase/useDeferred"
-
-// WebGL/canvas effects: loaded in their own chunks, mounted after idle / near the viewport, never on low-power devices.
-const LightRays = dynamic(() => import("@/components/reactbits/LightRays/LightRays"), { ssr: false })
-const GradientWaves = dynamic(() => import("@/components/reactbits/GradientWaves/GradientWaves"), { ssr: false })
-const Noise = dynamic(() => import("@/components/reactbits/Noise/Noise"), { ssr: false })
 import Reveal from "@/components/ui/Reveal"
 import InstagramFeed from "@/components/InstagramFeed"
 import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/instagram-meta"
 import type { InstagramPost } from "@/lib/instagram"
-import ProjectCard, { type ProjectCardData } from "@/components/ProjectCard"
-import Image from "next/image"
-import { HERO_PRODUCT } from "@/lib/catalog"
+import type { ProjectCardData } from "@/components/ProjectCard"
 import { useCategories } from "@/context/CategoriesContext"
-import { getProducts } from "@/lib/medusa"
-import { useTheme } from "@/lib/theme"
 import type { CategoryNode } from "@/lib/categories"
 import type { Product } from "@/types"
 
 interface ShowcaseHomeProps {
   /** Product lines fetched on the server (so the HTML carries real links); falls back to the client context */
   lines?: CategoryNode[]
-  /** Featured products fetched on the server */
+  /** Featured products ("Destacados" collection) fetched on the server */
   products?: Product[]
   /** Latest Instagram posts fetched on the server (empty -> section hidden) */
   instagram?: InstagramPost[]
-  /** Latest published projects from the Medusa admin (up to three) */
+  /** Latest published projects from the Medusa admin */
   projects?: ProjectCardData[]
 }
 
-/** Short "productos incluidos" summary per line for the SEO links block (falls back to the category description). */
+/** One-line summary per line, as in the client's home mockup (falls back to the category description). */
 const LINE_SUMMARY: Record<string, string> = {
-  "mobiliario-medico": "Camillas, sillas clínicas, mesas de instrumental, carros hospitalarios, lavamanos y auxiliares.",
-  "mobiliario-veterinario": "Mesas de exploración y tratamiento, jaulas de hospitalización y mobiliario auxiliar.",
-  "mobiliario-tecnico": "Mesones, estaciones de trabajo, muebles, fregadores y almacenamiento para entornos sanitarios y técnicos especializados.",
+  "mobiliario-medico": "Camillas, instrumental, carros y auxiliares",
+  "mobiliario-veterinario": "Mesas, jaulas y mobiliario para atención",
+  "mobiliario-tecnico": "Mesones, estaciones y almacenamiento",
 }
 
 const PROCESS = [
-  { n: "01", title: "Levantamiento", text: "Visitamos el área o revisamos los planos. Medimos, fotografiamos y anotamos flujos de trabajo, puntos de agua y eléctricos." },
-  { n: "02", title: "Diseño y cotización", text: "Dibujamos cada pieza con cotas, definimos calibres y acabados, y entregamos una cotización formal con plazo." },
-  { n: "03", title: "Corte y plegado", text: "Corte láser y plegado CNC sobre lámina 304 o 316 en calibres 20 a 14 según la carga de la pieza." },
-  { n: "04", title: "Soldadura TIG", text: "Soldadura continua con aporte del mismo material. Sin salpicaduras ni cordones visibles en superficies de contacto." },
-  { n: "05", title: "Pulido y pasivado", text: "Pulido sanitario grano 180, esquinas radiadas y pasivado en piezas 316 y en contacto con fluidos." },
-  { n: "06", title: "Instalación", text: "Transporte e instalación con equipo propio en Ciudad de Panamá. Nivelación, fijación y entrega con el personal del área." },
+  { title: "Escuchar", text: "Comprendemos la necesidad y el entorno de uso." },
+  { title: "Definir", text: "Establecemos función, medidas y materiales." },
+  { title: "Diseñar", text: "Resolvemos estructura, uso, limpieza y mantenimiento." },
+  { title: "Planificar", text: "Organizamos materiales, tiempos y controles." },
+  { title: "Fabricar", text: "Producimos conforme a lo aprobado." },
+  { title: "Verificar", text: "Comprobamos dimensiones, función y acabados." },
+  { title: "Respaldar", text: "Atendemos garantía y observaciones aplicables." },
+  { title: "Mejorar", text: "Documentamos aprendizajes y corregimos procesos." },
 ]
 
-/** Cinematic home built on React Bits; every WebGL effect takes theme-aware colours. */
-export default function ShowcaseHome({ lines, products: initialProducts, instagram = [], projects = [] }: ShowcaseHomeProps) {
-  const [products, setProducts] = useState<Product[]>(initialProducts ?? [])
+const kicker = "font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal"
+const arrowLink = "inline-flex items-center gap-1.5 text-sm font-semibold text-teal hover:gap-2.5 transition-[gap] duration-300"
+
+/** Numbered section opener: kicker, title, subtitle and an optional link aligned right. */
+function SectionHead({ n, kickerText, title, subtitle, link }: { n: string; kickerText: string; title: string; subtitle: string; link?: { href: string; label: string; external?: boolean } }) {
+  return (
+    <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between" stagger={0.1}>
+      <div>
+        <p className={kicker}>{n} · {kickerText}</p>
+        <h2 className="display-md mt-3 text-ink text-balance">{title}</h2>
+        <p className="mt-3 text-base sm:text-lg text-text-2">{subtitle}</p>
+      </div>
+      {link && (link.external
+        ? <a href={link.href} target="_blank" rel="noreferrer" className={`${arrowLink} shrink-0`}>{link.label} <FiArrowRight className="w-3.5 h-3.5" /></a>
+        : <Link href={link.href} className={`${arrowLink} shrink-0`}>{link.label} <FiArrowRight className="w-3.5 h-3.5" /></Link>)}
+    </Reveal>
+  )
+}
+
+/** Home following the client's mockup: calm hero, lines, own models, custom fabrication, process, projects, Instagram and contact. */
+export default function ShowcaseHome({ lines, products = [], instagram = [], projects = [] }: ShowcaseHomeProps) {
   const ctx = useCategories()
   const parents = lines && lines.length ? lines : ctx.parents
-  const theme = useTheme()
-  const light = theme === "light"
-  const idle = useIdle(1200)
-  const lowPower = useLowPower()
-  const ctaRef = useRef<HTMLDivElement>(null)
-  const ctaInView = useInView(ctaRef, "600px")
-  const effects = idle && !lowPower
-
-  useEffect(() => {
-    if (initialProducts && initialProducts.length) return
-    getProducts({ limit: 6 })
-      .then((res) => setProducts(res.products.filter((p) => p.thumbnail).slice(0, 3)))
-      .catch((error) => console.error("Error loading products:", error))
-  }, [initialProducts])
-
-  // ChromaGrid renders plain <img>, so route its images through the Next image optimizer (cards are ~400 px wide).
-  const opt = (src: string, w = 640) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`
-  const chromaItems = [
-    ...parents.map((p) => ({ image: opt(p.image), title: p.name, subtitle: `${p.children.length} categorías`, accent: "#2FB1C2", url: `/${p.handle}`, alt: p.name })),
-    { image: opt(HERO_PRODUCT.image), title: "Catálogo completo", subtitle: "Todas las referencias", accent: "#8BE0EA", url: "/mobiliario", alt: "Catálogo" },
-  ]
 
   return (
     <div className="bg-paper text-ink">
-      {/* 1 · Hero: light rays + split headline */}
-      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
-        <div className="absolute inset-0" aria-hidden="true">
-          {/* Static stand-in painted immediately; the shader fades in on top once the page is idle */}
-          <div className={`absolute inset-0 transition-opacity duration-1000 ${effects ? "opacity-40" : "opacity-100"}`} style={{ background: light ? "radial-gradient(60% 55% at 50% -5%, rgba(14,122,136,0.22), transparent 70%)" : "radial-gradient(60% 55% at 50% -5%, rgba(139,224,234,0.28), transparent 70%)" }} />
-          {effects && (
-            <div className="absolute inset-0 animate-fade-in" style={{ animationDuration: "1.2s" }}>
-              <LightRays
-                key={theme}
-                lightMode={light}
-                raysOrigin="top-center"
-                raysColor={light ? "#0E7A88" : "#8BE0EA"}
-                raysSpeed={0.9}
-                lightSpread={0.65}
-                rayLength={2.6}
-                rayDensity={1.1}
-                raySharpness={0.4}
-                glow={light ? 0.5 : 0.7}
-                haze={0.3}
-                atmosphere={1}
-                intensity={light ? 0.75 : 0.95}
-                pulsating
-                followMouse
-                mouseInfluence={0.14}
-                cursorShadow={false}
-                clickPulse={false}
-                noiseAmount={0.04}
-                maxDevicePixelRatio={1.25}
-                className="w-full h-full"
-              />
+      {/* Hero */}
+      <section className="pt-24 sm:pt-28">
+        <div className="container-custom">
+          <div className="relative overflow-hidden rounded-[28px] border border-line px-6 py-16 sm:py-20 text-center bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-paper-2)_96%,transparent),color-mix(in_srgb,var(--color-teal)_7%,var(--color-paper-2)))] shadow-[0_30px_80px_-50px_rgba(15,19,24,0.35)]">
+            <p className={`${kicker} animate-rise`}>KARVEN Medical · Panamá</p>
+            <h1 className="display-lg mt-6 text-ink text-balance max-w-4xl mx-auto animate-rise" style={{ animationDelay: "80ms" }}>
+              Mobiliario médico y veterinario diseñado y fabricado en Panamá.
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl leading-relaxed text-text-2 animate-rise" style={{ animationDelay: "160ms" }}>
+              Modelos propios y soluciones a medida para entornos médicos, veterinarios y técnicos, con respaldo local.
+            </p>
+            <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3 animate-rise" style={{ animationDelay: "240ms" }}>
+              <Link href="/mobiliario" className="btn btn-teal px-7">Explorar mobiliario</Link>
+              <Link href="/contacto" className="btn btn-outline px-7">Solicitar cotización</Link>
             </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-paper/20 to-paper" />
-          {effects && <Noise key={`noise-${theme}`} opacity={light ? 0.05 : 0.07} size={1} fps={12} blendMode={light ? "multiply" : "overlay"} />}
-        </div>
-
-        <div className="relative container-custom pt-32 pb-24 text-center">
-          <div className="flex justify-center">
-            <ShinyText key={`shine-${theme}`} text="KARVEN MEDICAL · PANAMÁ" color={light ? "#0E7A88" : "#8BE0EA"} shineColor={light ? "#8BE0EA" : "#FFFFFF"} speed={3} className="eyebrow" />
+            <p className="mt-10 font-display text-lg sm:text-xl font-semibold text-ink animate-fade-in" style={{ animationDelay: "400ms" }}>
+              Existimos para sostener a quienes cuidan.
+            </p>
           </div>
-          <SplitText
-            text="Mobiliario médico y veterinario diseñado y fabricado en Panamá."
-            tag="h1"
-            className="display-lg mt-6 text-ink text-balance max-w-5xl mx-auto"
-            splitType="words"
-            effect="rise"
-            trigger="load"
-            delay={45}
-            duration={1.1}
-            ease="power4.out"
-            textAlign="center"
-            threshold={0}
-            rootMargin="0px"
-            respectReducedMotion={false}
-          />
-          <p className="subtitle mt-6 max-w-2xl mx-auto animate-rise" style={{ animationDelay: "700ms" }}>
-            Desarrollamos, fabricamos y respaldamos mobiliario para entornos médicos, veterinarios y técnicos. Productos propios y soluciones a medida, con fabricación local por FABMETAL.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-rise" style={{ animationDelay: "850ms" }}>
-            <Magnet padding={80} magnetStrength={3} scale={1.03}>
-              <Link href="/mobiliario" className="btn btn-teal px-7 py-4 text-base">Explorar mobiliario <FiArrowRight className="w-4 h-4" /></Link>
-            </Magnet>
-            <Magnet padding={80} magnetStrength={3} scale={1.03}>
-              <Link href="/contacto" className="btn btn-outline px-7 py-4 text-base">Solicitar cotización</Link>
-            </Magnet>
-          </div>
-          <p className="mt-16 font-display text-xl sm:text-2xl text-text-2 animate-fade-in" style={{ animationDelay: "1200ms" }}>Existimos para sostener a quienes cuidan.</p>
         </div>
       </section>
 
-      {/* 2 · Scroll-expanding product frame */}
-      <section className="relative">
-        <ScrollExpand
-          src={`/_next/image?url=${encodeURIComponent(HERO_PRODUCT.image)}&w=1920&q=75`}
-          alt={HERO_PRODUCT.label}
-          title={HERO_PRODUCT.label}
-          scrollHint={HERO_PRODUCT.spec}
-          startWidth={46}
-          startHeight={58}
-          startRadius={28}
-          endRadius={0}
-          mediaZoom={1.25}
-          scrollDistance={1.1}
-          holdDistance={0.3}
-          overlayScrim={0.35}
-          useWindowScroll
-          className="[--se-title-size:clamp(2rem,5vw,4.5rem)]"
-        />
-      </section>
-
-      {/* 3 · Families as a chroma grid */}
+      {/* 01 · Lines */}
       <section className="section">
         <div className="container-custom">
-          <Reveal as="header" className="section-head" stagger={0.1}>
-            <p className="eyebrow text-teal justify-center">Mobiliario</p>
-            <h2 className="display-md mt-4 text-ink">Mobiliario para entornos de atención</h2>
-            <p className="subtitle">Tres líneas de producto, diseñadas y fabricadas en Panamá. Pase el cursor: cada pieza recupera su color.</p>
-          </Reveal>
-          <Reveal className="mt-14" distance={32} delay={0.1}>
-            <ChromaGrid
-              items={chromaItems}
-              columns={4}
-              minCardWidth={240}
-              gap={14}
-              radius={320}
-              softness={0.65}
-              damping={0.4}
-              grayscale={1}
-              dim={light ? 0.06 : 0.18}
-              glow={light ? 0.35 : 0.55}
-              borderGlow={1}
-              reveal="spotlight"
-              aspectRatio="4 / 3"
-              cardRadius={20}
-              showInfo
-              theme={theme}
-            />
-          </Reveal>
-
-          {/* The three most important links of the home: real anchors, server-rendered */}
-          <Reveal as="ul" className="mt-12 grid md:grid-cols-3 gap-5" stagger={0.12}>
+          <SectionHead n="01" kickerText="Líneas de mobiliario" title="Mobiliario para entornos de atención" subtitle="Tres líneas especializadas. Acceso directo a las categorías y sus modelos." />
+          <Reveal as="ul" className="mt-10 grid gap-6 md:grid-cols-3" stagger={0.1}>
             {parents.map((p) => (
               <li key={p.handle}>
-                <Link href={`/${p.handle}`} className="group card shadow-card h-full flex items-start gap-4 p-4 hover:border-teal/40 transition-colors">
-                  <span className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-paper-3">
-                    <Image src={p.image} alt={`${p.name} KARVEN en acero inoxidable`} fill sizes="80px" className="object-cover" />
-                  </span>
-                  <span className="min-w-0">
-                    <h3 className="font-display text-lg text-ink group-hover:text-teal transition-colors">{p.name}</h3>
-                    <p className="mt-1 text-sm text-text-2 leading-snug">{LINE_SUMMARY[p.handle] || p.description}</p>
-                    <span className="link-arrow !text-sm mt-2">Ver línea</span>
-                  </span>
+                <Link href={`/${p.handle}`} className="group block">
+                  <div className="plate plate-color aspect-[16/10] rounded-2xl bg-paper-3">
+                    <Image src={p.image} alt={`${p.name} KARVEN en acero inoxidable`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+                  </div>
+                  <div className="px-1 pt-4">
+                    <h3 className="font-display text-xl font-semibold text-ink group-hover:text-teal transition-colors">{p.name}</h3>
+                    <p className="mt-1 text-sm text-text-2">{LINE_SUMMARY[p.handle] || p.description}</p>
+                    <span className={`${arrowLink} mt-3`}>Ver línea <FiArrowRight className="w-3.5 h-3.5" /></span>
+                  </div>
                 </Link>
+              </li>
+            ))}
+          </Reveal>
+          <p className="mt-10 text-center"><Link href="/mobiliario" className={arrowLink}>Ver catálogo completo <FiArrowRight className="w-3.5 h-3.5" /></Link></p>
+        </div>
+      </section>
+
+      {/* 02 · Own models (Destacados) */}
+      {products.length > 0 && (
+        <section className="section pt-0">
+          <div className="container-custom">
+            <SectionHead n="02" kickerText="Catálogo" title="Modelos KARVEN" subtitle="Modelos propios con dimensiones y características definidas." />
+            <Reveal as="ul" className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" stagger={0.1}>
+              {products.map((p) => (
+                <li key={p.id}>
+                  <Link href={`/mobiliario/${p.handle}`} className="group block">
+                    <div className="plate plate-color aspect-[4/3] rounded-2xl bg-white">
+                      {p.thumbnail && <Image src={p.thumbnail} alt={p.images[0]?.alt || p.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain p-4" />}
+                    </div>
+                    <div className="px-1 pt-4">
+                      <p className={kicker}>{p.sku || p.categories[0]?.name || "Modelo propio"}</p>
+                      <h3 className="mt-2 font-display text-lg font-semibold text-ink group-hover:text-teal transition-colors">{p.title}</h3>
+                      <span className={`${arrowLink} mt-2`}>Ver ficha <FiArrowRight className="w-3.5 h-3.5" /></span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* 03 · Custom fabrication */}
+      <section className="section pt-0">
+        <div className="container-custom">
+          <Reveal className="grid items-center gap-8 md:grid-cols-2 lg:gap-14" stagger={0.12}>
+            <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-paper-3">
+              <Image src="/images/fabricacion.webp" alt="Fabricación de mobiliario en acero inoxidable en el taller de FABMETAL, Panamá" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+            </div>
+            <div>
+              <p className={kicker}>03 · Soluciones a medida</p>
+              <h2 className="display-md mt-3 text-ink">Fabricación a medida</h2>
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-text-2">
+                Comprendemos el uso antes de fabricar. Definimos medidas, materiales y acabados según los requisitos del proyecto.
+              </p>
+              <Link href="/fabricacion-a-medida" className="btn btn-teal mt-7 px-7">Conocer el proceso</Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 04 · Process */}
+      <section className="section bg-paper-2">
+        <div className="container-custom">
+          <SectionHead n="04" kickerText="Nuestra forma de trabajar" title="Cómo trabajamos" subtitle="Del uso previsto al respaldo. Un proceso comprensible y verificable." />
+          <Reveal as="ol" className="mt-12 grid grid-cols-2 gap-x-5 gap-y-8 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-4" stagger={0.06}>
+            {PROCESS.map((s, i) => (
+              <li key={s.title} className="border-t border-line pt-5">
+                <span className="font-mono text-[11px] font-medium tracking-[0.18em] text-teal">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="mt-2 font-display text-lg font-semibold text-ink">{s.title}</h3>
+                <p className="mt-1.5 max-w-[16rem] text-sm leading-relaxed text-text-2">{s.text}</p>
               </li>
             ))}
           </Reveal>
         </div>
       </section>
 
-      {/* 4 · Statement */}
-      <section className="section bg-paper-2">
-        <div className="container-custom max-w-5xl">
-          <Reveal stagger={0.1}>
-            <p className="eyebrow text-teal">Fabricación</p>
-            <h2 className="display-md mt-4 text-ink">Fabricación de mobiliario a medida</h2>
-            <p className="subtitle mt-3">Desarrollo, adaptación y fabricación según requisitos definidos.</p>
-          </Reveal>
-          <ScrollReveal
-            respectReducedMotion={false}
-            baseOpacity={0.1}
-            baseRotation={1.2}
-            blurStrength={5}
-            stagger={0.035}
-            splitBy="words"
-            containerClassName="mt-8"
-            textClassName="font-display display-md text-ink text-balance"
-          >
-            Trabajamos el acero inoxidable como se trabaja un instrumento: sin aristas, sin juntas donde se acumule nada, y con una soldadura que no se nota al tacto.
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* 5 · Scroll-driven rail of three references; the page keeps scrolling after the third */}
-      <section className="relative">
-        <ScrollRail products={products} />
-      </section>
-
-      {/* 6 · Process as a scroll stack */}
-      <section className="section bg-paper-2">
-        <div className="container-custom">
-          <Reveal as="header" className="section-head" stagger={0.1}>
-            <p className="eyebrow text-teal justify-center">Proceso</p>
-            <h2 className="display-md mt-4 text-ink">Cómo trabajamos</h2>
-            <p className="subtitle">Comprender, definir, diseñar, planificar, fabricar, verificar y respaldar. Del levantamiento a la instalación, sin intermediarios.</p>
-          </Reveal>
-        </div>
-        <div className="container-custom max-w-4xl mt-10">
-          <ScrollStack useWindowScroll smoothScroll={false} itemDistance={120} itemStackDistance={22} stackPosition="18%" baseScale={0.86} itemScale={0.035} dimAmount={light ? 0.1 : 0.25} blurAmount={1.5} holdDistance={160}>
-            {PROCESS.map((s) => (
-              <ScrollStackItem key={s.n} itemClassName="!bg-paper-2 !text-ink border border-line !shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)] !p-8 sm:!p-12 !h-auto min-h-[18rem]">
-                <span className="mono text-sm text-teal">{s.n}</span>
-                <h3 className="mt-4 font-display text-3xl sm:text-4xl text-ink">{s.title}</h3>
-                <p className="mt-4 body-lg text-text-2 max-w-xl">{s.text}</p>
-              </ScrollStackItem>
-            ))}
-          </ScrollStack>
-        </div>
-      </section>
-
-      {/* 7 · Projects (only what is published from the Medusa admin) */}
-      <section className="section">
-        <div className="container-custom">
-          <Reveal className="rule-strong pt-6 grid lg:grid-cols-12 gap-6 items-end" stagger={0.15}>
-            <div className="lg:col-span-7">
-              <p className="eyebrow text-teal">Proyectos</p>
-              <h2 className="display-md mt-4 text-ink text-balance">Nuestro trabajo, documentado.</h2>
-            </div>
-            <div className="lg:col-span-5 space-y-3 text-base leading-relaxed text-text-2">
-              <p>Conozca proyectos de mobiliario médico, veterinario y técnico desarrollados y fabricados en Panamá.</p>
-              <p>Fotografías, procesos y soluciones para distintas necesidades de atención, trabajo e infraestructura sanitaria.</p>
-              <p className="pt-1"><Link href="/proyectos" className="link-arrow">Ver todos los proyectos</Link></p>
-            </div>
-          </Reveal>
-          {projects.length > 0 && (
-            <Reveal as="ul" className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.1}>
-              {projects.map((p) => <li key={p.slug} className="h-full"><ProjectCard p={p} heading="h3" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" /></li>)}
+      {/* 05 · Projects (only what is published from the Medusa admin) */}
+      {projects.length > 0 && (
+        <section className="section">
+          <div className="container-custom">
+            <SectionHead n="05" kickerText="Proyectos" title="Nuestro trabajo, documentado." subtitle="Aplicaciones reales, adaptaciones y resultados de fabricación." link={{ href: "/proyectos", label: "Ver proyectos" }} />
+            <Reveal as="ul" className="mt-10 grid gap-8 md:grid-cols-2" stagger={0.1}>
+              {projects.map((p) => (
+                <li key={p.slug}>
+                  <Link href={`/proyectos/${p.slug}`} className="group block">
+                    <div className="plate plate-color aspect-[16/9] rounded-2xl bg-paper-3">
+                      {p.cover && <Image src={p.cover} alt={p.coverAlt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-[1.2s] [transition-timing-function:var(--ease-out-expo)] group-hover:scale-[1.03]" />}
+                    </div>
+                    <div className="px-1 pt-4">
+                      <p className={kicker}>{p.specialty || p.lineLabel}</p>
+                      <h3 className="mt-2 font-display text-xl font-semibold text-ink group-hover:text-teal transition-colors">{p.title}</h3>
+                      <span className="mt-2 inline-flex items-center gap-1.5 text-sm text-text-2 group-hover:text-teal transition-colors">Ver proyecto y configuración <FiArrowRight className="w-3.5 h-3.5" /></span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
             </Reveal>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
-      {/* 8 · Instagram */}
+      {/* 06 · Instagram */}
       <InstagramFeed posts={instagram} handle={INSTAGRAM_HANDLE} url={INSTAGRAM_URL} />
 
-      {/* 9 · CTA on waves */}
+      {/* 07 · Contact */}
       <section className="section pt-0">
         <div className="container-custom">
           <Reveal>
-            <div ref={ctaRef} className="relative panel overflow-hidden">
-              <div className="absolute inset-0" aria-hidden="true">
-                {/* Static gradient first; the wave shader mounts only when this panel scrolls near the viewport */}
-                <div className="absolute inset-0" style={{ background: light ? "linear-gradient(180deg, #FFFFFF 0%, rgba(139,224,234,0.35) 60%, rgba(47,177,194,0.45) 100%)" : "linear-gradient(180deg, #0A0C10 0%, rgba(14,107,120,0.55) 60%, rgba(47,177,194,0.5) 100%)" }} />
-                {effects && ctaInView && (
-                  <div className="absolute inset-0 animate-fade-in" style={{ animationDuration: "1.2s" }}>
-                    <GradientWaves
-                      key={`waves-${theme}`}
-                      lightMode={light}
-                      horizonColor={light ? "#8BE0EA" : "#0E6B78"}
-                      waveColor="#2FB1C2"
-                      crestColor={light ? "#FFFFFF" : "#C6F0F5"}
-                      backgroundColor={light ? "#FFFFFF" : "#0A0C10"}
-                      speed={0.3}
-                      amplitude={2.4}
-                      swell={34}
-                      turbulence={16}
-                      brightness={light ? 1 : 1.25}
-                      grain={0.2}
-                      quality="low"
-                      dpr={1.25}
-                      mouseInteraction
-                      parallaxStrength={0.4}
-                      mouseStrength={0.5}
-                      swellOnClick
-                    />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-b from-paper/70 via-transparent to-paper/80 pointer-events-none" />
-              </div>
-              <div className="relative section-head py-20 sm:py-28 px-6 pointer-events-none">
-                <p className="eyebrow text-teal justify-center">Respaldo</p>
-                <h2 className="display-lg mt-4 text-ink text-balance">Fabricación y respaldo en Panamá</h2>
-                <p className="subtitle">KARVEN Medical y la capacidad productiva de FABMETAL. Envíe la lista de piezas o los planos del área y reciba una propuesta.</p>
-                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
-                  <Magnet padding={80} magnetStrength={3} scale={1.03}>
-                    <Link href="/contacto" className="btn btn-teal px-7 py-4 text-base">Solicitar cotización <FiArrowRight className="w-4 h-4" /></Link>
-                  </Magnet>
-                  <Link href="/mobiliario" className="link-arrow">Armar lista desde el catálogo</Link>
-                </div>
+            <div className="rounded-[28px] px-6 py-14 sm:py-16 text-center text-white bg-[linear-gradient(160deg,#126E7B_0%,#0E5260_55%,#0B2F3A_100%)] shadow-[0_30px_80px_-40px_rgba(11,47,58,0.6)]">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-white/75">07 · Contacto</p>
+              <h2 className="display-md mt-3 text-white text-balance">Fabricación y respaldo en Panamá.</h2>
+              <p className="mt-4 mx-auto max-w-2xl text-lg text-white/85">Cuéntenos qué necesita. Evaluamos el modelo adecuado o una solución a medida.</p>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link href="/contacto" className="btn bg-white px-7 text-[#0B2F3A] hover:bg-white/90">Solicitar cotización</Link>
+                <Link href="/mobiliario" className="btn border border-white/70 px-7 text-white hover:bg-white/10">Explorar catálogo</Link>
               </div>
             </div>
           </Reveal>

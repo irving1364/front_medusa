@@ -17,7 +17,7 @@ interface RevealProps {
   /** Seconds the transition lasts */
   duration?: number
   /** Element rendered as the wrapper (use "ul" to stagger list items) */
-  as?: "div" | "ul" | "section" | "header"
+  as?: "div" | "ul" | "ol" | "section" | "header"
 }
 
 /**
